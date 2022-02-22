@@ -7,7 +7,7 @@ class IntervalBase(RecordCollectionBase):
         self._sorted = False
     def format(self, fmt, **kwargs):
         return FormatedInterval(self, fmt, **kwargs)
-    def alter(self, fmt, **kwargs):
+    def alter(self, **kwargs):
         return AlteredInterval(self, **kwargs)        
     def filter(self, cond, *args):
         return FilteredInterval(self, cond, *args)

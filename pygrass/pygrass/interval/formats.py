@@ -18,12 +18,16 @@ class IntervalFile(IntervalFormatBase):
         super().__init__()
         arg_bag = dict()
         file_type = detect_file_format(path, arg_bag)
-        if file_type == "cram" or file_type == "bam":
+        if file_type == "cram":
+            self._inner = CramFile(path, sorted)
+        elif file_type == "bam":
             self._inner = BamFile(path, sorted)
         elif file_type == "bed":
             self._inner = BedFile(path, sorted, **arg_bag)
         elif file_type == "vcf":
             self._inner = VcfFile(path, sorted, **arg_bag)
+        else:
+            raise RuntimeError("Unsupported file format " + file_type)
     def emit_eval_code(self):
         return self._inner.emit_eval_code()
 
@@ -32,6 +36,13 @@ class BamFile(IntervalFormatBase):
         super().__init__()
         self._verb = "open-bam"
         self._args = ["{}".format(repr(path))]
+        self._sorted = sorted
+
+class CramFile(IntervalFormatBase):
+    def __init__(self, path, sorted = True, ref = ""):
+        super().__init__()
+        self._verb = "open-cram"
+        self._args = ["{}".format(repr(path)), "(ref {})".format(repr(ref))]
         self._sorted = sorted
 
 class BedFile(IntervalFormatBase):
