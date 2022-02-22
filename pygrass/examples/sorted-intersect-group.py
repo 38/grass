@@ -10,4 +10,4 @@ result = first_file.intersect(second_file)
 
 group_result = result.group(chr, start, end)
 
-group_result.format("{item}\t{count}", item = item[0], count = item.count())
+group_result.format("{item}\t{count}", item = item[0], count = item.count()).print_to_stdout()

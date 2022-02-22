@@ -1,20 +1,13 @@
 from pygrass.interval.base import IntervalBase
 from pygrass.file_format import detect_file_format
+from pygrass.ir import IRBase, OpenFile
 
 class IntervalFormatBase(IntervalBase):
-    def __init__(self, sorted = True):
+    def __init__(self, sorted : bool = True):
         super().__init__()
-        self._verb = "dummy-interval-input"
-        self._args = []
-        self._sorted = sorted
-    def emit_eval_code(self):
-        if self._sorted:
-            return "(assume-sorted ({verb} {args}))".format(verb = self._verb, args = " ".join(self._args))
-        else:
-            return "({verb} {args})".format(verb = self._verb, args = " ".join(self._args))
 
 class IntervalFile(IntervalFormatBase):
-    def __init__(self, path, sorted = True):
+    def __init__(self, path : str, sorted : bool = True):
         super().__init__()
         arg_bag = dict()
         file_type = detect_file_format(path, arg_bag)
@@ -28,37 +21,65 @@ class IntervalFile(IntervalFormatBase):
             self._inner = VcfFile(path, sorted, **arg_bag)
         else:
             raise RuntimeError("Unsupported file format " + file_type)
-    def emit_eval_code(self):
+    def emit_eval_code(self) -> IRBase:
         return self._inner.emit_eval_code()
 
 class BamFile(IntervalFormatBase):
-    def __init__(self, path, sorted = True):
+    def __init__(self, path : str, sorted : bool = True):
         super().__init__()
-        self._verb = "open-bam"
-        self._args = ["{}".format(repr(path))]
+        self._path = path
         self._sorted = sorted
+    def emit_eval_code(self) -> IRBase:
+        return OpenFile(
+            path = self._path,
+            format = "Bam",
+            sorted = self._sorted
+        )
 
 class CramFile(IntervalFormatBase):
-    def __init__(self, path, sorted = True, ref = ""):
+    def __init__(self, path : str, sorted : bool = True, ref : str = None):
         super().__init__()
         self._verb = "open-cram"
-        self._args = ["{}".format(repr(path)), "(ref {})".format(repr(ref))]
+        self._path = path
+        self._ref = ref
         self._sorted = sorted
+    def emit_eval_code(self) -> IRBase:
+        return OpenFile(
+            path = self._path,
+            format = "Cram",
+            sorted = self._sorted,
+            ref = self._ref
+        )
 
 class BedFile(IntervalFormatBase):
-    def __init__(self, path, sorted = True, num_of_fields = 3, compressed = False):
+    def __init__(self, path : str, sorted : bool = True, num_of_fields : int = 3, compressed : bool = False):
         super().__init__()
-        self._verb = "open-bed"
         self._sorted = sorted
-        self._args = [str(num_of_fields), "{}".format(repr(path)), "compressed" if compressed else "uncompressed"]
+        self._path = path
+        self._compressed = compressed
+        self._nof = num_of_fields
+    def emit_eval_code(self) -> IRBase:
+        return OpenFile(
+            path = self._path,
+            format = "Bed",
+            sorted = self._sorted,
+            compression = self._compressed,
+            num_of_fields = self._nof
+        )
 
 class VcfFile(IntervalFormatBase):
-    def __init__(self, path, sorted = True, compressed = False):
+    def __init__(self, path : str, sorted : bool = True, compressed : bool = False):
         super().__init__()
-        self._verb = "open-vcf"
         self._sorted = sorted
-        self._args = ["{}".format(repr(path)), "compressed" if compressed else "uncompressed"]
-
+        self._path = path
+        self._compressed = compressed
+    def emit_eval_code(self) -> IRBase:
+        return OpenFile(
+            path = self._path,
+            format = "Vcf",
+            sorted = self._sorted,
+            compression = self._compressed,
+        )
 class Bed3File(BedFile):
-    def __init__(self, path, sorted = True):
+    def __init__(self, path : str, sorted : bool = True):
         super().__init__(path, sorted, num_of_fields= 3)

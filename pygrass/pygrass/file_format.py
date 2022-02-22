@@ -1,12 +1,12 @@
 import gzip
 import pathlib
 
-def detect_gzip(path):
+def detect_gzip(path : str) -> bool:
     fp = open(path, "rb")
     magic = fp.read(2)
     return magic == b"\x1f\x8b"
 
-def detect_xam(path):
+def detect_xam(path : str) -> str:
     fp = open(path, "rb")
     head = fp.read(4)
     if head == b"CRAM":
@@ -18,7 +18,7 @@ def detect_xam(path):
             return "bam"
     return "unknown"
 
-def detect_uncompressed_text_format(reader, arg_bag = None):
+def detect_uncompressed_text_format(reader, arg_bag = None) -> str:
     detected_category = "none"
     for line in reader:
         if type(line) != str:
@@ -42,7 +42,7 @@ def detect_uncompressed_text_format(reader, arg_bag = None):
             return detected_category
     return "unknown" 
 
-def detect_file_format(path, arg_bag = None):
+def detect_file_format(path : str, arg_bag = None) -> str:
     arg_bag = dict() if arg_bag == None else arg_bag
     try:
         xam = detect_xam(path)

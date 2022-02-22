@@ -1,5 +1,7 @@
 from abc import abstractclassmethod
 
+from pygrass.ir import IRBase, Let, Ref, WriteFile, Count
+
 def _make_free_var_closure():
 	nextid = 0
 	def _free_var_impl():
@@ -11,9 +13,11 @@ def _make_free_var_closure():
 
 _free_var = _make_free_var_closure()
 
-def send_to_backend(ir):
+def send_to_backend(ir : IRBase):
 	# TODO
-	print(ir)
+	print(ir.to_json())
+	print(ir.imports())
+	print(ir.exports())
 
 def drain_method(origin_method):
 	def modified_method(self, *args, **kwargs):
@@ -28,23 +32,23 @@ class RecordCollectionBase(IteratorBase):
 	def __init__(self):
 		self._symbol = None
 	@drain_method
-	def print_to_stdout(self):
-		return "(print-to-stdout {ir})".format(ir = self.lower_to_ir())
+	def print_to_stdout(self) -> IRBase:
+		return WriteFile(0, self.lower_to_ir())
 	@drain_method
-	def save_to_file(self, path):
-		return "(save-to-file {ir} \"{path}\")".format(ir = self.lower_to_ir(), path = path)
+	def save_to_file(self, path: str) -> IRBase:
+		return WriteFile(path, self.lower_to_ir())
 	@drain_method
-	def count(self):
-		return "(count {ir})".format(ir = self.lower_to_ir())
+	def count(self) -> IRBase:
+		return Count(self.lower_to_ir())
 	@abstractclassmethod
-	def emit_eval_code(self):
+	def emit_eval_code(self) -> IRBase:
 		pass
-	def lower_to_ir(self):
+	def lower_to_ir(self) -> IRBase:
 		if self._symbol == None:
 			self._symbol = _free_var()
-			return "(label {symbol} {expr})".format(symbol = self._symbol, expr = self.emit_eval_code())
+			return Let(self._symbol, self.emit_eval_code()) 
 		else:
-			return "(ref {symbol})".format(symbol = self._symbol)
+			return Ref(self._symbol)
 
 class PositionalValueBase(RecordCollectionBase):
 	pass
