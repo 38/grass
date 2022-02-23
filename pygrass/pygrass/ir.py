@@ -6,7 +6,7 @@ from typing import Any
 class IRBase(object):
     def __init__(self, opcode : str):
         self._opcode = opcode
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str]:
         ret = dict()
         ret["opcode"] = self._opcode
         return ret
@@ -71,7 +71,7 @@ class Ref(LabelAssignmentBase):
         self._id = id
     def uses(self) -> list[str]:
         return [self._id] + super().uses()
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str]:
         ret = super().to_dict()
         ret["id"] = self._id
         return ret
@@ -90,7 +90,7 @@ class OpenFile(BatchOperationBase):
         self._compression = compression
         self._num_of_fields = num_of_fields
         self._sorted = sorted
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str]:
         ret = super().to_dict()
         ret["path"] = self._path
         ret["format"] = self._format
@@ -104,7 +104,7 @@ class CastToBed3(BatchOperationBase):
     def __init__(self, inner : IRBase):
         super().__init__("CastToBed3")
         self._inner = inner
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str]:
         ret = super().to_dict()
         ret["inner"] = self._inner.to_dict()
         return ret
@@ -115,7 +115,7 @@ class GroupBy(BatchOperationBase):
         super().__init__("GroupBy")
         self._inner = inner
         self._key_func = key_func
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str]:
         ret = super().to_dict()
         ret["inner"] = self._inner.to_dict()
         ret["keys"] = [key.to_dict() for key in self._key_func]
@@ -127,7 +127,7 @@ class Format(BatchOperationBase):
         self._inner = inner
         self._fmt_str = fmt_str
         self._values = values
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str]:
         ret = super().to_dict()
         ret["inner"] = self._inner.to_dict()
         ret["fmt_str"] = self._fmt_str
@@ -142,7 +142,7 @@ class Alter(BatchOperationBase):
         self._inner = base
         self._target_field = target_field
         self._value_expr = value_expr
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str]:
         ret = super().to_dict()
         ret["inner"] = self._inner.to_dict()
         ret["field"] = self._target_field
@@ -154,7 +154,7 @@ class Filter(BatchOperationBase):
         super().__init__("Filter")
         self._inner = base
         self._cond = cond
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str]:
         ret = super().to_dict()
         ret["inner"] = self._inner.to_dict()
         ret["cond"] = self._cond.to_dict()
@@ -165,7 +165,7 @@ class Merge(BatchOperationBase):
         super().__init__("Merge")
         self._inner = inner
         self._sorted = sorted
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str]:
         ret = super().to_dict()
         ret["inner"] = self._inner.to_dict()
         ret["sorted"] = self._sorted
@@ -180,7 +180,7 @@ class Intersection(BatchOperationBase):
         self._lhs = lhs
         self._rhs = rhs
         self._sorted = sorted
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str]:
         ret = super().to_dict()
         ret["flavor"] = self._flavor
         ret["lhs"] = self._lhs.to_dict()
@@ -195,7 +195,7 @@ class WriteFile(BatchOperationBase):
         super().__init__("WriteFile")
         self._what = what
         self._target = target
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str]:
         ret = super().to_dict()
         ret["what"] = self._what.to_dict()
         ret["target"] = self._target
@@ -205,7 +205,7 @@ class Count(BatchOperationBase):
     def __init__(self, what : IRBase):
         super().__init__("Count")
         self._what = what
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str]:
         ret = super().to_dict()
         ret["what"] = self._what.to_dict()
         return ret
@@ -217,15 +217,15 @@ class FieldExpressionBase(IRBase):
 class RuntimeValueBase(FieldExpressionBase):
     def __init__(self, opcode : str):
         super().__init__(opcode)
-    def to_dict(self) -> dict:
-        super().to_dict()
+    def to_dict(self) -> dict[str]:
+        return super().to_dict()
 
 class UnaryBase(FieldExpressionBase):
     def __init__(self, opcode : str, operand_key : str, operand : IRBase):
         super().__init__(opcode)
-        self._dict = dict()
+        self._dict = dict[str, IRBase]()
         self._dict[operand_key] = operand
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str]:
         ret = super().to_dict()
         for key in self._dict:
             if isinstance(self._dict[key], IRBase):
@@ -235,12 +235,18 @@ class UnaryBase(FieldExpressionBase):
         return ret
 
 class BinaryBase(FieldExpressionBase):
-    def __init__(self, opcode : str, lhs : IRBase, rhs : IRBase, lhs_key : str = "lhs", rhs_key : str = "rhs"):
+    def __init__(self, 
+        opcode : str, 
+        lhs : IRBase, 
+        rhs : IRBase, 
+        lhs_key : str = "lhs", 
+        rhs_key : str = "rhs"
+    ):
         super().__init__(opcode)
         self._dict = dict()
         self._dict[lhs_key] = lhs
         self._dict[rhs_key] = rhs
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str]:
         ret = super().to_dict()
         for key in self._dict:
             if isinstance(self._dict[key], IRBase):
@@ -257,7 +263,7 @@ class Cond(FieldExpressionBase):
         self._cond = cond
         self._then = then
         self._else = elze
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str]:
         ret = super().to_dict()
         ret["cond"] = self._cond.to_dict()
         ret["then"] = self._then.to_dict()
@@ -277,7 +283,7 @@ class ComponentFieldRef(FieldExpressionBase):
         super().__init__("ComponentFieldRef")
         self._target = target
         self._field_name = field_name
-    def to_dict(self):
+    def to_dict(self) -> dict[str]:
         ret = super().to_dict()
         ret["target"] = self._target
         ret["field_name"] = self._field_name
@@ -285,7 +291,7 @@ class ComponentFieldRef(FieldExpressionBase):
 
 class ConstValue(UnaryBase):
     def __init__(self, value : Any):
-        super().__init__("FieldReference", "value", value)
+        super().__init__("ConstValue", "value", value)
 
 class FullRecordRef(RuntimeValueBase):
     def __init__(self):
@@ -295,7 +301,7 @@ class RecordRef(IRBase):
     def __init__(self, id : int):
         super().__init__("RecordRef")
         self._id = id
-    def to_dict(self):
+    def to_dict(self) -> dict[str]:
         ret = super().to_dict()
         ret["id"] = self._id
         return ret

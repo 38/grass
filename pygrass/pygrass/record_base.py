@@ -14,10 +14,9 @@ def _make_free_var_closure():
 _free_var = _make_free_var_closure()
 
 def send_to_backend(ir : IRBase):
-	# TODO
-	print(ir.to_json())
-	print(ir.imports())
-	print(ir.exports())
+	from pygrass import get_backend_session
+	session = get_backend_session()
+	session.register_ir(ir)
 
 def drain_method(origin_method):
 	def modified_method(self, *args, **kwargs):
@@ -51,4 +50,5 @@ class RecordCollectionBase(IteratorBase):
 			return Ref(self._symbol)
 
 class PositionalValueBase(RecordCollectionBase):
+	#TODO This is reserved for fasta file
 	pass

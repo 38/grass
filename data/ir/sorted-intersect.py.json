@@ -1,0 +1,37 @@
+{
+    "opcode": "WriteFile",
+    "what": {
+        "opcode": "Let",
+        "id": "_grass_res_0",
+        "value": {
+            "opcode": "Intersection",
+            "flavor": "inner",
+            "lhs": {
+                "opcode": "Let",
+                "id": "_grass_res_1",
+                "value": {
+                    "opcode": "Open",
+                    "path": "a.bed",
+                    "format": "Bed",
+                    "num_of_fields": 3,
+                    "compression": false,
+                    "sorted": true
+                }
+            },
+            "rhs": {
+                "opcode": "Let",
+                "id": "_grass_res_2",
+                "value": {
+                    "opcode": "Open",
+                    "path": "b.bed",
+                    "format": "Bed",
+                    "num_of_fields": 3,
+                    "compression": false,
+                    "sorted": true
+                }
+            },
+            "sorted": false
+        }
+    },
+    "target": 0
+}

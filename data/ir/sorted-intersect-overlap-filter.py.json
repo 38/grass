@@ -1,0 +1,115 @@
+{
+    "opcode": "WriteFile",
+    "what": {
+        "opcode": "Let",
+        "id": "_grass_res_0",
+        "value": {
+            "opcode": "Filter",
+            "inner": {
+                "opcode": "Let",
+                "id": "_grass_res_1",
+                "value": {
+                    "opcode": "Intersection",
+                    "flavor": "inner",
+                    "lhs": {
+                        "opcode": "Let",
+                        "id": "_grass_res_2",
+                        "value": {
+                            "opcode": "Open",
+                            "path": "a.bed",
+                            "format": "Bed",
+                            "num_of_fields": 3,
+                            "compression": false,
+                            "sorted": true
+                        }
+                    },
+                    "rhs": {
+                        "opcode": "Let",
+                        "id": "_grass_res_3",
+                        "value": {
+                            "opcode": "Open",
+                            "path": "b.bed",
+                            "format": "Bed",
+                            "num_of_fields": 3,
+                            "compression": false,
+                            "sorted": true
+                        }
+                    },
+                    "sorted": false
+                }
+            },
+            "cond": {
+                "opcode": "And",
+                "lhs": {
+                    "opcode": "GreaterThan",
+                    "lhs": {
+                        "opcode": "Div",
+                        "lhs": {
+                            "opcode": "Sub",
+                            "lhs": {
+                                "opcode": "FieldRef",
+                                "field": "end"
+                            },
+                            "rhs": {
+                                "opcode": "FieldRef",
+                                "field": "start"
+                            }
+                        },
+                        "rhs": {
+                            "opcode": "Sub",
+                            "lhs": {
+                                "opcode": "ComponentFieldRef",
+                                "target": 0,
+                                "field_name": "end"
+                            },
+                            "rhs": {
+                                "opcode": "ComponentFieldRef",
+                                "target": 0,
+                                "field_name": "start"
+                            }
+                        }
+                    },
+                    "rhs": {
+                        "opcode": "ConstValue",
+                        "value": 0.8
+                    }
+                },
+                "rhs": {
+                    "opcode": "GreaterThan",
+                    "lhs": {
+                        "opcode": "Div",
+                        "lhs": {
+                            "opcode": "Sub",
+                            "lhs": {
+                                "opcode": "FieldRef",
+                                "field": "end"
+                            },
+                            "rhs": {
+                                "opcode": "FieldRef",
+                                "field": "start"
+                            }
+                        },
+                        "rhs": {
+                            "opcode": "Sub",
+                            "lhs": {
+                                "opcode": "ComponentFieldRef",
+                                "target": 1,
+                                "field_name": "end"
+                            },
+                            "rhs": {
+                                "opcode": "ComponentFieldRef",
+                                "target": 1,
+                                "field_name": "start"
+                            }
+                        }
+                    },
+                    "rhs": {
+                        "opcode": "ConstValue",
+                        "value": 0.7
+                    }
+                }
+            }
+        }
+    },
+    "target": 0
+}

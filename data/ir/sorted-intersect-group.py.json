@@ -1,0 +1,46 @@
+{
+    "opcode": "WriteFile",
+    "what": {
+        "opcode": "Let",
+        "id": "_grass_res_0",
+        "value": {
+            "opcode": "Format",
+            "inner": {
+                "opcode": "Let",
+                "id": "_grass_res_1",
+                "value": {
+                    "opcode": "GroupBy",
+                    "inner": {
+                        "opcode": "Ref",
+                        "id": "_grass_res_2"
+                    },
+                    "keys": [
+                        {
+                            "opcode": "FieldRef",
+                            "field": "chr"
+                        },
+                        {
+                            "opcode": "FieldRef",
+                            "field": "start"
+                        },
+                        {
+                            "opcode": "FieldRef",
+                            "field": "end"
+                        }
+                    ]
+                }
+            },
+            "fmt_str": "{item}\t{count}",
+            "values": {
+                "item": {
+                    "opcode": "RecordRef",
+                    "id": 0
+                },
+                "count": {
+                    "opcode": "NumberOfComponents"
+                }
+            }
+        }
+    },
+    "target": 0
+}

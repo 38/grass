@@ -1,0 +1,24 @@
+{
+    "opcode": "WriteFile",
+    "what": {
+        "opcode": "Let",
+        "id": "_grass_res_0",
+        "value": {
+            "opcode": "Merge",
+            "inner": {
+                "opcode": "Let",
+                "id": "_grass_res_1",
+                "value": {
+                    "opcode": "Open",
+                    "path": "a.bed",
+                    "format": "Bed",
+                    "num_of_fields": 3,
+                    "compression": false,
+                    "sorted": true
+                }
+            },
+            "sorted": false
+        }
+    },
+    "target": 0
+}

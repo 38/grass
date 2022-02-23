@@ -34,7 +34,7 @@ class GroupBy(IntervalBase):
         code = self._inner.lower_to_ir()
         return GroupByIR(
             inner = self._inner.lower_to_ir(),
-            expr = [key_comp.lower_to_ir() for key_comp in self._key_func]
+            key_func = [key_comp.lower_to_ir() for key_comp in self._key_func]
         )
     
 class FormatedInterval(RecordCollectionBase):
@@ -46,7 +46,6 @@ class FormatedInterval(RecordCollectionBase):
         for key in kwargs:
             self._values[key] = make_field_expression(kwargs[key])
     def emit_eval_code(self) -> IRBase:
-        code = self._inner.lower_to_ir()
         values = dict()
         for key in self._values:
             values[key] = self._values[key].lower_to_ir()

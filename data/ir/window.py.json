@@ -1,0 +1,71 @@
+{
+    "opcode": "WriteFile",
+    "what": {
+        "opcode": "Let",
+        "id": "_grass_res_0",
+        "value": {
+            "opcode": "Intersection",
+            "flavor": "inner",
+            "lhs": {
+                "opcode": "Let",
+                "id": "_grass_res_1",
+                "value": {
+                    "opcode": "Alter",
+                    "inner": {
+                        "opcode": "Alter",
+                        "inner": {
+                            "opcode": "Let",
+                            "id": "_grass_res_2",
+                            "value": {
+                                "opcode": "Open",
+                                "path": "a.bed",
+                                "format": "Bed",
+                                "num_of_fields": 3,
+                                "compression": false,
+                                "sorted": true
+                            }
+                        },
+                        "field": "start",
+                        "value": {
+                            "opcode": "Sub",
+                            "lhs": {
+                                "opcode": "FieldRef",
+                                "field": "start"
+                            },
+                            "rhs": {
+                                "opcode": "ConstValue",
+                                "value": 1000
+                            }
+                        }
+                    },
+                    "field": "end",
+                    "value": {
+                        "opcode": "Add",
+                        "lhs": {
+                            "opcode": "FieldRef",
+                            "field": "end"
+                        },
+                        "rhs": {
+                            "opcode": "ConstValue",
+                            "value": 1000
+                        }
+                    }
+                }
+            },
+            "rhs": {
+                "opcode": "Let",
+                "id": "_grass_res_3",
+                "value": {
+                    "opcode": "Open",
+                    "path": "b.bed",
+                    "format": "Bed",
+                    "num_of_fields": 3,
+                    "compression": false,
+                    "sorted": true
+                }
+            },
+            "sorted": false
+        }
+    },
+    "target": 0
+}

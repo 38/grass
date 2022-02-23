@@ -8,6 +8,6 @@ second_file = IntervalFile(argv[2], sorted = True)
 # Run the actual intersection
 result = first_file.intersect(second_file)
 
-group_result = result.group(chr, start, end)
+group_result = result.group_by(chr, start, end)
 
 group_result.format("{item}\t{count}", item = item[0], count = item.count()).print_to_stdout()

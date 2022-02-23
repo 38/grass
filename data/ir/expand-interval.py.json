@@ -1,0 +1,50 @@
+{
+    "opcode": "WriteFile",
+    "what": {
+        "opcode": "Let",
+        "id": "_grass_res_0",
+        "value": {
+            "opcode": "Alter",
+            "inner": {
+                "opcode": "Alter",
+                "inner": {
+                    "opcode": "Let",
+                    "id": "_grass_res_1",
+                    "value": {
+                        "opcode": "Open",
+                        "path": "a.bed",
+                        "format": "Bed",
+                        "num_of_fields": 3,
+                        "compression": false,
+                        "sorted": true
+                    }
+                },
+                "field": "start",
+                "value": {
+                    "opcode": "Sub",
+                    "lhs": {
+                        "opcode": "FieldRef",
+                        "field": "start"
+                    },
+                    "rhs": {
+                        "opcode": "ConstValue",
+                        "value": 100
+                    }
+                }
+            },
+            "field": "end",
+            "value": {
+                "opcode": "Add",
+                "lhs": {
+                    "opcode": "FieldRef",
+                    "field": "end"
+                },
+                "rhs": {
+                    "opcode": "ConstValue",
+                    "value": 100
+                }
+            }
+        }
+    },
+    "target": 0
+}
