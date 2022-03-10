@@ -86,6 +86,7 @@ pub struct IntersectParam {
 pub struct MergeParam {
     #[serde(rename = "inner")]
     input_expr: Box<GrassIR>,
+    sorted: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -161,85 +162,50 @@ pub struct LetBinding {
 
 #[cfg(test)]
 mod test {
-    use std::error::Error;
+    use std::{error::Error, collections::BTreeMap};
 
+    use serde::{Deserialize, Serialize};
     use serde_json::from_str;
 
     use crate::GrassIR;
-    #[test]
-    fn parse_bam_to_bed() -> Result<(), Box<dyn Error>> {
-        let input = include_str!("../../data/ir/bam-to-bed.py.json");
-        let _data : GrassIR = from_str(input)?;
-        Ok(())
+
+    #[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
+    #[serde(untagged)]
+    enum JsonValue {
+        String(String),
+        Number(f64),
+        Boolean(bool),
+        List(Vec<JsonValue>),
+        Object(BTreeMap<String, JsonValue>),
     }
-    
-    #[test]
-    fn parse_expand_interval() -> Result<(), Box<dyn Error>> {
-        let input = include_str!("../../data/ir/expand-interval.py.json");
-        let _data : GrassIR = from_str(input)?;
-        Ok(())
+
+    fn validate_object<'a, T: Serialize>(input: &str, obj: &'a T) {
+        let input_dict : JsonValue = serde_json::from_str(input).unwrap();
+        let obj_str = serde_json::to_string(obj).unwrap();
+        let obj_dict : JsonValue = serde_json::from_str(&obj_str).unwrap();
+        assert_eq!(obj_dict, input_dict);
     }
-   
-    #[test]
-    fn parse_filter() -> Result<(), Box<dyn Error>> {
-        let input = include_str!("../../data/ir/filter.py.json");
-        let _data : GrassIR = from_str(input)?;
-        Ok(())
+
+    macro_rules! parse_test {
+        ($name: ident, $path : expr) => {
+            #[test]
+            fn $name() -> Result<(), Box<dyn Error>> {
+                let input = include_str!($path);
+                let data : GrassIR = from_str(input)?;
+                validate_object(input, &data);
+                Ok(())
+            }
+        };
     }
-    
-    #[test]
-    fn parse_merge() -> Result<(), Box<dyn Error>> {
-        let input = include_str!("../../data/ir/merge.py.json");
-        let _data : GrassIR = from_str(input)?;
-        Ok(())
-    }
-    
-    #[test]
-    fn parse_slop() -> Result<(), Box<dyn Error>> {
-        let input = include_str!("../../data/ir/slop.py.json");
-        let _data : GrassIR = from_str(input)?;
-        Ok(())
-    }
-    
-    #[test]
-    fn parse_sorted_intersect_custom_format() -> Result<(), Box<dyn Error>> {
-        let input = include_str!("../../data/ir/sorted-intersect-custom-fmt.py.json");
-        let _data : GrassIR = from_str(input)?;
-        Ok(())
-    }
-    
-    #[test]
-    fn parse_sorted_intersect_groupby() -> Result<(), Box<dyn Error>> {
-        let input = include_str!("../../data/ir/sorted-intersect-group.py.json");
-        let _data : GrassIR = from_str(input)?;
-        Ok(())
-    }
-    
-    #[test]
-    fn parse_sorted_intersect_leftouter() -> Result<(), Box<dyn Error>> {
-        let input = include_str!("../../data/ir/sorted-intersect-leftouter.py.json");
-        let _data : GrassIR = from_str(input)?;
-        Ok(())
-    }
-    
-    #[test]
-    fn parse_sorted_intersect_overlap_filter() -> Result<(), Box<dyn Error>> {
-        let input = include_str!("../../data/ir/sorted-intersect-overlap-filter.py.json");
-        let _data : GrassIR = from_str(input)?;
-        Ok(())
-    }
-    
-    #[test]
-    fn parse_sorted_intersect() -> Result<(), Box<dyn Error>> {
-        let input = include_str!("../../data/ir/sorted-intersect.py.json");
-        let _data : GrassIR = from_str(input)?;
-        Ok(())
-    }
-    
-    #[test]
-    fn parse_sorted_window() -> Result<(), Box<dyn Error>> {
-        let input = include_str!("../../data/ir/window.py.json");
-        let _data : GrassIR = from_str(input)?;
-        Ok(())
-    }
+    parse_test!(parse_bam_to_bed, "../../data/ir/bam-to-bed.py.json");
+    parse_test!(parse_expand_interval,"../../data/ir/expand-interval.py.json");
+    parse_test!(parse_filter, "../../data/ir/filter.py.json");
+    parse_test!(parse_merge, "../../data/ir/merge.py.json");
+    parse_test!(parse_slop, "../../data/ir/slop.py.json");
+     parse_test!(parse_sorted_intersect_custom_format, "../../data/ir/sorted-intersect-custom-fmt.py.json");
+    parse_test!(parse_sorted_intersect_groupby,"../../data/ir/sorted-intersect-group.py.json");
+    parse_test!(parse_sorted_intersect_leftouter,"../../data/ir/sorted-intersect-leftouter.py.json");
+    parse_test!(parse_sorted_intersect_overlap_filter, "../../data/ir/sorted-intersect-overlap-filter.py.json");
+    parse_test!(parse_sorted_intersect, "../../data/ir/sorted-intersect.py.json");
+    parse_test!(parse_sorted_window, "../../data/ir/window.py.json");
 }
