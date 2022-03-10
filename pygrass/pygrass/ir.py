@@ -322,6 +322,10 @@ class Not(UnaryBase):
     def __init__(self, operand : IRBase):
         super().__init__("Not", "operand", operand)
 
+class Neg(UnaryBase):
+    def __init__(self, operand : IRBase):
+        super().__init__("Neg", "operand", operand)
+
 class Add(BinaryBase):
     def __init__(self, lhs : IRBase, rhs: IRBase):
         super().__init__("Add", lhs, rhs)

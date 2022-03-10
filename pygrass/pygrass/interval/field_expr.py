@@ -46,8 +46,8 @@ class FieldExpr(object):
         return Operator(RightShift, self, other)
     def __lshift__(self, other):
         return Operator(LeftShift, self, other)
-    def __invert__(self, other):
-        return Operator(Neg, self, other)
+    def __invert__(self):
+        return Operator(Neg, self)
 
 
 def make_field_expression(expr) -> FieldExpr:

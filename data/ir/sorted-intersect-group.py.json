@@ -11,8 +11,37 @@
                 "value": {
                     "opcode": "GroupBy",
                     "inner": {
-                        "opcode": "Ref",
-                        "id": "_grass_res_2"
+                        "opcode": "Let",
+                        "id": "_grass_res_2",
+                        "value": {
+                            "opcode": "Intersection",
+                            "flavor": "inner",
+                            "lhs": {
+                                "opcode": "Let",
+                                "id": "_grass_res_3",
+                                "value": {
+                                    "opcode": "Open",
+                                    "path": "a.bed",
+                                    "format": "Bed",
+                                    "num_of_fields": 3,
+                                    "compression": false,
+                                    "sorted": true
+                                }
+                            },
+                            "rhs": {
+                                "opcode": "Let",
+                                "id": "_grass_res_4",
+                                "value": {
+                                    "opcode": "Open",
+                                    "path": "b.bed",
+                                    "format": "Bed",
+                                    "num_of_fields": 3,
+                                    "compression": false,
+                                    "sorted": true
+                                }
+                            },
+                            "sorted": false
+                        }
                     },
                     "keys": [
                         {

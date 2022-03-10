@@ -33,7 +33,7 @@ class GroupBy(IntervalBase):
     def emit_eval_code(self) -> IRBase:
         code = self._inner.lower_to_ir()
         return GroupByIR(
-            inner = self._inner.lower_to_ir(),
+            inner = code,
             key_func = [key_comp.lower_to_ir() for key_comp in self._key_func]
         )
     
