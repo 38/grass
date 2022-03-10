@@ -1,7 +1,10 @@
 use std::collections::HashMap;
 
-use field_expr::FieldExpression;
-use serde::{Serialize, Deserialize};
+pub use field_expr::{
+    BinaryParam, ComponentFieldRefParam, CondParam, ConstParam, FieldExpression, FieldRefParam,
+    RecordRefParam, UnaryParam,
+};
+use serde::{Deserialize, Serialize};
 
 mod field_expr;
 
@@ -16,7 +19,7 @@ pub enum GrassIR {
     Ref(RefParam),
     /// Open a external data source
     Open(OpenParam),
-    /// Write the result of GRASS expression to a file/file_no 
+    /// Write the result of GRASS expression to a file/file_no
     WriteFile(WriteFileParam),
     /// Modify a field for each record in a GRASS expression
     Alter(AlterParam),
@@ -35,27 +38,27 @@ pub enum GrassIR {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct RefParam {
     /// The symbol we are referencing
-    id: String,
+    pub id: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct GroupByParam {
     /// The expression to group
     #[serde(rename = "inner")]
-    expr: Box<GrassIR>,
+    pub expr: Box<GrassIR>,
     /// The list of key expressions for grouping
-    keys: Vec<FieldExpression>,
+    pub keys: Vec<FieldExpression>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct FormatParam {
     /// The expression to be formatted
     #[serde(rename = "inner")]
-    expr: Box<GrassIR>,
+    pub expr: Box<GrassIR>,
     /// The formatting string
-    fmt_str: String,
+    pub fmt_str: String,
     /// The value referred by the formatting string
-    values: HashMap<String, FieldExpression>,
+    pub values: HashMap<String, FieldExpression>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -73,45 +76,45 @@ pub enum IntersectFlavor {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct IntersectParam {
     /// The flavor of the insection operator
-    flavor: IntersectFlavor,
+    pub flavor: IntersectFlavor,
     /// The left-hand-side operand
-    lhs: Box<GrassIR>,
+    pub lhs: Box<GrassIR>,
     /// The right-hand-side operand
-    rhs: Box<GrassIR>,
+    pub rhs: Box<GrassIR>,
     /// If we are using the sorted algorithm
-    sorted: bool,
+    pub sorted: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct MergeParam {
     #[serde(rename = "inner")]
-    input_expr: Box<GrassIR>,
-    sorted: bool,
+    pub input_expr: Box<GrassIR>,
+    pub sorted: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct FilterParam {
     /// The original expression
     #[serde(rename = "inner")]
-    input_expr: Box<GrassIR>,
+    pub input_expr: Box<GrassIR>,
     ///  The condition expression
-    cond: FieldExpression,
+    pub cond: FieldExpression,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct AlterParam {
     /// The original expression
     #[serde(rename = "inner")]
-    original_expr: Box<GrassIR>,
+    pub original_expr: Box<GrassIR>,
     /// The field name that we are going to modify
-    field: String,
+    pub field: String,
     /// The new value this field should assigned to
-    value: FieldExpression,
+    pub value: FieldExpression,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct  CastToBed3Param {
-    inner: Box<GrassIR>,
+pub struct CastToBed3Param {
+    pub inner: Box<GrassIR>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -162,7 +165,7 @@ pub struct LetBinding {
 
 #[cfg(test)]
 mod test {
-    use std::{error::Error, collections::BTreeMap};
+    use std::{collections::BTreeMap, error::Error};
 
     use serde::{Deserialize, Serialize};
     use serde_json::from_str;
@@ -180,9 +183,9 @@ mod test {
     }
 
     fn validate_object<'a, T: Serialize>(input: &str, obj: &'a T) {
-        let input_dict : JsonValue = serde_json::from_str(input).unwrap();
+        let input_dict: JsonValue = serde_json::from_str(input).unwrap();
         let obj_str = serde_json::to_string(obj).unwrap();
-        let obj_dict : JsonValue = serde_json::from_str(&obj_str).unwrap();
+        let obj_dict: JsonValue = serde_json::from_str(&obj_str).unwrap();
         assert_eq!(obj_dict, input_dict);
     }
 
@@ -191,21 +194,39 @@ mod test {
             #[test]
             fn $name() -> Result<(), Box<dyn Error>> {
                 let input = include_str!($path);
-                let data : GrassIR = from_str(input)?;
+                let data: GrassIR = from_str(input)?;
                 validate_object(input, &data);
                 Ok(())
             }
         };
     }
     parse_test!(parse_bam_to_bed, "../../data/ir/bam-to-bed.py.json");
-    parse_test!(parse_expand_interval,"../../data/ir/expand-interval.py.json");
+    parse_test!(
+        parse_expand_interval,
+        "../../data/ir/expand-interval.py.json"
+    );
     parse_test!(parse_filter, "../../data/ir/filter.py.json");
     parse_test!(parse_merge, "../../data/ir/merge.py.json");
     parse_test!(parse_slop, "../../data/ir/slop.py.json");
-     parse_test!(parse_sorted_intersect_custom_format, "../../data/ir/sorted-intersect-custom-fmt.py.json");
-    parse_test!(parse_sorted_intersect_groupby,"../../data/ir/sorted-intersect-group.py.json");
-    parse_test!(parse_sorted_intersect_leftouter,"../../data/ir/sorted-intersect-leftouter.py.json");
-    parse_test!(parse_sorted_intersect_overlap_filter, "../../data/ir/sorted-intersect-overlap-filter.py.json");
-    parse_test!(parse_sorted_intersect, "../../data/ir/sorted-intersect.py.json");
+    parse_test!(
+        parse_sorted_intersect_custom_format,
+        "../../data/ir/sorted-intersect-custom-fmt.py.json"
+    );
+    parse_test!(
+        parse_sorted_intersect_groupby,
+        "../../data/ir/sorted-intersect-group.py.json"
+    );
+    parse_test!(
+        parse_sorted_intersect_leftouter,
+        "../../data/ir/sorted-intersect-leftouter.py.json"
+    );
+    parse_test!(
+        parse_sorted_intersect_overlap_filter,
+        "../../data/ir/sorted-intersect-overlap-filter.py.json"
+    );
+    parse_test!(
+        parse_sorted_intersect,
+        "../../data/ir/sorted-intersect.py.json"
+    );
     parse_test!(parse_sorted_window, "../../data/ir/window.py.json");
 }

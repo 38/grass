@@ -1,2 +1,2 @@
 [workspace]
-members = ["grass-ir"]
+members = ["grass-ir", "grass-macro", "grass-macro-test"]

@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(tag = "opcode")]
@@ -32,48 +32,47 @@ pub enum FieldExpression {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct RecordRefParam {
-    id: i32,
+    pub id: i32,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(untagged)]
-pub enum ConstValue{
+pub enum ConstValue {
     Str(String),
     Number(i64),
-    Float(f64)
+    Float(f64),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ConstParam {
-    value: ConstValue,
+    pub value: ConstValue,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct UnaryParam {
-    operand: Box<FieldExpression>,
+    pub operand: Box<FieldExpression>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct BinaryParam {
-    lhs: Box<FieldExpression>,
-    rhs: Box<FieldExpression>
+    pub lhs: Box<FieldExpression>,
+    pub rhs: Box<FieldExpression>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct CondParam {
-    cond: Box<FieldExpression>,
-    then: Box<FieldExpression>,
-    elze: Box<FieldExpression>,
+    pub cond: Box<FieldExpression>,
+    pub then: Box<FieldExpression>,
+    pub elze: Box<FieldExpression>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct FieldRefParam {
-    field: String,
+    pub field: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ComponentFieldRefParam {
-    target: i32,
-    field_name: String,
+    pub target: i32,
+    pub field_name: String,
 }
-
