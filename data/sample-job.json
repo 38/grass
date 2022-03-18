@@ -1,0 +1,49 @@
+{
+    "ir":  {
+        "opcode": "WriteFile",
+        "what": {
+            "opcode": "Let",
+            "id": "_grass_res_0",
+            "value": {
+                "opcode": "Intersection",
+                "flavor": "inner",
+                "lhs": {
+                    "opcode": "Let",
+                    "id": "_grass_res_1",
+                    "value": {
+                        "opcode": "Open",
+                        "path": "a.bed",
+                        "format": "Bed",
+                        "num_of_fields": 3,
+                        "compression": false,
+                        "sorted": true
+                    }
+                },
+                "rhs": {
+                    "opcode": "Let",
+                    "id": "_grass_res_2",
+                    "value": {
+                        "opcode": "Open",
+                        "path": "b.bed",
+                        "format": "Bed",
+                        "num_of_fields": 3,
+                        "compression": false,
+                        "sorted": true
+                    }
+                },
+                "sorted": true
+            }
+        },
+        "target": 1
+    },
+    "working_dir": "/tmp/",
+    "runtime_source": {
+        "dep-kind": "Local",
+        "value": "/home/haohou/source/grass-project/grass/grass-runtime"
+    },
+    "macro_source": {
+        "dep-kind": "Local",
+        "value": "/home/haohou/source/grass-project/grass/grass-macro"
+    },
+    "build_flavor": "Release"
+}

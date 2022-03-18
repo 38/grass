@@ -7,3 +7,4 @@ edition = "2021"
 
 [dependencies]
 lazy_static = "1.4.0"
+memchr = "2.4.1"

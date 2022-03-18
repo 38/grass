@@ -11,6 +11,7 @@ class IntervalFile(IntervalFormatBase):
         super().__init__()
         arg_bag = dict()
         file_type = detect_file_format(path, arg_bag)
+        self._sorted = sorted
         if file_type == "cram":
             self._inner = CramFile(path, sorted)
         elif file_type == "bam":

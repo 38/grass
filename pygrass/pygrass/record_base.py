@@ -32,7 +32,7 @@ class RecordCollectionBase(IteratorBase):
 		self._symbol = None
 	@drain_method
 	def print_to_stdout(self) -> IRBase:
-		return WriteFile(0, self.lower_to_ir())
+		return WriteFile(1, self.lower_to_ir())
 	@drain_method
 	def save_to_file(self, path: str) -> IRBase:
 		return WriteFile(path, self.lower_to_ir())

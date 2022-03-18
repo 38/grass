@@ -35,7 +35,7 @@
                             "sorted": true
                         }
                     },
-                    "sorted": false
+                    "sorted": true
                 }
             },
             "fmt_str": "{a}\t{b}\t{length}",
@@ -62,5 +62,5 @@
             }
         }
     },
-    "target": 0
+    "target": 1
 }

@@ -1,12 +1,15 @@
 use std::{fs::File, io::Read, path::Path};
 
 use grass_ir::GrassIR;
+use ir_expand::ExpansionContext;
 use proc_macro::TokenStream;
 use proc_macro2::Span;
 use quote::quote;
 use syn::{parse_macro_input, LitStr};
 
-fn expand_grass_ir(ir: &str, span: Span) -> TokenStream {
+mod ir_expand;
+
+fn grass_impl(ir: &str, span: Span) -> TokenStream {
     let ir: GrassIR = match serde_json::from_str(ir) {
         Err(e) => {
             return syn::Error::new(span, format!("Unable to parse Grass IR {}", e.to_string()))
@@ -16,14 +19,21 @@ fn expand_grass_ir(ir: &str, span: Span) -> TokenStream {
         Ok(ir) => ir,
     };
 
-    let ir_str = LitStr::new(format!("{:?}", ir).as_str(), span);
+    let mut ctx = ExpansionContext::new(span);
 
-    let result = quote! {
-        fn main() {
-            let data = #ir_str;
-            println!("TODO: compile down IR: {}", data);
+    let result = match ir_expand::expand_grass_ir(&ir, &mut ctx) {
+        Ok(_code) => {
+            let code = ctx.to_token_stream();
+            quote! {
+                fn main() -> Result<(), Box<dyn std::error::Error>> {
+                    #code;
+                    Ok(())
+                }
+            }
         }
+        Err(err) => err.into_compile_error()
     };
+
     result.into()
 }
 
@@ -74,11 +84,11 @@ pub fn import_grass_ir_from_file(input: TokenStream) -> TokenStream {
             buf
         }
     };
-    expand_grass_ir(ir_str.as_str(), ir_lit.span())
+    grass_impl(ir_str.as_str(), ir_lit.span())
 }
 
 #[proc_macro]
 pub fn import_grass_ir(input: TokenStream) -> TokenStream {
     let ir_lit = parse_macro_input!(input as LitStr);
-    expand_grass_ir(ir_lit.value().as_str(), ir_lit.span())
+    grass_impl(ir_lit.value().as_str(), ir_lit.span())
 }

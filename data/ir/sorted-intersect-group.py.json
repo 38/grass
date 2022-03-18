@@ -40,7 +40,7 @@
                                     "sorted": true
                                 }
                             },
-                            "sorted": false
+                            "sorted": true
                         }
                     },
                     "keys": [
@@ -71,5 +71,5 @@
             }
         }
     },
-    "target": 0
+    "target": 1
 }

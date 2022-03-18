@@ -6,9 +6,11 @@ pub use field_expr::{
 };
 use serde::{Deserialize, Serialize};
 
+use strum::AsRefStr;
+
 mod field_expr;
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, AsRefStr)]
 #[serde(tag = "opcode")]
 pub enum GrassIR {
     /// Cast the inner data stream to a bed3 data stream

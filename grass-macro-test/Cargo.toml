@@ -7,3 +7,6 @@ edition = "2021"
 
 [dependencies.grass-macro]
 path = "../grass-macro"
+
+[dependencies.grass-runtime]
+path = "../grass-runtime"
