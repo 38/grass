@@ -1,6 +1,5 @@
 from pygrass.ir import IRBase
 
-
 class BackendBase(object):
     def __init__(self):
         pass

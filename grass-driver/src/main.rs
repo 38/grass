@@ -1,4 +1,4 @@
-use std::{fs::File, process::exit};
+use std::{fs::File, process::exit, io::{BufReader, BufRead}};
 
 use job::JobDefinition;
 
@@ -25,7 +25,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let mut job : JobDefinition = serde_json::from_reader(File::open(&args[1])?)?;
         match args[0].as_str() {
             "exec" => {
-                job.execute_artifact()?;
+                if let Err(e) = job.execute_artifact() {
+                    let err_log = BufReader::new(job.get_stderr_log()?);
+                    for line in err_log.lines() {
+                        let line_text = line?;
+                        eprintln!("stderr: {}", line_text);
+                    }
+                    Err(e)?;
+                }
             }
             "expand" => {
                 job.print_expanded_code()?;

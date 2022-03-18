@@ -9,6 +9,8 @@ mod open;
 mod write;
 mod let_binding;
 mod intersect;
+mod filter;
+mod field_expr;
     
 pub fn expand_grass_ir(ir: &GrassIR, ctx: &mut ExpansionContext) -> ExpandResult{
     match ir {
@@ -16,6 +18,7 @@ pub fn expand_grass_ir(ir: &GrassIR, ctx: &mut ExpansionContext) -> ExpandResult
         GrassIR::WriteFile(write_param) => write_param.expand(ctx),
         GrassIR::Let(param) => param.expand(ctx),
         GrassIR::Intersection(param) => param.expand(ctx),
+        GrassIR::Filter(param) => param.expand(ctx),
         _ => panic!("Unimplemented IR {}", ir.as_ref()),
     }
 }

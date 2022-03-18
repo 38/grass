@@ -5,9 +5,9 @@ from pygrass.interval import IntervalBase, IntervalFile
 from pygrass.interval.formats import BedFile, BamFile, Bed3File
 from pygrass.interval.cast import Bed3
 from pygrass.interval.field_expr import length, start, end, length, name, chr, strand, item
-from pygrass.backend import DumpIR, BackendBase
+from pygrass.backend import DumpIR, BackendBase, RustBackend
 
-ActiveBackendCtr : Callable[[], BackendBase] = DumpIR
+ActiveBackendCtr : Callable[[], BackendBase] = RustBackend
 
 backend_session = None
 

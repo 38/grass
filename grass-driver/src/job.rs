@@ -84,6 +84,9 @@ fn default_cache_root() -> PathBuf {
 }
 
 impl JobDefinition {
+    pub fn get_stderr_log(&mut self) -> Result<File> {
+        File::open(self.get_compilation_dir()?.join("stderr.log"))
+    }
     pub fn cargo(&mut self, args: &[&str], capture_stdout: bool) -> Result<Child> {
         let mut cmd = Command::new("cargo");
         

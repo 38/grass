@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 pub use field_expr::{
     BinaryParam, ComponentFieldRefParam, CondParam, ConstParam, FieldExpression, FieldRefParam,
-    RecordRefParam, UnaryParam,
+    RecordRefParam, UnaryParam, ConstValue,
 };
 use serde::{Deserialize, Serialize};
 

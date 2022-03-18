@@ -1,1 +1,1 @@
-grass_macro::import_grass_ir_from_file!("../data/ir/sorted-intersect.py.json");
+grass_macro::import_grass_ir_from_file!("../data/ir/filter.py.json");
