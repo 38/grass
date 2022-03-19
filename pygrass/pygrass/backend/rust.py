@@ -27,3 +27,18 @@ class RustBackend(BackendBase):
         ).wait()
         if ret != 0:
             raise RuntimeError("Rust backend returns a failure")
+
+class DumpRustCode(BackendBase):
+    def __init__(self, driver_executable = "../target/debug/grass-driver"):
+        super().__init__()
+        self._driver = driver_executable
+    def register_ir(self, ir: IRBase):
+        file = NamedTemporaryFile("w")
+        job = compose_job_file(ir)
+        json.dump(job, file)
+        file.flush()
+        ret = subprocess.Popen(
+            args = [self._driver, "expand", file.name],
+        ).wait()
+        if ret != 0:
+            raise RuntimeError("Rust backend returns a failure")
