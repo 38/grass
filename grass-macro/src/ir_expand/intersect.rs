@@ -1,4 +1,4 @@
-use grass_ir::IntersectParam;
+use grass_ir::{IntersectParam, IntersectFlavor};
 use quote::quote;
 
 use super::{Expand, ExpandResult, ExpansionContext, expand_grass_ir};
@@ -12,10 +12,22 @@ impl Expand for IntersectParam {
             let left_token = ctx.get_var_ref(&left);
             let right_token = ctx.get_var_ref(&right);
             let code = match self.flavor {
-                grass_ir::IntersectFlavor::Inner => quote! {
+                IntersectFlavor::Inner => quote! {
                     {
                         use grass_runtime::algorithm::SortedIntersect;
                         #left_token .sorted_intersect(#right_token)
+                    }
+                },
+                IntersectFlavor::LeftOuter => quote! {
+                    {
+                        use grass_runtime::algorithm::SortedIntersect;
+                        #left_token . sorted_left_outer_intersect(#right_token)
+                    }
+                },
+                IntersectFlavor::RightOuter => quote! {
+                    {
+                        use grass_runtime::algorithm::SortedIntersect;
+                        #left_token . sorted_right_outer_intersect(#right_token)
                     }
                 },
                 _ => todo!()

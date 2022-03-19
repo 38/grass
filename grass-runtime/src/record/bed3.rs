@@ -1,4 +1,4 @@
-use std::io::{Write, Result};
+use std::{io::{Write, Result}};
 
 use crate::{ChrRef, property::{RegionCore, Scored, Stranded, Serializable, Parsable}};
 
@@ -16,6 +16,16 @@ impl Serializable for Bed3 {
         crate::ioutils::write_number(&mut fp, self.start() as i32)?;
         fp.write(b"\t")?;
         crate::ioutils::write_number(&mut fp, self.end() as i32).map(|_| ())
+    }
+}
+
+impl Serializable for Option<Bed3> {
+    fn dump<W: Write>(&self, mut fp: W) -> Result<()>{
+        if let Some(inner) = self {
+            inner.dump(fp)
+        } else {
+            fp.write_all(b".\t.\t.\t")
+        }
     }
 }
 

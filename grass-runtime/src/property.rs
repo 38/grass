@@ -39,6 +39,18 @@ pub trait Region: RegionCore {
 
 impl<T: RegionCore> Region for T {}
 
+impl <T: Region> RegionCore for Option<T> {
+    fn start(&self) -> u32 {
+        self.as_ref().map_or(0, |what| what.start())
+    }
+    fn end(&self) -> u32 {
+        self.as_ref().map_or(0, |what| what.end())
+    }
+    fn chrom(&self) -> ChrRef<'static> {
+        self.as_ref().map_or(ChrRef::Dummy, |what| what.chrom())
+    }
+}
+
 impl<'a, T: Region> RegionCore for &'a T {
     fn start(&self) -> u32 {
         T::start(*self)
@@ -82,8 +94,20 @@ pub trait IntersectOps: RegionCore {
     fn size(&self) -> usize;
 }
 
+pub trait DumpComponent: RegionCore {
+    fn dump_component<W:Write>(&self, idx: usize, fp: W) -> Result<()>;
+}
+
 macro_rules! impl_intersection_trait {
     ($($t_name: ident),* => $($idx: tt),*) => {
+        impl <$($t_name: Region + Serializable),*> DumpComponent for ($($t_name),*) {
+            fn dump_component<W:Write>(&self, idx: usize, mut fp: W) -> Result<()> {
+                match idx {
+                    $($idx => self.$idx.dump(&mut fp),)*
+                    _ => panic!("Index out of range")
+                }
+            }
+        }
         impl <$($t_name: Region),*> IntersectOps for ($($t_name),*) {
             fn component(&self, idx: usize) -> &dyn RegionCore {
                 match idx {

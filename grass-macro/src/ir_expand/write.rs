@@ -24,8 +24,21 @@ impl Expand for WriteFileParam {
                 };
                 Ok(ctx.push(code))
             },
-            grass_ir::WriteTarget::Path(_path) => {
-                todo!()
+            grass_ir::WriteTarget::Path(path) => {
+                let inner = expand_grass_ir(self.what.as_ref(), ctx)?;
+                let inner_ref = ctx.get_var_ref(&inner);
+                let code = quote! {
+                    {
+                        use std::io::Write;
+                        use grass_runtime::property::Serializable;
+                        let mut out_f = std::fs::File::open(#path);
+                        for item in #inner_ref {
+                            item.dump(&mut out_f)?;
+                            out_f.write_all(b"\n")?;
+                        }
+                    }
+                };
+                Ok(ctx.push(code))
             }
         }
     }

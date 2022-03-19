@@ -3,7 +3,9 @@ use std::collections::HashMap;
 use grass_ir::GrassIR;
 use proc_macro2::{Span, TokenStream};
 use quote::quote;
-use uuid::adapter::Simple; 
+use uuid::adapter::Simple;
+
+use self::format::expand_write_record_rec; 
 
 mod open;
 mod write;
@@ -11,11 +13,27 @@ mod let_binding;
 mod intersect;
 mod filter;
 mod field_expr;
+mod format; 
     
 pub fn expand_grass_ir(ir: &GrassIR, ctx: &mut ExpansionContext) -> ExpandResult{
     match ir {
         GrassIR::Open(open_param) => open_param.expand(ctx),
-        GrassIR::WriteFile(write_param) => write_param.expand(ctx),
+        GrassIR::WriteFile(write_param) => {
+            match write_param.what.as_ref() {
+                GrassIR::Let(param) => {
+                    match param.value.as_ref() {
+                        GrassIR::Format(param) => {
+                            expand_write_record_rec(param, &write_param.target, ctx)
+                        },
+                        _ => write_param.expand(ctx),
+                    }
+                },
+                GrassIR::Format(param) => {
+                    expand_write_record_rec(param, &write_param.target, ctx)
+                }
+                _ => write_param.expand(ctx)
+            }
+        }
         GrassIR::Let(param) => param.expand(ctx),
         GrassIR::Intersection(param) => param.expand(ctx),
         GrassIR::Filter(param) => param.expand(ctx),

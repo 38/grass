@@ -12,6 +12,7 @@ pub struct Genome {
 pub enum ChrRef<'a>{
     Assigned(usize),
     Unassigned(&'a str),
+    Dummy,
 }
 
 impl <'a> PartialEq for ChrRef<'a> {
@@ -19,6 +20,9 @@ impl <'a> PartialEq for ChrRef<'a> {
         match (self, other) {
             (Self::Assigned(l0), Self::Assigned(r0)) => l0 == r0,
             (Self::Unassigned(l0), Self::Unassigned(r0)) => l0 == r0,
+            (Self::Dummy, Self::Dummy) => true,
+            (_, Self::Dummy) => false,
+            (Self::Dummy, _) => false,
             _ => {
                 let this_str = self.get_chr_name();
                 let that_str = self.get_chr_name();
@@ -58,7 +62,11 @@ impl <'a> ToString for ChrRef<'a> {
 impl <'a> ChrRef<'a> {
     pub fn to_static(&self) -> ChrRef<'static> {
         let id = self.get_id_or_update();
-        ChrRef::Assigned(id)
+        if id < usize::MAX {
+            ChrRef::Assigned(id)
+        } else {
+            ChrRef::Dummy
+        }
     }
     pub fn get_chr_name(&self) -> &'a str {
         match self {
@@ -69,12 +77,16 @@ impl <'a> ChrRef<'a> {
                     std::mem::transmute(storage.chr_name_list[*id].as_str())
                 }
             }
+            Self::Dummy => {
+                "."
+            }
         }
     }
     pub fn id(&self) -> Option<usize> {
         match self {
             Self::Unassigned(_) => None,
             Self::Assigned(id) => Some(*id),
+            Self::Dummy => None,
         }
     }
     pub fn get_id_or_update(&self) -> usize  {
@@ -88,6 +100,7 @@ impl <'a> ChrRef<'a> {
                 id
             },
             Self::Assigned(id) => *id,
+            _ => usize::MAX,
         }
     }
     pub fn get_chr_size(&self) -> Option<usize> {

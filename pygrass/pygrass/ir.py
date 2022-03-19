@@ -306,6 +306,10 @@ class RecordRef(IRBase):
         ret["id"] = self._id
         return ret
 
+class StringRepr(UnaryBase):
+    def __init__(self, operand: IRBase):
+        super().__init__("StringRepr", "value", operand)
+
 class And(BinaryBase):
     def __init__(self, lhs : IRBase, rhs : IRBase):
         super().__init__("And", lhs, rhs)

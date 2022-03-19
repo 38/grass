@@ -1,5 +1,5 @@
 from typing import Callable
-from pygrass.ir import Add, And, ComponentFieldRef, Cond, Div, Eq, FieldRef, FullRecordRef, GreaterEqualThan, GreaterThan, IRBase, LeftShift, LessEqualThan, LessThan, Mod, Mul, Ne, Neg, Or, Not as NotIR, RecordRef, RightShift, Sub, Xor as XorIR, NumberOfComponents as NumberOfComponentsIR, ConstValue
+from pygrass.ir import Add, And, ComponentFieldRef, Cond, Div, Eq, FieldRef, FullRecordRef, GreaterEqualThan, GreaterThan, IRBase, LeftShift, LessEqualThan, LessThan, Mod, Mul, Ne, Neg, Or, Not as NotIR, RecordRef, RightShift, StringRepr, Sub, Xor as XorIR, NumberOfComponents as NumberOfComponentsIR, ConstValue
 
 class FieldExpr(object):
     def __getitem__(self, idx):
@@ -60,6 +60,7 @@ class ComponentAccess(FieldExpr):
         super().__init__()
         self._target = make_field_expression(target)
         self._idx = idx
+        self.str_repr = Operator(StringRepr, self)
     def lower_to_ir(self, subs : int = None) -> IRBase:
         if subs != None:
             raise RuntimeError("Cannot set subscription twice")

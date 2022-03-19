@@ -111,17 +111,26 @@ fn expand_field_expr_impl(expr: &FieldExpression, span: Span) -> TokenStream {
         },
         FieldExpression::FieldRef(param) => {
             let p = syn::Ident::new(param.field.as_str(), span); 
-            quote! {
-                ({
-                    use grass_runtime::property::*;
-                    _arg . #p
-                })
+            if param.field != "start" && param.field != "end"  {
+                quote! {
+                    ({
+                        use grass_runtime::property::*;
+                        _arg . #p ()
+                    })
+                }
+            } else {
+                quote! {
+                    ({
+                        use grass_runtime::property::*;
+                        _arg . #p ()
+                    } as f64)
+                }
             }
         }
         FieldExpression::NumberOfComponents => {
             quote!{
                 ({
-                    use grass_runtime::property::IntersectOps;
+                    use grass_runtime::property::*;
                     _arg.size()
                 })
             }
@@ -129,21 +138,30 @@ fn expand_field_expr_impl(expr: &FieldExpression, span: Span) -> TokenStream {
         FieldExpression::ComponentFieldRef(param) => {
             let field_name = syn::Ident::new(param.field_name.as_str(), span);
             let comp_idx = syn::LitInt::new(&format!("{}", param.target), span);
-            quote! {
-                ({
-                    use grass_runtime::property::IntersectOps;
-                    _arg.component(#comp_idx) . #field_name
-                })
-            } 
+            if param.field_name != "start" && param.field_name != "end"  {
+                quote! {
+                    ({
+                        use grass_runtime::property::*;
+                        _arg. #comp_idx . #field_name ()
+                    })
+                } 
+            } else {
+                quote! {
+                    ({
+                        use grass_runtime::property::*;
+                        _arg. #comp_idx . #field_name ()
+                    } as f64)
+                } 
+            }
         }
         FieldExpression::ConstValue(param) => {
             match &param.value {
                 ConstValue::Float(value) => {
-                    let tk = syn::LitFloat::new(&format!("{}", value), span);
+                    let tk = syn::LitFloat::new(&format!("{}f64", value), span);
                     quote! { #tk }
                 }
                 ConstValue::Number(value) => {
-                    let tk = syn::LitInt::new(&format!("{}", value), span);
+                    let tk = syn::LitFloat::new(&format!("{}f64", value), span);
                     quote! { #tk }
                 }
                 ConstValue::Str(value) => {
@@ -161,10 +179,21 @@ fn expand_field_expr_impl(expr: &FieldExpression, span: Span) -> TokenStream {
            let id = syn::LitInt::new(&format!("{}", param.id), span);
            quote! {
                ({
-                   use grass_runtime::properties::*;
+                   use grass_runtime::property::*;
                    _arg . #id
                })
            }
+        },
+        FieldExpression::StringRepr(param) => {
+            let inner = expand_field_expr_impl(param.value.as_ref(), span);
+            quote!{
+                {
+                    use grass_runtime::property::*;
+                    let mut buffer = Vec::new();
+                    #inner . dump(&mut buffer).unwrap();
+                    String::from_utf8(buffer).unwrap()
+                }
+            }
         }
     }.into()
 }

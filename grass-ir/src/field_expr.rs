@@ -28,6 +28,7 @@ pub enum FieldExpression {
     ConstValue(ConstParam),
     FullRecordRef,
     RecordRef(RecordRefParam),
+    StringRepr(StringRepr),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -64,6 +65,11 @@ pub struct CondParam {
     pub cond: Box<FieldExpression>,
     pub then: Box<FieldExpression>,
     pub elze: Box<FieldExpression>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct StringRepr {
+    pub value: Box<FieldExpression>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

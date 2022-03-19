@@ -12,7 +12,6 @@ pub use file::LineRecordStreamExt;
 pub mod prelude {
 }
 
-
 #[cfg(test)]
 mod test {
     use crate::Genome;
