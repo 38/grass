@@ -38,7 +38,7 @@
                     "sorted": true
                 }
             },
-            "fmt_str": "{a}\t{b}\t{start},{end}\t{length}",
+            "fmt_str": "{a}\t{b}\t{length}",
             "values": {
                 "a": {
                     "opcode": "StringRepr",
@@ -53,14 +53,6 @@
                         "opcode": "RecordRef",
                         "id": 1
                     }
-                },
-                "start": {
-                    "opcode": "FieldRef",
-                    "field": "start"
-                },
-                "end": {
-                    "opcode": "FieldRef",
-                    "field": "end"
                 },
                 "length": {
                     "opcode": "Sub",

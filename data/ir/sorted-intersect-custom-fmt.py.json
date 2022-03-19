@@ -38,25 +38,54 @@
                     "sorted": true
                 }
             },
-            "fmt_str": "{a}\t{b}\t{length}",
+            "fmt_str": "{a}\t{b}\tOverlaps = {length:.2}%",
             "values": {
                 "a": {
-                    "opcode": "RecordRef",
-                    "id": 0
+                    "opcode": "StringRepr",
+                    "value": {
+                        "opcode": "RecordRef",
+                        "id": 0
+                    }
                 },
                 "b": {
-                    "opcode": "RecordRef",
-                    "id": 1
+                    "opcode": "StringRepr",
+                    "value": {
+                        "opcode": "RecordRef",
+                        "id": 1
+                    }
                 },
                 "length": {
-                    "opcode": "Sub",
+                    "opcode": "Mul",
                     "lhs": {
-                        "opcode": "FieldRef",
-                        "field": "end"
+                        "opcode": "Div",
+                        "lhs": {
+                            "opcode": "Sub",
+                            "lhs": {
+                                "opcode": "FieldRef",
+                                "field": "end"
+                            },
+                            "rhs": {
+                                "opcode": "FieldRef",
+                                "field": "start"
+                            }
+                        },
+                        "rhs": {
+                            "opcode": "Sub",
+                            "lhs": {
+                                "opcode": "ComponentFieldRef",
+                                "target": 0,
+                                "field_name": "end"
+                            },
+                            "rhs": {
+                                "opcode": "ComponentFieldRef",
+                                "target": 0,
+                                "field_name": "start"
+                            }
+                        }
                     },
                     "rhs": {
-                        "opcode": "FieldRef",
-                        "field": "start"
+                        "opcode": "ConstValue",
+                        "value": 100
                     }
                 }
             }
