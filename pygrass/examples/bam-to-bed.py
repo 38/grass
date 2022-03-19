@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+#TODO: Macro
 from sys import argv
 from pygrass import BamFile, Bed3 
 
