@@ -36,6 +36,7 @@ function publish-crate() {
 	pushd $1
 	cargo update
 	cargo publish
+	rm -rf target
 	popd
 	mv Cargo.toml.tmp Cargo.toml
 	sleep 20
