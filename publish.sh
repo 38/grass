@@ -47,6 +47,6 @@ publish-crate grass-runtime
 publish-crate grass-macro
 publish-crate grass-driver
 
-git checkout master
+git checkout main
 git push origin
 git push origin "v${NEW_VERSION}"
