@@ -10,3 +10,9 @@ Cargo.lock
 **/*.rs.bk
 
 **/__pycache__
+
+pygrass/dist/**
+pygrass/*.egg-info/**
+pygrass/build/**
+pygrass/**/__pycache__/**
+.ipynb*

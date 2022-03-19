@@ -1,2 +1,3 @@
 [workspace]
-members = ["grass-ir", "grass-macro", "grass-macro-test", "grass-runtime", "grass-driver"]
+members = ["grass-ir", "grass-macro", "grass-macro-test", "grass-runtime", "grass-driver", "pygrass"]
+default-members = ["grass-driver"]

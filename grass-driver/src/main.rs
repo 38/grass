@@ -1,13 +1,9 @@
-use std::{fs::File, process::exit, io::{BufReader, BufRead}};
+use std::{
+    process::exit,
+    fs::File
+};
 
-use job::JobDefinition;
-
-
-mod dependency;
-mod job;
-
-
-pub fn return_true() -> bool { true }
+use grass_driver::JobDefinition;
 
 fn print_usage() -> ! {
     eprintln!("grass-driver exec <job-file>");
@@ -25,14 +21,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let mut job : JobDefinition = serde_json::from_reader(File::open(&args[1])?)?;
         match args[0].as_str() {
             "exec" => {
-                if let Err(e) = job.execute_artifact() {
-                    let err_log = BufReader::new(job.get_stderr_log()?);
-                    for line in err_log.lines() {
-                        let line_text = line?;
-                        eprintln!("stderr: {}", line_text);
-                    }
-                    Err(e)?;
-                }
+                grass_driver::execute_job(&mut job)?;
             }
             "expand" => {
                 job.print_expanded_code()?;
