@@ -1,5 +1,5 @@
 #!/usr/bin/zsh
-export DEFAULT_GRASS_BACKEND="pygrass.backend.DumpIR"
+export GRASS_BACKEND_CLASS="pygrass.backend.DumpIR"
 
 PROJECT_ROOT=$(readlink -f $(dirname $(readlink -f $0))/..)
 

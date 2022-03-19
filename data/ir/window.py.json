@@ -71,7 +71,7 @@
                     "sorted": true
                 }
             },
-            "sorted": false
+            "sorted": true
         }
     },
     "target": 1

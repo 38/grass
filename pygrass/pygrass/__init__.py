@@ -11,8 +11,8 @@ import os
 import importlib
 
 def _load_default_backend():
-    if "DEFAULT_GRASS_BACKEND" in os.environ:
-        class_path_token = os.environ["DEFAULT_GRASS_BACKEND"].split(".")
+    if "GRASS_BACKEND_CLASS" in os.environ:
+        class_path_token = os.environ["GRASS_BACKEND_CLASS"].split(".")
         module = ".".join(class_path_token[:-1])
         class_name = class_path_token[-1] 
         return getattr(importlib.import_module(module), class_name)
