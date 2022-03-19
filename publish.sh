@@ -41,10 +41,10 @@ function publish-crate() {
 	sleep 20
 }
 
-publish-crate grass-driver
-publish-crate grass-runtime
 publish-crate grass-ir
+publish-crate grass-runtime
 publish-crate grass-macro
+publish-crate grass-driver
 
 git checkout master
 git push origin
