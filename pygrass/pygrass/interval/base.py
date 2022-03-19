@@ -1,6 +1,6 @@
 from pygrass.interval.field_expr import FieldExpr, make_field_expression
 from pygrass.record_base import RecordCollectionBase
-from pygrass.ir import Alter, And, Filter as FilterIR, Format, GroupBy as GroupByIR, IRBase, Merge, Intersection as IntersectionIR
+from pygrass.ir import AssumeSortedIR, Alter, And, Filter as FilterIR, Format, GroupBy as GroupByIR, IRBase, Merge, Intersection as IntersectionIR
 
 class IntervalBase(RecordCollectionBase):
     def __init__(self):
@@ -9,7 +9,9 @@ class IntervalBase(RecordCollectionBase):
     def format(self, fmt : str, **kwargs):
         return FormatedInterval(self, fmt, **kwargs)
     def alter(self, **kwargs):
-        return AlteredInterval(self, **kwargs)        
+        return AlteredInterval(self, **kwargs)
+    def assume_sorted(self):
+        return AssumeSorted(self)
     def filter(self, cond, *args):
         return FilteredInterval(self, cond, *args)
     def merge(self):
@@ -24,7 +26,16 @@ class IntervalBase(RecordCollectionBase):
         return Intersection(self, other, flavor = "right-outer")
     def group_by(self, *args):
         return GroupBy(self, *args)
-
+class AssumeSorted(IntervalBase):
+    def __init__(self, inner: IntervalBase):
+        super().__init__()
+        self._inner = inner
+        self._sorted = True
+    def emit_eval_code(self) -> IRBase:
+        code = self._inner.lower_to_ir()
+        return AssumeSortedIR(
+            inner = code
+        )
 class GroupBy(IntervalBase):
     def __init__(self, inner : IntervalBase, *args):
         super().__init__()
@@ -59,7 +70,7 @@ class AlteredInterval(IntervalBase):
         super().__init__()
         self._alters = {}
         self._base = base
-        self._sorted = self._base._sorted
+        self._sorted = False
         for key, value in kwargs.items():
             self._alters[key] = make_field_expression(value)
     def emit_eval_code(self) -> IRBase:

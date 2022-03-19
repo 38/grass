@@ -62,6 +62,12 @@ impl Bed3 {
             end: region.end(),
         }
     }
+    pub fn set_start(&mut self, start: f64) {
+        self.start = start as u32;
+    }
+    pub fn set_end(&mut self, end: f64) {
+        self.end = end as u32;
+    }
 }
 
 impl RegionCore for Bed3 {

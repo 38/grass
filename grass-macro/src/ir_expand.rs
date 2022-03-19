@@ -14,6 +14,8 @@ mod intersect;
 mod filter;
 mod field_expr;
 mod format; 
+mod alter;
+mod assume_sorted;
     
 pub fn expand_grass_ir(ir: &GrassIR, ctx: &mut ExpansionContext) -> ExpandResult{
     match ir {
@@ -37,6 +39,8 @@ pub fn expand_grass_ir(ir: &GrassIR, ctx: &mut ExpansionContext) -> ExpandResult
         GrassIR::Let(param) => param.expand(ctx),
         GrassIR::Intersection(param) => param.expand(ctx),
         GrassIR::Filter(param) => param.expand(ctx),
+        GrassIR::Alter(param) => param.expand(ctx),
+        GrassIR::AssumeSorted(param) => param.expand(ctx),
         _ => panic!("Unimplemented IR {}", ir.as_ref()),
     }
 }

@@ -10,51 +10,58 @@
                 "opcode": "Let",
                 "id": "_grass_res_1",
                 "value": {
-                    "opcode": "Alter",
+                    "opcode": "AssumeSorted",
                     "inner": {
-                        "opcode": "Alter",
-                        "inner": {
-                            "opcode": "Let",
-                            "id": "_grass_res_2",
-                            "value": {
-                                "opcode": "Open",
-                                "path": "a.bed",
-                                "format": "Bed",
-                                "num_of_fields": 3,
-                                "compression": false,
-                                "sorted": true
-                            }
-                        },
-                        "field": "start",
+                        "opcode": "Let",
+                        "id": "_grass_res_2",
                         "value": {
-                            "opcode": "Sub",
-                            "lhs": {
-                                "opcode": "FieldRef",
-                                "field": "start"
+                            "opcode": "Alter",
+                            "inner": {
+                                "opcode": "Alter",
+                                "inner": {
+                                    "opcode": "Let",
+                                    "id": "_grass_res_3",
+                                    "value": {
+                                        "opcode": "Open",
+                                        "path": "a.bed",
+                                        "format": "Bed",
+                                        "num_of_fields": 3,
+                                        "compression": false,
+                                        "sorted": true
+                                    }
+                                },
+                                "field": "start",
+                                "value": {
+                                    "opcode": "Sub",
+                                    "lhs": {
+                                        "opcode": "FieldRef",
+                                        "field": "start"
+                                    },
+                                    "rhs": {
+                                        "opcode": "ConstValue",
+                                        "value": 1000
+                                    }
+                                }
                             },
-                            "rhs": {
-                                "opcode": "ConstValue",
-                                "value": 1000
+                            "field": "end",
+                            "value": {
+                                "opcode": "Add",
+                                "lhs": {
+                                    "opcode": "FieldRef",
+                                    "field": "end"
+                                },
+                                "rhs": {
+                                    "opcode": "ConstValue",
+                                    "value": 1000
+                                }
                             }
-                        }
-                    },
-                    "field": "end",
-                    "value": {
-                        "opcode": "Add",
-                        "lhs": {
-                            "opcode": "FieldRef",
-                            "field": "end"
-                        },
-                        "rhs": {
-                            "opcode": "ConstValue",
-                            "value": 1000
                         }
                     }
                 }
             },
             "rhs": {
                 "opcode": "Let",
-                "id": "_grass_res_3",
+                "id": "_grass_res_4",
                 "value": {
                     "opcode": "Open",
                     "path": "b.bed",
@@ -64,7 +71,7 @@
                     "sorted": true
                 }
             },
-            "sorted": true
+            "sorted": false
         }
     },
     "target": 1

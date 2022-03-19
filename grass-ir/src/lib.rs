@@ -35,6 +35,8 @@ pub enum GrassIR {
     Format(FormatParam),
     /// Group the records in a GRASS expression into groups
     GroupBy(GroupByParam),
+
+    AssumeSorted(AssumeSortedParam),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -112,6 +114,12 @@ pub struct AlterParam {
     pub field: String,
     /// The new value this field should assigned to
     pub value: FieldExpression,
+}
+
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct AssumeSortedParam {
+    pub inner: Box<GrassIR>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

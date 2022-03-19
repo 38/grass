@@ -136,6 +136,14 @@ class Format(BatchOperationBase):
             ret["values"][key] = self._values[key].to_dict()
         return ret
 
+class AssumeSortedIR(BatchOperationBase):
+    def __init__(self, inner: IRBase):
+        super().__init__("AssumeSorted")
+        self._inner = inner
+    def to_dict(self) -> dict[str]:
+        ret = super().to_dict()
+        ret["inner"] = self._inner.to_dict()
+        return ret
 class Alter(BatchOperationBase):
     def __init__(self, base : IRBase, target_field : str, value_expr : IRBase):
         super().__init__("Alter")

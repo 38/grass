@@ -14,6 +14,10 @@ windowed_first_file = first_file.alter(
     end = end + 1000
 )
 
+# Since the alter function may break the order of the file, so we need to manually 
+# convince GRASS the altered file is still sorted.
+windowed_first_file = windowed_first_file.assume_sorted()
+
 # Run the actual intersection
 result = windowed_first_file.intersect(second_file)
 
