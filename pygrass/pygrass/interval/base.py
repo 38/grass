@@ -1,6 +1,6 @@
 from pygrass.interval.field_expr import FieldExpr, make_field_expression
 from pygrass.record_base import RecordCollectionBase
-from pygrass.ir import AssumeSortedIR, Alter, And, Filter as FilterIR, Format, GroupBy as GroupByIR, IRBase, Merge, Intersection as IntersectionIR
+from pygrass.ir import AssumeSortedIR, Alter, And, Filter as FilterIR, Format, GroupBy as GroupByIR, IRBase, InlineRust, Merge, Intersection as IntersectionIR
 
 class IntervalBase(RecordCollectionBase):
     def __init__(self):
@@ -26,6 +26,19 @@ class IntervalBase(RecordCollectionBase):
         return Intersection(self, other, flavor = "right-outer")
     def group_by(self, *args):
         return GroupBy(self, *args)
+
+class InlineRustIntervalIterator(IntervalBase):
+    def __init__(self, env, code, sorted = False):
+        super().__init__()
+        self._env = env
+        self._code = code
+        self._sorted = sorted
+    def emit_eval_code(self) -> IRBase:
+        _env_ir = {}
+        for key, expr in self._env.items():
+            _env_ir[key] = expr.lower_to_ir()
+        return InlineRust(_env_ir, self._code)
+
 class AssumeSorted(IntervalBase):
     def __init__(self, inner: IntervalBase):
         super().__init__()

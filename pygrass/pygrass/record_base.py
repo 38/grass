@@ -36,6 +36,9 @@ class RustEnv(object):
         for key, expr in self._env.items():
             _env_ir[key] = expr.lower_to_ir()
         return InlineRust(_env_ir, code)
+    def iter_processor(self, code):
+        from pygrass.interval.base import InlineRustIntervalIterator
+        return InlineRustIntervalIterator(self._env, code)
 
 class RecordCollectionBase(IteratorBase):
 	def __init__(self):

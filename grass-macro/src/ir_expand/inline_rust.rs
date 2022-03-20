@@ -20,9 +20,10 @@ impl Expand for InlineRustParam {
         let inline_code : TokenStream = syn::parse_str(self.src.as_str())?;
         let code = quote! {
             {
-                std::iter::once((#(#vals,)*)).for_each(|(#(#args,)*)|{
+                let _temp = std::iter::once((#(#vals,)*)).map(|(#(#args,)*)|{
                     #inline_code
-                })
+                }).next();
+                unsafe { _temp.unwrap_unchecked() }
             }
         };
         Ok(ctx.push(code))
