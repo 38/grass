@@ -1,0 +1,26 @@
+{
+    "opcode": "WriteFile",
+    "what": {
+        "opcode": "Let",
+        "id": "_grass_res_0",
+        "value": {
+            "opcode": "InlineRust",
+            "env": {
+                "input": {
+                    "opcode": "Let",
+                    "id": "_grass_res_1",
+                    "value": {
+                        "opcode": "Open",
+                        "path": "a.bed",
+                        "format": "Bed",
+                        "num_of_fields": 3,
+                        "compression": false,
+                        "sorted": true
+                    }
+                }
+            },
+            "src": "\nuse grass_runtime::property::*;\n\ninput.map(|item| {\n    // Create the interval before the original interval\n    let mut before = item.clone();\n    before.start = item.start().max(10) - 10;\n    before.end = item.start();\n\n    // Create the interval after the original interval\n    let mut after = item;\n    after.start = after.end();\n    after.end = after.end() + 10;\n\n    // Chain the interval and return it\n    std::iter::once(before).chain(std::iter::once(after))\n}).flatten()\n"
+        }
+    },
+    "target": 1
+}

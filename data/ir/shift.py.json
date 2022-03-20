@@ -40,8 +40,22 @@
                             "field": "start"
                         },
                         "rhs": {
-                            "opcode": "ConstValue",
-                            "value": 10
+                            "opcode": "Mul",
+                            "lhs": {
+                                "opcode": "Sub",
+                                "lhs": {
+                                    "opcode": "FieldRef",
+                                    "field": "end"
+                                },
+                                "rhs": {
+                                    "opcode": "FieldRef",
+                                    "field": "start"
+                                }
+                            },
+                            "rhs": {
+                                "opcode": "ConstValue",
+                                "value": 0.5
+                            }
                         }
                     },
                     "elze": {
@@ -71,8 +85,22 @@
                         "field": "end"
                     },
                     "rhs": {
-                        "opcode": "ConstValue",
-                        "value": 10
+                        "opcode": "Mul",
+                        "lhs": {
+                            "opcode": "Sub",
+                            "lhs": {
+                                "opcode": "FieldRef",
+                                "field": "end"
+                            },
+                            "rhs": {
+                                "opcode": "FieldRef",
+                                "field": "start"
+                            }
+                        },
+                        "rhs": {
+                            "opcode": "ConstValue",
+                            "value": 0.5
+                        }
                     }
                 },
                 "elze": {
