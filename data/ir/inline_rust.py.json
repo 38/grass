@@ -1,0 +1,18 @@
+{
+    "opcode": "InlineRust",
+    "env": {
+        "input_file": {
+            "opcode": "Let",
+            "id": "_grass_res_0",
+            "value": {
+                "opcode": "Open",
+                "path": "a.bed",
+                "format": "Bed",
+                "num_of_fields": 3,
+                "compression": false,
+                "sorted": true
+            }
+        }
+    },
+    "src": "\nuse grass_runtime::property::*;\n\nprintln!(\"Hello World!\");\nprintln!(\"This is Rust code inlined in pygrass\");\nfor item in input_file {\n    println!(\"chr={} start={} end={}\", item.chrom(), item.start(), item.end());\n}\n"
+}

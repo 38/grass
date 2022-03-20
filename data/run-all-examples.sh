@@ -3,7 +3,10 @@ export GRASS_BACKEND_CLASS="pygrass.backend.DumpIR"
 
 PROJECT_ROOT=$(readlink -f $(dirname $(readlink -f $0))/..)
 
-export PYTHONPATH=${PROJECT_ROOT}/pygrass
+cd ${PROJECT_ROOT}/pygrass
+./setup.py build
+
+export PYTHONPATH=${PROJECT_ROOT}/pygrass/build/lib
 
 for example in ${PROJECT_ROOT}/pygrass/examples/*.py
 do

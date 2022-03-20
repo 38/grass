@@ -1,5 +1,5 @@
 use lazy_static::lazy_static;
-use std::{sync::RwLock, collections::HashMap, io::{Read, BufReader, BufRead}};
+use std::{sync::RwLock, collections::HashMap, io::{Read, BufReader, BufRead}, fmt::Display};
 
 #[derive(Default)]
 pub struct Genome {
@@ -13,6 +13,13 @@ pub enum ChrRef<'a>{
     Assigned(usize),
     Unassigned(&'a str),
     Dummy,
+}
+
+impl <'a> Display for ChrRef<'a> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let name = self.get_chr_name();
+        write!(f, "{}", name)
+    }
 }
 
 impl <'a> PartialEq for ChrRef<'a> {
@@ -50,12 +57,6 @@ impl <'a> Ord for ChrRef<'a> {
         let this_id = self.get_id_or_update();
         let that_id = other.get_id_or_update();
         this_id.cmp(&that_id)
-    }
-}
-
-impl <'a> ToString for ChrRef<'a> {
-    fn to_string(&self) -> String {
-        self.get_chr_name().to_string()
     }
 }
 

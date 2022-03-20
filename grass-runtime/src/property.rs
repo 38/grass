@@ -174,6 +174,25 @@ pub enum Strand {
     Unknown,
 }
 
+impl Strand {
+    pub fn is_positive(&self) -> bool {
+        matches!(self, Strand::Positive)
+    }
+    pub fn is_negative(&self) -> bool {
+        matches!(self, Strand::Negative)
+    }
+}
+
+impl <'a> PartialEq<&'a str> for Strand {
+    fn eq(&self, other: &&'a str) -> bool {
+        match self {
+            Self::Positive => *other == "+",
+            Self::Negative => *other == "-",
+            Self::Unknown => *other == "."
+        }
+    }
+}
+
 pub trait Stranded {
     fn strand(&self) -> Strand {
         Strand::Unknown

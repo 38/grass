@@ -32,7 +32,10 @@ class RustEnv(object):
         self._env = kwargs
     @drain_method
     def inline_rust(self, code):
-        return InlineRust(self._env, code)
+        _env_ir = {}
+        for key, expr in self._env.items():
+            _env_ir[key] = expr.lower_to_ir()
+        return InlineRust(_env_ir, code)
 
 class RecordCollectionBase(IteratorBase):
 	def __init__(self):

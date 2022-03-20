@@ -1,0 +1,86 @@
+{
+    "opcode": "WriteFile",
+    "what": {
+        "opcode": "Let",
+        "id": "_grass_res_0",
+        "value": {
+            "opcode": "Alter",
+            "inner": {
+                "opcode": "Alter",
+                "inner": {
+                    "opcode": "Let",
+                    "id": "_grass_res_1",
+                    "value": {
+                        "opcode": "Open",
+                        "path": "a.bed",
+                        "format": "Bed",
+                        "num_of_fields": 3,
+                        "compression": false,
+                        "sorted": true
+                    }
+                },
+                "field": "start",
+                "value": {
+                    "opcode": "Cond",
+                    "cond": {
+                        "opcode": "Eq",
+                        "lhs": {
+                            "opcode": "FieldRef",
+                            "field": "strand"
+                        },
+                        "rhs": {
+                            "opcode": "ConstValue",
+                            "value": "+"
+                        }
+                    },
+                    "then": {
+                        "opcode": "Add",
+                        "lhs": {
+                            "opcode": "FieldRef",
+                            "field": "start"
+                        },
+                        "rhs": {
+                            "opcode": "ConstValue",
+                            "value": 10
+                        }
+                    },
+                    "elze": {
+                        "opcode": "FieldRef",
+                        "field": "start"
+                    }
+                }
+            },
+            "field": "end",
+            "value": {
+                "opcode": "Cond",
+                "cond": {
+                    "opcode": "Eq",
+                    "lhs": {
+                        "opcode": "FieldRef",
+                        "field": "strand"
+                    },
+                    "rhs": {
+                        "opcode": "ConstValue",
+                        "value": "+"
+                    }
+                },
+                "then": {
+                    "opcode": "Add",
+                    "lhs": {
+                        "opcode": "FieldRef",
+                        "field": "end"
+                    },
+                    "rhs": {
+                        "opcode": "ConstValue",
+                        "value": 10
+                    }
+                },
+                "elze": {
+                    "opcode": "FieldRef",
+                    "field": "end"
+                }
+            }
+        }
+    },
+    "target": 1
+}

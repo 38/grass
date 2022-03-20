@@ -57,7 +57,7 @@ class InlineRust(IRBase):
         ret = super().to_dict()
         ret["env"] = {}
         for key, val in self._env.items():
-            ret["env"]["key"] = val.to_dict()
+            ret["env"][key] = val.to_dict()
         ret["src"] = self._src
         return ret
     def uses(self):
