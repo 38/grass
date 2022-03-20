@@ -26,7 +26,7 @@ impl Default for BuildFlavor {
 #[derive(Deserialize)]
 #[allow(unused)]
 pub struct JobDefinition {
-    ir: GrassIR,
+    ir: Vec<GrassIR>,
     #[serde(default)]
     deps: Vec<Dependency>,
     working_dir: PathBuf,
@@ -158,14 +158,28 @@ impl JobDefinition {
     fn write_source_code(&self, root: &Path) -> Result<()> {
         let source_dir = root.join("src");
         std::fs::create_dir(&source_dir)?;
+        
         let source_path = source_dir.join("main.rs");
         let mut source_file = File::create(source_path)?;
-        let ir_path = source_dir.as_path().join("ir.json");
-        
-        writeln!(&mut source_file, "grass_macro::import_grass_ir_from_file!(\"{}\");", ir_path.as_os_str().to_str().unwrap())?;
 
-        let ir_file = File::create(ir_path)?;
-        serde_json::to_writer(ir_file, &self.ir)?;
+        for (id, ir) in self.ir.iter().enumerate() {
+            let ir_path = source_dir.as_path().join(format!("grass_ir_{}.json", id));
+            let ir_file = File::create(&ir_path)?;
+            serde_json::to_writer(ir_file, ir)?;
+
+            writeln!(&mut source_file, "fn grass_query_{id}() -> Result<(), Box<dyn std::error::Error>> {{", id = id)?;
+            writeln!(&mut source_file, "    grass_macro::import_grass_ir_from_file!(\"{ir_file}\");", ir_file = ir_path.as_os_str().to_string_lossy())?;
+            writeln!(&mut source_file, "    Ok(())")?;
+            writeln!(&mut source_file, "}}")?;
+        }
+
+        writeln!(&mut source_file, "fn main() -> Result<(), Box<dyn std::error::Error>> {{")?;
+        for id in 0..self.ir.len() {
+            writeln!(&mut source_file, "    grass_query_{id}()?;", id = id)?;
+        }
+        writeln!(&mut source_file, "    Ok(())")?;
+        writeln!(&mut source_file, "}}")?;
+
         Ok(())
     }
     pub fn get_compilation_dir(&mut self) -> Result<&Path> {

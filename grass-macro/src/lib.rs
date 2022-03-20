@@ -25,10 +25,7 @@ fn grass_impl(ir: &str, span: Span) -> TokenStream {
         Ok(_code) => {
             let code = ctx.to_token_stream();
             quote! {
-                fn main() -> Result<(), Box<dyn std::error::Error>> {
-                    #code;
-                    Ok(())
-                }
+                #code;
             }
         }
         Err(err) => err.into_compile_error()
