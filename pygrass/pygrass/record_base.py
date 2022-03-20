@@ -1,6 +1,6 @@
 from abc import abstractclassmethod
 
-from pygrass.ir import IRBase, Let, Ref, WriteFile, Count
+from pygrass.ir import IRBase, InlineRust, Let, Ref, WriteFile, Count
 
 def _make_free_var_closure():
 	nextid = 0
@@ -26,6 +26,13 @@ def drain_method(origin_method):
 
 class IteratorBase(object):
 	pass
+
+class RustEnv(object):
+    def __init__(self, **kwargs):
+        self._env = kwargs
+    @drain_method
+    def inline_rust(self, code):
+        return InlineRust(self._env, code)
 
 class RecordCollectionBase(IteratorBase):
 	def __init__(self):

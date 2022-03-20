@@ -37,6 +37,14 @@ pub enum GrassIR {
     GroupBy(GroupByParam),
 
     AssumeSorted(AssumeSortedParam),
+
+    InlineRust(InlineRustParam)
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct InlineRustParam {
+    pub env : HashMap<String, GrassIR>,
+    pub src : String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

@@ -47,6 +47,30 @@ class IRBase(object):
 
 # Actual IR representations
 
+## Inline Rust Source Code
+class InlineRust(IRBase):
+    def __init__(self, env : dict[str, IRBase], src):
+        super().__init__("InlineRust")
+        self._env = env
+        self._src = src
+    def to_dict(self) -> dict[str]:
+        ret = super().to_dict()
+        ret["env"] = {}
+        for key, val in self._env.items():
+            ret["env"]["key"] = val.to_dict()
+        ret["src"] = self._src
+        return ret
+    def uses(self):
+        ret = []
+        for var in self._env.value():
+            ret.extend(var.uses())
+        return ret
+    def defs(self):
+        ret = []
+        for var in self._env.value():
+            ret.extend(var.defs())
+        return ret
+
 ## Label assignment
 
 class LabelAssignmentBase(IRBase):

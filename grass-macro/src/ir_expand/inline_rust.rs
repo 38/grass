@@ -1,0 +1,30 @@
+use grass_ir::InlineRustParam;
+use proc_macro2::TokenStream;
+use quote::quote;
+
+use crate::ir_expand::expand_grass_ir;
+
+use super::{Expand, ExpansionContext, ExpandResult};
+
+impl Expand for InlineRustParam {
+    fn expand(&self, ctx: &mut ExpansionContext) -> ExpandResult {
+        let mut args = Vec::new();
+        let mut vals = Vec::new();
+        for (key, val) in self.env.iter() {
+            let arg_ident = syn::Ident::new(key, ctx.span());
+            let val_id = expand_grass_ir(val, ctx)?;
+            let val_ident = ctx.get_var_ref(&val_id);
+            args.push(arg_ident);
+            vals.push(val_ident);
+        }
+        let inline_code : TokenStream = syn::parse_str(self.src.as_str())?;
+        let code = quote! {
+            {
+                std::iter::once((#(#vals,)*)).for_each(|(#(#args,)*)|{
+                    #inline_code
+                })
+            }
+        };
+        Ok(ctx.push(code))
+    }
+}
