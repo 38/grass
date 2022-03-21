@@ -11,7 +11,7 @@ env_logger = "0.9.0"
 serde_json = "1.0.79"
 
 [dependencies.grass-driver]
-path = "../grass-driver"
+path = "/home/haohou/source/grass-project/grass/grass-driver"
 # version = "0.1.2"
 
 [lib]
