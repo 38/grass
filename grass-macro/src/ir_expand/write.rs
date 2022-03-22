@@ -15,7 +15,7 @@ impl Expand for WriteFileParam {
                         use std::os::unix::io::FromRawFd;
                         use std::io::Write;
                         use grass_runtime::property::Serializable;
-                        let mut out_f = unsafe { std::fs::File::from_raw_fd(#fd) };
+                        let mut out_f = std::io::BufWriter::new(unsafe { std::fs::File::from_raw_fd(#fd) });
                         for item in #inner_ref {
                             item.dump(&mut out_f)?;
                             out_f.write_all(b"\n")?;
@@ -31,7 +31,7 @@ impl Expand for WriteFileParam {
                     {
                         use std::io::Write;
                         use grass_runtime::property::Serializable;
-                        let mut out_f = std::fs::File::open(#path);
+                        let mut out_f = std::io::BufWriter::new(std::fs::File::open(#path)?);
                         for item in #inner_ref {
                             item.dump(&mut out_f)?;
                             out_f.write_all(b"\n")?;

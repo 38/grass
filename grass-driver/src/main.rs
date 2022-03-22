@@ -1,7 +1,4 @@
-use std::{
-    process::exit,
-    fs::File
-};
+use std::{fs::File, process::exit};
 
 use grass_driver::JobDefinition;
 
@@ -13,12 +10,12 @@ fn print_usage() -> ! {
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     env_logger::init();
 
-    let args:Vec<_> = std::env::args().skip(1).collect();
+    let args: Vec<_> = std::env::args().skip(1).collect();
 
     if args.len() != 2 {
         print_usage();
     } else {
-        let mut job : JobDefinition = serde_json::from_reader(File::open(&args[1])?)?;
+        let mut job: JobDefinition = serde_json::from_reader(File::open(&args[1])?)?;
         match args[0].as_str() {
             "exec" => {
                 grass_driver::execute_job(&mut job)?;

@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 
-from sys import argv
-from pygrass import IntervalFile, length
+from pygrass import IntervalFile, length, CmdArg
 
-input = IntervalFile(argv[1])
+input = IntervalFile(CmdArg(1))
 
 input.filter(length > 100).print_to_stdout()

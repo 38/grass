@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 pub use field_expr::{
     BinaryParam, ComponentFieldRefParam, CondParam, ConstParam, FieldExpression, FieldRefParam,
@@ -43,7 +43,7 @@ pub enum GrassIR {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct InlineRustParam {
-    pub env : HashMap<String, GrassIR>,
+    pub env : BTreeMap<String, GrassIR>,
     pub src : String,
 }
 
@@ -70,7 +70,7 @@ pub struct FormatParam {
     /// The formatting string
     pub fmt_str: String,
     /// The value referred by the formatting string
-    pub values: HashMap<String, FieldExpression>,
+    pub values: BTreeMap<String, FieldExpression>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -145,9 +145,16 @@ pub enum InputFormat {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub enum OpenTarget {
+    Path(String),
+    FileNo(u32),
+    CmdArg(u32),
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct OpenParam {
     /// The path to the data source
-    pub path: String,
+    pub target: OpenTarget,
     /// What format of the input we are expecting
     pub format: InputFormat,
     /// How many field for each record

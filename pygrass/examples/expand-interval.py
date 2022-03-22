@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 
-from sys import argv
-from pygrass import IntervalFile, start, end
+from pygrass import IntervalFile, start, end, CmdArg
 
 # This means the file format should be automatically detected, but it should be a file representing interval
-input = IntervalFile(argv[1])
+input = IntervalFile(CmdArg(1))
 
 output = input.alter(
     start = start - 100, 

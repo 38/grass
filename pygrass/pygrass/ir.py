@@ -106,9 +106,9 @@ class BatchOperationBase(IRBase):
     pass
 
 class OpenFile(BatchOperationBase):
-    def __init__(self, path : str, format : str, sorted : bool = False, ref : str = None, compression : bool = False, num_of_fields : int = 3):
+    def __init__(self, target: dict, format : str, sorted : bool = False, ref : str = None, compression : bool = False, num_of_fields : int = 3):
         super().__init__("Open")
-        self._path = path
+        self._target = target 
         self._format = format
         self._ref = ref
         self._compression = compression
@@ -116,7 +116,7 @@ class OpenFile(BatchOperationBase):
         self._sorted = sorted
     def to_dict(self) -> dict[str]:
         ret = super().to_dict()
-        ret["path"] = self._path
+        ret["target"] = self._target
         ret["format"] = self._format
         ret["num_of_fields"] = self._num_of_fields
         ret["compression"] = self._compression

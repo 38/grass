@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 
-from sys import argv
-from pygrass import IntervalFile, item, length,start,end
+from pygrass import IntervalFile, item, length,start,end, CmdArg
 
 # Using the "Input" class, GRASS will automatically detect the file format
-first_file = IntervalFile(argv[1], sorted = True)
-second_file = IntervalFile(argv[2], sorted = True)
+first_file = IntervalFile(CmdArg(1), sorted = True)
+second_file = IntervalFile(CmdArg(2), sorted = True)
 
 # Run the actual intersection
 result = first_file.left_outer_intersect(second_file)

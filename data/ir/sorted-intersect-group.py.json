@@ -21,7 +21,10 @@
                                 "id": "_grass_res_3",
                                 "value": {
                                     "opcode": "Open",
-                                    "path": "a.bed",
+                                    "target": {
+                                        "tag": "Path",
+                                        "value": "a.bed"
+                                    },
                                     "format": "Bed",
                                     "num_of_fields": 3,
                                     "compression": false,
@@ -33,7 +36,10 @@
                                 "id": "_grass_res_4",
                                 "value": {
                                     "opcode": "Open",
-                                    "path": "b.bed",
+                                    "target": {
+                                        "tag": "Path",
+                                        "value": "b.bed"
+                                    },
                                     "format": "Bed",
                                     "num_of_fields": 3,
                                     "compression": false,

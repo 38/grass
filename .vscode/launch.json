@@ -4,6 +4,7 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+
         {
             "type": "lldb",
             "request": "launch",
@@ -94,7 +95,7 @@
                     "kind": "bin"
                 }
             },
-            "args": [],
+            "args": ["exec", "/tmp/test.job"],
             "cwd": "${workspaceFolder}"
         },
         {
@@ -114,6 +115,17 @@
                 }
             },
             "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug pygrass native code",
+            "program": "python3",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/pygrass/build/lib"
+            },
+            "args": ["pygrass/examples/sorted-intersect-overlap-filter.py", "a.bed", "b.bed"],
             "cwd": "${workspaceFolder}"
         }
     ]

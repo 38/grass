@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 from sys import argv
-from pygrass import RustEnv, IntervalFile
+from pygrass import RustEnv, IntervalFile, CmdArg
 
-RustEnv(input_file = IntervalFile(argv[1])).inline_rust("""
+RustEnv(input_file = IntervalFile(CmdArg(1))).inline_rust("""
 use grass_runtime::property::*;
 
 println!("Hello World!");

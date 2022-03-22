@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
-from sys import argv
-from pygrass import RustEnv, IntervalFile, length
+from pygrass import RustEnv, IntervalFile, length, CmdArg
 
 # This is an example for defining high-level operation and extend GRASS
 def flank(input, before, after):
@@ -25,4 +24,4 @@ input.map(|item| {{
 """.format(before = before, after = after))
 
 
-flank(IntervalFile(argv[1]), 10, 10).print_to_stdout()
+flank(IntervalFile(CmdArg(1)), 10, 10).print_to_stdout()

@@ -1,5 +1,5 @@
 import os
-
+import sys
 import json
 
 from pygrass.backend.base import BackendBase
@@ -7,7 +7,7 @@ from pygrass.ir import IRBase
 
 from pygrass.rust import expand_macro, execute_job, create_code_compilation_dir
 
-def compose_job_file(ir_list : list[IRBase]):
+def compose_job_file(ir_list : list[IRBase], argv):
     ret = dict()
     ret["ir"] = [ir.to_dict() for ir in ir_list]
     ret["working_dir"] = os.curdir
@@ -16,19 +16,21 @@ def compose_job_file(ir_list : list[IRBase]):
     #ret["runtime_source"] = {"dep-kind": "CratesIO", "value": None}
     #ret["macro_source"] = {"dep-kind": "CratesIO", "value": None}
     ret["build_flavor"] = "Release"
+    ret["cmdline_args"] = argv 
     return ret
 
 class RustBackendBase(BackendBase):
     def __init__(self):
         super().__init__()
         self._ir_list = []
+        self._argv = sys.argv[1:]
     def __del__(self):
         if len(self._ir_list) > 0:
             self.flush()
     def register_ir(self, ir: IRBase):
         self._ir_list.append(ir)
     def get_job_str(self):
-        job_str = json.dumps(compose_job_file(self._ir_list))
+        job_str = json.dumps(compose_job_file(self._ir_list, self._argv))
         return job_str
     def _flush_impl(self):
         pass
@@ -50,4 +52,4 @@ class CreateRustPackage(RustBackendBase):
 
 class PrintJobDesc(RustBackendBase):
     def _flush_impl(self):
-        print(json.dumps(compose_job_file(self._ir_list), indent = 4))
+        print(json.dumps(compose_job_file(self._ir_list, self._argv), indent = 4))

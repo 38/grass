@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 
-from sys import argv
-from pygrass import IntervalFile, strand, If, start, end, length
+from pygrass import IntervalFile, strand, If, start, end, length, Bed3File, CmdArg
 
-input = IntervalFile(argv[1])
+input = IntervalFile(CmdArg(1))
 
 # This is similar to bedtools shift -m 0.5 -pct
 

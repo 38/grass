@@ -2,7 +2,7 @@ from abc import abstractclassmethod
 from typing import Callable
 
 from pygrass.interval import IntervalBase, IntervalFile
-from pygrass.interval.formats import BedFile, BamFile, Bed3File
+from pygrass.interval.formats import BedFile, BamFile, Bed3File, CmdArg
 from pygrass.interval.cast import Bed3
 from pygrass.interval.field_expr import length, start, end, length, name, chr, strand, item, If
 from pygrass.backend import DumpIR, BackendBase, RustBackend

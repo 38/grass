@@ -1,20 +1,25 @@
-
-use std::{path::{PathBuf, Path}, process::{Command, Child}, io::Result, fs::File, io::{Write, Error}, collections::HashMap};
-
+use std::{
+    collections::HashMap,
+    fs::File,
+    io::Result,
+    io::{Error, Write, Cursor},
+    path::{Path, PathBuf},
+    process::{Child, Command},
+};
 
 use grass_ir::GrassIR;
 use serde::Deserialize;
 use sha::{sha256::Sha256, utils::DigestExt};
 use tempfile::TempDir;
 
-use crate::dependency::{Dependency, DependencySource};
+use crate::{dependency::{Dependency, DependencySource}, cache::CacheState};
 
 use crate::return_true;
 
 #[derive(Deserialize)]
 pub enum BuildFlavor {
     Debug,
-    Release
+    Release,
 }
 
 impl Default for BuildFlavor {
@@ -27,25 +32,39 @@ impl Default for BuildFlavor {
 #[allow(unused)]
 pub struct JobDefinition {
     ir: Vec<GrassIR>,
-    #[serde(default)]
-    deps: Vec<Dependency>,
+
+    // ################### Runtime confiruation ################
     working_dir: PathBuf,
     #[serde(default)]
     cmdline_args: Vec<String>,
     #[serde(default)]
     env_vars: HashMap<String, String>,
+
+    // ############# Runtime Configuration ######################
     #[serde(default = "default_runtime")]
     runtime_package: String,
     #[serde(default = "default_macro")]
     macro_package: String,
+
     runtime_source: DependencySource,
+    #[serde(default = "latest_grass_runtime")]
+    runtime_version: String,
+
     macro_source: DependencySource,
+    #[serde(default = "latest_grass_runtime")]
+    macro_version: String,
+
+    // ################### Package Information ####################
+    #[serde(default)]
+    deps: Vec<Dependency>,
     #[serde(default = "default_version")]
     version: String,
     #[serde(default)]
     build_flavor: BuildFlavor,
     #[serde(default)]
     temp_dir: Option<PathBuf>,
+
+    // ################### Cache Control #########################
     #[serde(default = "return_true")]
     use_cache: bool,
     #[serde(default = "return_true")]
@@ -76,8 +95,14 @@ fn default_macro() -> String {
     "grass-macro".to_string()
 }
 
+fn latest_grass_runtime() -> String {
+    "*".to_string()
+}
+
 fn default_cache_root() -> PathBuf {
-    let mut ret:PathBuf = std::env::var("HOME").unwrap_or_else(|_| "/".to_string()).into();
+    let mut ret: PathBuf = std::env::var("HOME")
+        .unwrap_or_else(|_| "/".to_string())
+        .into();
     ret.push(".grass-ql");
     ret.push("cache");
     ret
@@ -89,7 +114,7 @@ impl JobDefinition {
     }
     pub fn cargo(&mut self, args: &[&str], capture_stdout: bool) -> Result<Child> {
         let mut cmd = Command::new("cargo");
-        
+
         if let Some(tool_chain_path) = self.tool_chain_path.as_ref() {
             cmd.env("PATH", tool_chain_path);
         }
@@ -102,7 +127,7 @@ impl JobDefinition {
         let err_log = File::create(comp_dir.join("stderr.log"))?;
         cmd.stderr(err_log);
 
-        if capture_stdout { 
+        if capture_stdout {
             let out_log = File::create(comp_dir.join("stdout.txt"))?;
             cmd.stdout(out_log);
         }
@@ -110,24 +135,45 @@ impl JobDefinition {
         cmd.spawn()
     }
     fn populate_ir_hash(&mut self) -> Result<()> {
+        let mut buffer = Vec::new();
+        {
+            let mut buffer_writer = Cursor::new(&mut buffer);
+            serde_json::to_writer(&mut buffer_writer, &self.ir)?;
+
+            let mut deps = self.deps.clone();
+            deps.sort_by_key(|x| x.name.clone());
+
+            serde_json::to_writer(&mut buffer_writer, &deps)?;
+
+            serde_json::to_writer(&mut buffer_writer, &self.macro_package)?;
+            serde_json::to_writer(&mut buffer_writer, &self.macro_version)?;
+            serde_json::to_writer(&mut buffer_writer, &self.macro_source)?;
+
+            serde_json::to_writer(&mut buffer_writer, &self.runtime_package)?;
+            serde_json::to_writer(&mut buffer_writer, &self.runtime_version)?;
+            serde_json::to_writer(&mut buffer_writer, &self.runtime_source)?;
+        }
+        let input_str = String::from_utf8(buffer).unwrap();
+        log::debug!("Job hasher input: {}", input_str);
         let mut hasher = Sha256::default();
-        serde_json::to_writer(&mut hasher, &self.ir)?;
 
-        let mut deps = self.deps.clone();
-        deps.sort_by_key(|x| x.name.clone());
+        hasher.write_all(input_str.as_bytes())?;
 
-        serde_json::to_writer(&mut hasher, &deps)?;
-        
+        hasher.flush()?;
+
         let ir_hash = hasher.to_hex();
 
         self.ir_hash = ir_hash;
         Ok(())
     }
-    fn get_artifact_name(&mut self) -> Result<String> {
+    fn get_artifact_hash(&mut self) -> Result<&str> {
         if self.ir_hash.len() == 0 {
             self.populate_ir_hash()?;
         }
-        Ok(format!("grass-artifact-{}", self.ir_hash))
+        Ok(self.ir_hash.as_str())
+    }
+    fn get_artifact_name(&mut self) -> Result<String> {
+        Ok(format!("grass-artifact-{}", self.get_artifact_hash()?))
     }
     fn get_artifact_path(&mut self) -> Result<PathBuf> {
         let mut ret = self.get_compilation_dir()?.to_path_buf();
@@ -143,13 +189,25 @@ impl JobDefinition {
         let manifest_path = root.join("Cargo.toml");
         let mut manifest_file = File::create(&manifest_path)?;
         writeln!(&mut manifest_file, "[package]")?;
-        writeln!(&mut manifest_file, "name = \"{}\"", self.get_artifact_name()?)?;
+        writeln!(
+            &mut manifest_file,
+            "name = \"{}\"",
+            self.get_artifact_name()?
+        )?;
         writeln!(&mut manifest_file, "version = \"{}\"", self.version)?;
         writeln!(&mut manifest_file, "edition = \"2021\"")?;
         writeln!(&mut manifest_file, "[dependencies]")?;
         for dep in self.deps.iter().chain([
-            &Dependency::create_grass_dep(&self.runtime_package, &self.runtime_source),
-            &Dependency::create_grass_dep(&self.macro_package, &self.macro_source)
+            &Dependency::create_grass_dep(
+                &self.runtime_package,
+                &self.runtime_source,
+                &self.runtime_version,
+            ),
+            &Dependency::create_grass_dep(
+                &self.macro_package,
+                &self.macro_source,
+                &self.macro_version,
+            ),
         ]) {
             dep.write_dependency_line(&mut manifest_file)?;
         }
@@ -158,7 +216,7 @@ impl JobDefinition {
     fn write_source_code(&self, root: &Path) -> Result<()> {
         let source_dir = root.join("src");
         std::fs::create_dir(&source_dir)?;
-        
+
         let source_path = source_dir.join("main.rs");
         let mut source_file = File::create(source_path)?;
 
@@ -167,15 +225,37 @@ impl JobDefinition {
             let ir_file = File::create(&ir_path)?;
             serde_json::to_writer(ir_file, ir)?;
 
-            writeln!(&mut source_file, "fn grass_query_{id}() -> Result<(), Box<dyn std::error::Error>> {{", id = id)?;
-            writeln!(&mut source_file, "    grass_macro::import_grass_ir_from_file!(\"{ir_file}\");", ir_file = ir_path.as_os_str().to_string_lossy())?;
+            writeln!(
+                &mut source_file,
+                "fn grass_query_{id}(cmd_args: &[&str]) -> Result<(), Box<dyn std::error::Error>> {{",
+                id = id
+            )?;
+            writeln!(
+                &mut source_file,
+                "    grass_macro::import_grass_ir_from_file!(\"{ir_file}\");",
+                ir_file = ir_path.as_os_str().to_string_lossy()
+            )?;
             writeln!(&mut source_file, "    Ok(())")?;
             writeln!(&mut source_file, "}}")?;
         }
 
-        writeln!(&mut source_file, "fn main() -> Result<(), Box<dyn std::error::Error>> {{")?;
+        writeln!(
+            &mut source_file,
+            "fn main() -> Result<(), Box<dyn std::error::Error>> {{"
+        )?;
+        
+        writeln!(
+            &mut source_file,
+            "    let owned_cmd_args: Vec<_> = std::env::args().collect();"
+        )?;
+        
+        writeln!(
+            &mut source_file,
+            "    let cmd_args: Vec<_> = owned_cmd_args.iter().map(|a| a.as_str()).collect();"
+        )?;
+
         for id in 0..self.ir.len() {
-            writeln!(&mut source_file, "    grass_query_{id}()?;", id = id)?;
+            writeln!(&mut source_file, "    grass_query_{id}(&cmd_args)?;", id = id)?;
         }
         writeln!(&mut source_file, "    Ok(())")?;
         writeln!(&mut source_file, "}}")?;
@@ -199,47 +279,83 @@ impl JobDefinition {
             self.write_manifest_file(compilation_dir.path())?;
             self.write_source_code(compilation_dir.path())?;
 
-
             self.compilation_dir = Some(compilation_dir);
             Ok(self.compilation_dir.as_ref().unwrap().path())
         }
     }
-    pub fn get_artifact(&mut self) -> Result<&Path> {
-        if self.artifact_path.is_some() {
-            return Ok(self.artifact_path.as_ref().unwrap());
-        }
+    pub fn get_artifact_impl(&mut self) -> Result<&Path> {
         log::info!("Building artifact {}", self.get_artifact_name()?);
         let mut child = match self.build_flavor {
-            BuildFlavor::Debug => {
-                self.cargo(&["build"], true)
-            },
-            BuildFlavor::Release => {
-                self.cargo(&["build", "--release"], true)
-            }
+            BuildFlavor::Debug => self.cargo(&["build"], true),
+            BuildFlavor::Release => self.cargo(&["build", "--release"], true),
         }?;
         let status = child.wait()?;
         if status.success() {
             self.artifact_path = Some(self.get_artifact_path()?);
             return self.get_artifact();
         }
+        
+        Err(Error::new(
+            std::io::ErrorKind::Other,
+            format!(
+                "Cargo exited with error code {}",
+                status.code().unwrap_or(0)
+            ),
+        ))
+    }
+    pub fn get_artifact(&mut self) -> Result<&Path> {
+        if self.artifact_path.is_some() {
+            return Ok(self.artifact_path.as_ref().unwrap());
+        }
 
-        Err(Error::new(std::io::ErrorKind::Other, format!("Cargo exited with error code {}", status.code().unwrap_or(0))))
+        let mut cache = if self.use_cache || self.update_cache {
+            Some(CacheState::load_cache(&self.cache_root)?)
+        } else {
+            None
+        };
+
+        if self.use_cache {
+            log::info!("Checking binary cache for binary {}", self.get_artifact_hash()?);
+            let mut cached_artifact = PathBuf::new();
+            if cache.as_mut().unwrap().query_cache_entry(self.get_artifact_hash()?, &mut cached_artifact)? {
+                log::info!("Found cached binary at {}", cached_artifact.to_str().unwrap());
+                self.artifact_path = Some(cached_artifact);
+                return self.get_artifact();
+            }
+        }
+
+        if self.update_cache {
+            let hash = self.get_artifact_hash()?.to_string();
+            let mut cached_path = PathBuf::new();
+            cache.as_mut().unwrap().update_cache(
+                &hash, 
+                |buf| {
+                    let path = self.get_artifact_impl()?;
+                    *buf = path.to_path_buf();
+                    Ok(())
+                }, 
+                &mut cached_path,
+            )?;
+            self.artifact_path = Some(cached_path);
+            return self.get_artifact();
+        }
+        self.get_artifact_impl()
     }
 
     pub fn execute_artifact(&mut self) -> Result<Child> {
         let artifact_path = self.get_artifact()?;
-        log::info!("Launching artifact {}", artifact_path.as_os_str().to_string_lossy());
-        Ok(
-            Command::new(artifact_path)
-                .current_dir(&self.working_dir)
-                .envs(&self.env_vars)
-                .args(&self.cmdline_args)
-                .spawn()?
-        )
+        log::info!(
+            "Launching artifact {}",
+            artifact_path.as_os_str().to_string_lossy()
+        );
+        Ok(Command::new(artifact_path)
+            .current_dir(&self.working_dir)
+            .envs(&self.env_vars)
+            .args(&self.cmdline_args)
+            .spawn()?)
     }
     pub fn print_expanded_code(&mut self) -> Result<()> {
         self.cargo(&["expand"], false)?.wait()?;
         Ok(())
     }
 }
-

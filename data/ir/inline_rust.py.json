@@ -6,7 +6,10 @@
             "id": "_grass_res_0",
             "value": {
                 "opcode": "Open",
-                "path": "a.bed",
+                "target": {
+                    "tag": "Path",
+                    "value": "a.bed"
+                },
                 "format": "Bed",
                 "num_of_fields": 3,
                 "compression": false,
