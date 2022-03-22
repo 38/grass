@@ -22,8 +22,7 @@
                                 "value": {
                                     "opcode": "Open",
                                     "target": {
-                                        "tag": "Path",
-                                        "value": "a.bed"
+                                        "Path": "a.bed"
                                     },
                                     "format": "Bed",
                                     "num_of_fields": 3,
@@ -37,8 +36,7 @@
                                 "value": {
                                     "opcode": "Open",
                                     "target": {
-                                        "tag": "Path",
-                                        "value": "b.bed"
+                                        "Path": "b.bed"
                                     },
                                     "format": "Bed",
                                     "num_of_fields": 3,

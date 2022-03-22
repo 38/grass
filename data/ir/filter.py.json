@@ -11,8 +11,7 @@
                 "value": {
                     "opcode": "Open",
                     "target": {
-                        "tag": "Path",
-                        "value": "a.bed"
+                        "CmdArg": 1
                     },
                     "format": "Bed",
                     "num_of_fields": 3,
