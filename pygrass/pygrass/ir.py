@@ -124,13 +124,15 @@ class OpenFile(BatchOperationBase):
         return ret
 
 ## Record type casting
-class CastToBed3(BatchOperationBase):
-    def __init__(self, inner : IRBase):
-        super().__init__("CastToBed3")
+class CastToBed(BatchOperationBase):
+    def __init__(self, inner : IRBase, num_of_fields: int):
+        super().__init__("CastToBed")
         self._inner = inner
+        self._nof = num_of_fields
     def to_dict(self) -> dict[str]:
         ret = super().to_dict()
         ret["inner"] = self._inner.to_dict()
+        ret["num_of_fields"] = self._nof
         return ret
 
 ## Record collection operators

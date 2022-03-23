@@ -2,18 +2,15 @@ mod heap;
 mod inner;
 mod outer;
 
-use crate::property::Region;
 use crate::algorithm::markers::Sorted;
+use crate::property::Region;
 
 use inner::{Context, State};
 
 pub use inner::SortedIntersectIter;
 
 pub trait SortedIntersect: Iterator + Sorted + Sized {
-    fn sorted_intersect<
-        U: Region + Clone,
-        Other: Iterator<Item = U> + Sorted,
-    >(
+    fn sorted_intersect<U: Region + Clone, Other: Iterator<Item = U> + Sorted>(
         self,
         other: Other,
     ) -> SortedIntersectIter<Self, Other>
@@ -27,10 +24,7 @@ pub trait SortedIntersect: Iterator + Sorted + Sized {
         }
     }
 
-    fn sorted_left_outer_intersect<
-        U: Region + Clone,
-        Other: Iterator<Item = U> + Sorted,
-    >(
+    fn sorted_left_outer_intersect<U: Region + Clone, Other: Iterator<Item = U> + Sorted>(
         self,
         other: Other,
     ) -> outer::LeftOuterJoinIter<Self, Other>

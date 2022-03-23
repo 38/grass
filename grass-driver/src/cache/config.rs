@@ -1,4 +1,4 @@
-use std::{path::Path, io::Result, fs::File};
+use std::{fs::File, io::Result, path::Path};
 
 use serde::Deserialize;
 
@@ -28,7 +28,7 @@ impl CacheConfig {
             "G" | "g" => (1024f64).powi(3),
             "M" | "m" => (1024f64).powi(2),
             "K" | "k" => (1024f64).powi(1),
-            _ => 1.0
+            _ => 1.0,
         } * self.disk_space_limit as f64;
         size.round() as u64
     }

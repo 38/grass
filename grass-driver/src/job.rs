@@ -2,7 +2,7 @@ use std::{
     collections::HashMap,
     fs::File,
     io::Result,
-    io::{Error, Write, Cursor},
+    io::{Cursor, Error, Write},
     path::{Path, PathBuf},
     process::{Child, Command},
 };
@@ -12,7 +12,10 @@ use serde::Deserialize;
 use sha::{sha256::Sha256, utils::DigestExt};
 use tempfile::TempDir;
 
-use crate::{dependency::{Dependency, DependencySource}, cache::CacheState};
+use crate::{
+    cache::CacheState,
+    dependency::{Dependency, DependencySource},
+};
 
 use crate::return_true;
 
@@ -221,7 +224,7 @@ impl JobDefinition {
                 writeln!(&mut manifest_file, "[profile.release]")?;
                 writeln!(&mut manifest_file, "debug = true")?;
             }
-            _ => ()
+            _ => (),
         }
         Ok(())
     }
@@ -255,19 +258,23 @@ impl JobDefinition {
             &mut source_file,
             "fn main() -> Result<(), Box<dyn std::error::Error>> {{"
         )?;
-        
+
         writeln!(
             &mut source_file,
             "    let owned_cmd_args: Vec<_> = std::env::args().collect();"
         )?;
-        
+
         writeln!(
             &mut source_file,
             "    let cmd_args: Vec<_> = owned_cmd_args.iter().map(|a| a.as_str()).collect();"
         )?;
 
         for id in 0..self.ir.len() {
-            writeln!(&mut source_file, "    grass_query_{id}(&cmd_args)?;", id = id)?;
+            writeln!(
+                &mut source_file,
+                "    grass_query_{id}(&cmd_args)?;",
+                id = id
+            )?;
         }
         writeln!(&mut source_file, "    Ok(())")?;
         writeln!(&mut source_file, "}}")?;
@@ -299,14 +306,16 @@ impl JobDefinition {
         log::info!("Building artifact {}", self.get_artifact_name()?);
         let mut child = match self.build_flavor {
             BuildFlavor::Debug => self.cargo(&["build"], true),
-            BuildFlavor::Release | BuildFlavor::ReleaseWithDebugInfo => self.cargo(&["build", "--release"], true),
+            BuildFlavor::Release | BuildFlavor::ReleaseWithDebugInfo => {
+                self.cargo(&["build", "--release"], true)
+            }
         }?;
         let status = child.wait()?;
         if status.success() {
             self.artifact_path = Some(self.get_artifact_path()?);
             return self.get_artifact();
         }
-        
+
         Err(Error::new(
             std::io::ErrorKind::Other,
             format!(
@@ -327,10 +336,20 @@ impl JobDefinition {
         };
 
         if self.use_cache {
-            log::info!("Checking binary cache for binary {}", self.get_artifact_hash()?);
+            log::info!(
+                "Checking binary cache for binary {}",
+                self.get_artifact_hash()?
+            );
             let mut cached_artifact = PathBuf::new();
-            if cache.as_mut().unwrap().query_cache_entry(self.get_artifact_hash()?, &mut cached_artifact)? {
-                log::info!("Found cached binary at {}", cached_artifact.to_str().unwrap());
+            if cache
+                .as_mut()
+                .unwrap()
+                .query_cache_entry(self.get_artifact_hash()?, &mut cached_artifact)?
+            {
+                log::info!(
+                    "Found cached binary at {}",
+                    cached_artifact.to_str().unwrap()
+                );
                 self.artifact_path = Some(cached_artifact);
                 return self.get_artifact();
             }
@@ -340,12 +359,12 @@ impl JobDefinition {
             let hash = self.get_artifact_hash()?.to_string();
             let mut cached_path = PathBuf::new();
             cache.as_mut().unwrap().update_cache(
-                &hash, 
+                &hash,
                 |buf| {
                     let path = self.build_artifact()?;
                     *buf = path.to_path_buf();
                     Ok(())
-                }, 
+                },
                 &mut cached_path,
             )?;
             self.artifact_path = Some(cached_path);

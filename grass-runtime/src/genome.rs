@@ -1,5 +1,12 @@
 use lazy_static::lazy_static;
-use std::{sync::RwLock, collections::HashMap, io::{Read, BufReader, BufRead}, fmt::Display, cell::RefCell, hash::{Hasher, Hash}};
+use std::{
+    cell::RefCell,
+    collections::HashMap,
+    fmt::Display,
+    hash::{Hash, Hasher},
+    io::{BufRead, BufReader, Read},
+    sync::RwLock,
+};
 
 #[derive(Default)]
 pub struct Genome {
@@ -9,20 +16,20 @@ pub struct Genome {
 }
 
 #[derive(Clone, Copy)]
-pub enum ChrRef<'a>{
+pub enum ChrRef<'a> {
     Assigned(usize),
     Unassigned(&'a str),
     Dummy,
 }
 
-impl <'a> Display for ChrRef<'a> {
+impl<'a> Display for ChrRef<'a> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let name = self.get_chr_name();
         write!(f, "{}", name)
     }
 }
 
-impl <'a> PartialEq for ChrRef<'a> {
+impl<'a> PartialEq for ChrRef<'a> {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
             (Self::Assigned(l0), Self::Assigned(r0)) => l0 == r0,
@@ -39,7 +46,7 @@ impl <'a> PartialEq for ChrRef<'a> {
     }
 }
 
-impl <'a> PartialOrd for ChrRef<'a> {
+impl<'a> PartialOrd for ChrRef<'a> {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         if let Some(this_id) = self.id() {
             if let Some(that_id) = other.id() {
@@ -50,9 +57,9 @@ impl <'a> PartialOrd for ChrRef<'a> {
     }
 }
 
-impl <'a> Eq for ChrRef<'a> {}
+impl<'a> Eq for ChrRef<'a> {}
 
-impl <'a> Ord for ChrRef<'a> {
+impl<'a> Ord for ChrRef<'a> {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         let this_id = self.get_id_or_update();
         let that_id = other.get_id_or_update();
@@ -60,7 +67,7 @@ impl <'a> Ord for ChrRef<'a> {
     }
 }
 
-impl <'a> ChrRef<'a> {
+impl<'a> ChrRef<'a> {
     pub fn to_static(&self) -> ChrRef<'static> {
         let id = self.get_id_or_update();
         if id < usize::MAX {
@@ -86,9 +93,7 @@ impl <'a> ChrRef<'a> {
 
                 let storage = GENOME_STORAGE.read().unwrap();
 
-                let ret = unsafe {
-                    std::mem::transmute(storage.chr_name_list[*id].as_str())
-                };
+                let ret = unsafe { std::mem::transmute(storage.chr_name_list[*id].as_str()) };
 
                 LAST_NAME.with(|cached_name| {
                     *cached_name.borrow_mut() = Some((*id, ret));
@@ -96,9 +101,7 @@ impl <'a> ChrRef<'a> {
 
                 ret
             }
-            Self::Dummy => {
-                "."
-            }
+            Self::Dummy => ".",
         }
     }
     pub fn id(&self) -> Option<usize> {
@@ -108,7 +111,7 @@ impl <'a> ChrRef<'a> {
             Self::Dummy => None,
         }
     }
-    pub fn get_id_or_update(&self) -> usize  {
+    pub fn get_id_or_update(&self) -> usize {
         match self {
             Self::Unassigned(name) => {
                 let mut storage = GENOME_STORAGE.write().unwrap();
@@ -117,16 +120,18 @@ impl <'a> ChrRef<'a> {
                 storage.chr_name_list.push(name.to_string());
                 storage.chr_size_list.push(None);
                 id
-            },
+            }
             Self::Assigned(id) => *id,
             _ => usize::MAX,
         }
     }
     pub fn get_chr_size(&self) -> Option<usize> {
-        self.id().map(|id| {
-            let storage = GENOME_STORAGE.read().unwrap();
-            storage.chr_size_list[id]
-        }).unwrap_or(None)
+        self.id()
+            .map(|id| {
+                let storage = GENOME_STORAGE.read().unwrap();
+                storage.chr_size_list[id]
+            })
+            .unwrap_or(None)
     }
     pub fn verify_size(&self, size: usize) -> bool {
         Some(size) == self.get_chr_size()
@@ -148,33 +153,34 @@ thread_local! {
 
 impl Genome {
     pub fn query_chr(name: &str) -> ChrRef {
-       let mut hasher = std::collections::hash_map::DefaultHasher::new();
-       name.hash(&mut hasher);
-       let hash = hasher.finish();
+        let mut hasher = std::collections::hash_map::DefaultHasher::new();
+        name.hash(&mut hasher);
+        let hash = hasher.finish();
 
-       if let Some((id, cached_hash)) = LAST_QUERY.with(|id| id.borrow().clone()) {
-           // Definitely, hash == cached_hash doesn't means it's the same. But in practise, chrom
-           // name's hash code never collides 
-           if hash == cached_hash {
-               return ChrRef::Assigned(id)
-           }
-       }
+        if let Some((id, cached_hash)) = LAST_QUERY.with(|id| id.borrow().clone()) {
+            // Definitely, hash == cached_hash doesn't means it's the same. But in practise, chrom
+            // name's hash code never collides
+            if hash == cached_hash {
+                return ChrRef::Assigned(id);
+            }
+        }
 
-       let storage = GENOME_STORAGE.read().unwrap(); 
-       if let Some(id) = storage.name_id_map.get(name) {
-           LAST_QUERY.with(|cache| {
-               *cache.borrow_mut() = Some((*id, hash));
-           });
-           return ChrRef::Assigned(*id);
-       }
-       ChrRef::Unassigned(name)
+        let storage = GENOME_STORAGE.read().unwrap();
+        if let Some(id) = storage.name_id_map.get(name) {
+            LAST_QUERY.with(|cache| {
+                *cache.borrow_mut() = Some((*id, hash));
+            });
+            return ChrRef::Assigned(*id);
+        }
+        ChrRef::Unassigned(name)
     }
     pub fn load_genome_file<R: Read>(reader: R) -> Result<(), Box<dyn std::error::Error>> {
         let mut storage = GENOME_STORAGE.write()?;
         if storage.chr_name_list.len() != 0 {
-            Err(
-                std::io::Error::new(std::io::ErrorKind::Other, "Genome definition has been already loaded")
-            )?;
+            Err(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                "Genome definition has been already loaded",
+            ))?;
         }
         let mut br = BufReader::new(reader);
         let mut buf = String::new();
@@ -182,7 +188,7 @@ impl Genome {
         while let Ok(_sz) = br.read_line(&mut buf) {
             let mut tokenized = buf.split('\t').take(2);
             let chr_name = tokenized.next().unwrap();
-            let chr_size : usize = tokenized.next().unwrap().parse()?;
+            let chr_size: usize = tokenized.next().unwrap().parse()?;
 
             storage.chr_name_list.push(chr_name.to_string());
             storage.chr_size_list.push(Some(chr_size));
@@ -196,7 +202,7 @@ impl Genome {
 }
 
 lazy_static! {
-    static ref GENOME_STORAGE : RwLock<Genome> = {
+    static ref GENOME_STORAGE: RwLock<Genome> = {
         let inner = Default::default();
         RwLock::new(inner)
     };

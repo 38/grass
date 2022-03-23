@@ -1,7 +1,8 @@
 use super::heap::RegionHeap;
 use super::Sorted;
 use crate::{
-    property::{Region, RegionCore}, ChrRef,
+    property::{Region, RegionCore},
+    ChrRef,
 };
 
 pub struct LeftOuterJoinIter<IA, IB>

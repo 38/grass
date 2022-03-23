@@ -1,8 +1,9 @@
 use grass_ir::AlterParam;
 use quote::quote;
 
-use super::{Expand, ExpansionContext, ExpandResult, expand_grass_ir, field_expr::expand_field_expr};
-
+use super::{
+    expand_grass_ir, field_expr::expand_field_expr, Expand, ExpandResult, ExpansionContext,
+};
 
 impl Expand for AlterParam {
     fn expand(&self, ctx: &mut ExpansionContext) -> ExpandResult {

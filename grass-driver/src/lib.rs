@@ -26,4 +26,3 @@ pub fn execute_job(job: &mut JobDefinition) -> Result<(), Box<dyn std::error::Er
     }
     Ok(())
 }
-

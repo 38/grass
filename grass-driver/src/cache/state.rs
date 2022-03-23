@@ -10,7 +10,6 @@ use serde::{Deserialize, Serialize};
 
 use super::config::CacheConfig;
 
-
 #[derive(Serialize, Deserialize, Default)]
 pub(crate) struct CacheState {
     disk_space_used: u64,
@@ -24,13 +23,11 @@ pub(crate) struct CacheState {
 }
 
 impl CacheState {
-    const STATE_FILE_NAME : &'static str = "cache_state.json";
+    const STATE_FILE_NAME: &'static str = "cache_state.json";
     fn lock_cache_state<P: AsRef<Path>>(root: &P) -> Result<FileLock> {
         let mut cache_state_file = root.as_ref().to_path_buf();
         cache_state_file.push(Self::STATE_FILE_NAME);
-        let lock_opt = FileOptions::new()
-            .read(true)
-            .write(true);
+        let lock_opt = FileOptions::new().read(true).write(true);
         Ok(FileLock::lock(&cache_state_file, true, lock_opt)?)
     }
 
@@ -53,8 +50,8 @@ impl CacheState {
     pub fn load_cache<P: AsRef<Path>>(root: &P) -> Result<Self> {
         let mut state_path = root.as_ref().to_path_buf();
         state_path.push(Self::STATE_FILE_NAME);
-        
-        if !root.as_ref().exists() ||  !state_path.exists() {
+
+        if !root.as_ref().exists() || !state_path.exists() {
             std::fs::DirBuilder::new().recursive(true).create(root)?;
             serde_json::to_writer(std::fs::File::create(state_path)?, &Self::default())?;
         }
@@ -78,8 +75,8 @@ impl CacheState {
                 self.cache_state
                     .iter()
                     .enumerate()
-                    .find(|(_, current)| hash_code == current.as_str()) 
-            }{
+                    .find(|(_, current)| hash_code == current.as_str())
+            } {
                 while idx > 0 {
                     self.cache_state.swap(idx, idx - 1);
                     idx -= 1;
@@ -118,15 +115,13 @@ impl CacheState {
         let binary_path = self.compose_binary_path(hash_code);
 
         if let Some(parent) = binary_path.parent() {
-            std::fs::DirBuilder::new()
-                .recursive(true)
-                .create(parent)?;
+            std::fs::DirBuilder::new().recursive(true).create(parent)?;
         }
 
         std::fs::copy(artifact_path.as_path(), binary_path.as_path())?;
 
         self.cache_state.push(hash_code.to_string());
-        
+
         let mut idx = self.cache_state.len() - 1;
         while idx > 0 {
             self.cache_state.swap(idx - 1, idx);

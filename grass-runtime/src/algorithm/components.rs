@@ -1,13 +1,13 @@
 use std::{
-    fmt::{Debug, Formatter, Result},
-    iter::Enumerate,
     cmp::{Ordering, Reverse},
     collections::{BinaryHeap, HashMap},
+    fmt::{Debug, Formatter, Result},
     hash::Hash,
+    iter::Enumerate,
 };
 
-use crate::ChrRef;
 use crate::property::{Region, RegionCore};
+use crate::ChrRef;
 
 pub struct Point<T: Region> {
     pub is_open: bool,
@@ -56,9 +56,9 @@ impl<T: Region> PartialOrd for Point<T> {
     }
 }
 
-impl <T: Region> Eq for Point<T> {}
+impl<T: Region> Eq for Point<T> {}
 
-impl <T: Region> Ord for Point<T> {
+impl<T: Region> Ord for Point<T> {
     fn cmp(&self, other: &Self) -> Ordering {
         self.partial_cmp(other).unwrap()
     }

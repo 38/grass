@@ -1,16 +1,15 @@
+mod file;
 mod genome;
 mod ioutils;
-mod file;
 
+pub mod algorithm;
 pub mod property;
 pub mod record;
-pub mod algorithm;
 
-pub use genome::{Genome, ChrRef};
 pub use file::LineRecordStreamExt;
+pub use genome::{ChrRef, Genome};
 
-pub mod prelude {
-}
+pub mod prelude {}
 
 #[cfg(test)]
 mod test {

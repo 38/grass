@@ -1,5 +1,9 @@
-use std::{io::{Result, Write}, fmt::Display};
 use crate::ChrRef;
+use std::{
+    borrow::Cow,
+    fmt::Display,
+    io::{Result, Write},
+};
 
 pub trait Parsable<'a>: Sized {
     fn parse(s: &'a str) -> Option<(Self, usize)>;
@@ -39,7 +43,7 @@ pub trait Region: RegionCore {
 
 impl<T: RegionCore> Region for T {}
 
-impl <T: Region> RegionCore for Option<T> {
+impl<T: Region> RegionCore for Option<T> {
     #[inline(always)]
     fn start(&self) -> u32 {
         self.as_ref().map_or(0, |what| what.start())
@@ -69,8 +73,7 @@ impl<'a, T: Region> RegionCore for &'a T {
     }
 }
 
-impl<A: Region, B: Region> RegionCore for (A, B)
-{
+impl<A: Region, B: Region> RegionCore for (A, B) {
     #[inline(always)]
     fn start(&self) -> u32 {
         if self.0.overlaps(&self.1) {
@@ -101,7 +104,7 @@ pub trait IntersectOps: RegionCore {
 }
 
 pub trait DumpComponent: RegionCore {
-    fn dump_component<W:Write>(&self, idx: usize, fp: W) -> Result<()>;
+    fn dump_component<W: Write>(&self, idx: usize, fp: W) -> Result<()>;
 }
 
 macro_rules! impl_intersection_trait {
@@ -166,14 +169,45 @@ impl_with_region_for_tuple!((A, B, C, D, E, F), (0, 1, 2, 3, 4), 5);
 impl_with_region_for_tuple!((A, B, C, D, E, F, G), (0, 1, 2, 3, 4, 5), 6);
 impl_with_region_for_tuple!((A, B, C, D, E, F, G, H), (0, 1, 2, 3, 4, 5, 6), 7);
 
-pub trait Named {
+pub trait Named<'a> {
     fn name(&self) -> &str {
         "."
+    }
+    fn to_cow(&self) -> Cow<'a, str> {
+        Cow::Owned(self.name().to_string())
+    }
+}
+
+impl<'a, T: Named<'a>> Named<'a> for Option<T> {
+    fn name(&self) -> &str {
+        if let Some(inner) = self.as_ref() {
+            inner.name()
+        } else {
+            "."
+        }
+    }
+}
+
+impl<'a, A: Named<'a>, B> Named<'a> for (A, B) {
+    fn name(&self) -> &str {
+        self.0.name()
     }
 }
 
 pub trait Scored<T> {
-    fn score(&self) -> T;
+    fn score(&self) -> Option<T>;
+}
+
+impl<S, T: Scored<S>> Scored<S> for Option<T> {
+    fn score(&self) -> Option<S> {
+        self.as_ref().map(|inner| inner.score()).flatten()
+    }
+}
+
+impl<S, A: Scored<S>, B> Scored<S> for (A, B) {
+    fn score(&self) -> Option<S> {
+        self.0.score()
+    }
 }
 
 #[derive(Clone, Copy, PartialEq)]
@@ -202,12 +236,12 @@ impl Display for Strand {
     }
 }
 
-impl <'a> PartialEq<&'a str> for Strand {
+impl<'a> PartialEq<&'a str> for Strand {
     fn eq(&self, other: &&'a str) -> bool {
         match self {
             Self::Positive => *other == "+",
             Self::Negative => *other == "-",
-            Self::Unknown => *other == "."
+            Self::Unknown => *other == ".",
         }
     }
 }
@@ -215,6 +249,22 @@ impl <'a> PartialEq<&'a str> for Strand {
 pub trait Stranded {
     fn strand(&self) -> Strand {
         Strand::Unknown
+    }
+}
+
+impl<T: Stranded> Stranded for Option<T> {
+    fn strand(&self) -> Strand {
+        if let Some(inner) = self.as_ref() {
+            inner.strand()
+        } else {
+            Strand::Unknown
+        }
+    }
+}
+
+impl<A: Stranded, B> Stranded for (A, B) {
+    fn strand(&self) -> Strand {
+        self.0.strand()
     }
 }
 

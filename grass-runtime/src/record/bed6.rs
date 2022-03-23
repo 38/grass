@@ -1,25 +1,48 @@
-use std::{io::{Write, Result}, fmt::Display, str::FromStr};
+use std::{
+    borrow::Cow,
+    fmt::Display,
+    io::{Result, Write},
+    ops::{Deref, DerefMut},
+    str::FromStr,
+};
 
-use crate::{property::{Serializable, Parsable, RegionCore, Scored, Stranded, Named, Strand}, ChrRef};
+use crate::{
+    property::{Named, Parsable, RegionCore, Scored, Serializable, Strand, Stranded},
+    ChrRef,
+};
 
 use super::Bed5;
 
 #[derive(Clone, PartialEq)]
 pub struct Bed6<'a, T = f64> {
     inner: Bed5<'a, T>,
-    strand: Strand,
+    pub strand: Strand,
 }
 
-impl <'a, T : Display> Serializable for Bed6<'a, T> {
-    fn dump<W: Write>(&self, mut fp: W) -> Result<()>{
+impl<'a, T> Deref for Bed6<'a, T> {
+    type Target = Bed5<'a, T>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.inner
+    }
+}
+
+impl<'a> DerefMut for Bed6<'a> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.inner
+    }
+}
+
+impl<'a, T: Display> Serializable for Bed6<'a, T> {
+    fn dump<W: Write>(&self, mut fp: W) -> Result<()> {
         self.inner.dump(&mut fp)?;
         write!(fp, "\t{}", self.strand)?;
         Ok(())
     }
 }
 
-impl <'a, T : Display> Serializable for Option<Bed6<'a, T>> {
-    fn dump<W: Write>(&self, mut fp: W) -> Result<()>{
+impl<'a, T: Display> Serializable for Option<Bed6<'a, T>> {
+    fn dump<W: Write>(&self, mut fp: W) -> Result<()> {
         if let Some(inner) = self {
             inner.dump(fp)
         } else {
@@ -28,7 +51,7 @@ impl <'a, T : Display> Serializable for Option<Bed6<'a, T>> {
     }
 }
 
-impl <'a, T: FromStr> Parsable<'a> for Bed6<'a, T> {
+impl<'a, T: FromStr> Parsable<'a> for Bed6<'a, T> {
     fn parse(s: &'a str) -> Option<(Self, usize)> {
         let (inner, mut start) = Bed5::parse(s)?;
         if s[start..].starts_with('\t') {
@@ -42,34 +65,18 @@ impl <'a, T: FromStr> Parsable<'a> for Bed6<'a, T> {
             _ => Strand::Unknown,
         };
 
-        Some((Self {inner, strand}, start + brk))
+        Some((Self { inner, strand }, start + brk))
     }
 }
 
-impl <'a, S> Bed6<'a, S> {
-    pub fn new<T: RegionCore>(region :T) -> Self where S: Default {
+impl<'a, S> Bed6<'a, S> {
+    pub fn new<T: RegionCore + Named<'a> + Scored<S> + Stranded>(region: &T) -> Self
+    where
+        S: Default,
+    {
         let inner = Bed5::new(region);
-        Self { inner , strand: Strand::Unknown }
-    } 
-
-    #[inline(always)]
-    pub fn set_start(&mut self, start: f64) {
-        self.inner.set_start(start);
-    }
-
-    #[inline(always)]
-    pub fn set_end(&mut self, end: f64) {
-        self.inner.set_end(end);
-    }
-
-    #[inline(always)]
-    pub fn set_name(&mut self, name: &'a str) {
-        self.inner.set_name(name);
-    }
-
-    #[inline(always)]
-    pub fn set_score(&mut self, score: S) {
-        self.inner.set_score(score);
+        let strand = region.strand();
+        Self { inner, strand }
     }
 
     #[inline(always)]
@@ -82,7 +89,7 @@ impl <'a, S> Bed6<'a, S> {
     }
 }
 
-impl <'a, S> RegionCore for Bed6<'a, S> {
+impl<'a, S> RegionCore for Bed6<'a, S> {
     #[inline(always)]
     fn start(&self) -> u32 {
         self.inner.start()
@@ -97,21 +104,24 @@ impl <'a, S> RegionCore for Bed6<'a, S> {
     }
 }
 
-impl <'a, T: Clone> Scored<T> for Bed6<'a, T> {
-   #[inline(always)]
-   fn score(&self) -> T {
-       self.inner.score()
-   } 
+impl<'a, T: Clone> Scored<T> for Bed6<'a, T> {
+    #[inline(always)]
+    fn score(&self) -> Option<T> {
+        self.inner.score()
+    }
 }
 
-impl <'a, T> Stranded for Bed6<'a, T> {
+impl<'a, T> Stranded for Bed6<'a, T> {
     fn strand(&self) -> Strand {
         self.strand
     }
 }
 
-impl <'a, T> Named for Bed6<'a, T> {
+impl<'a, T> Named<'a> for Bed6<'a, T> {
     fn name(&self) -> &str {
         self.inner.name()
+    }
+    fn to_cow(&self) -> Cow<'a, str> {
+        self.inner.to_cow()
     }
 }

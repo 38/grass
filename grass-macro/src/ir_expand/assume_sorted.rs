@@ -1,8 +1,7 @@
 use grass_ir::AssumeSortedParam;
 use quote::quote;
 
-use super::{Expand, ExpansionContext, ExpandResult, expand_grass_ir};
-
+use super::{expand_grass_ir, Expand, ExpandResult, ExpansionContext};
 
 impl Expand for AssumeSortedParam {
     fn expand(&self, ctx: &mut ExpansionContext) -> ExpandResult {
@@ -12,7 +11,7 @@ impl Expand for AssumeSortedParam {
         let code = quote! {
             {
                 use grass_runtime::algorithm::AssumeSorted;
-                #inner_var . assume_sorted()   
+                #inner_var . assume_sorted()
             }
         };
 

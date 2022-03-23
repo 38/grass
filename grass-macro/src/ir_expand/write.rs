@@ -1,7 +1,7 @@
 use grass_ir::WriteFileParam;
 use quote::quote;
 
-use super::{Expand, ExpandResult, ExpansionContext, expand_grass_ir};
+use super::{expand_grass_ir, Expand, ExpandResult, ExpansionContext};
 
 impl Expand for WriteFileParam {
     fn expand(&self, ctx: &mut ExpansionContext) -> ExpandResult {
@@ -23,7 +23,7 @@ impl Expand for WriteFileParam {
                     }
                 };
                 Ok(ctx.push(code))
-            },
+            }
             grass_ir::WriteTarget::Path(path) => {
                 let inner = expand_grass_ir(self.what.as_ref(), ctx)?;
                 let inner_ref = ctx.get_var_ref(&inner);

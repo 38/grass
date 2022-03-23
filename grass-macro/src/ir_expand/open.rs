@@ -1,8 +1,8 @@
-use grass_ir::{OpenParam, InputFormat, OpenTarget};
-use syn::LitStr;
+use grass_ir::{InputFormat, OpenParam, OpenTarget};
 use quote::quote;
+use syn::LitStr;
 
-use super::{Expand, ExpansionContext, ExpandResult};
+use super::{Expand, ExpandResult, ExpansionContext};
 
 impl Expand for OpenParam {
     fn expand(&self, ctx: &mut ExpansionContext) -> ExpandResult {
@@ -15,14 +15,15 @@ impl Expand for OpenParam {
                             std::fs::File::open(#path)?
                         }
                     }
-                    OpenTarget::FileNo(fd) => {
-                        match fd {
-                            0 => quote! { std::io::stdin() },
-                            1 => quote! { std::io::stdout() },
-                            2 => quote! { std::io::stderr() },
-                            _ => Err(syn::Error::new(ctx.span(), format!("Unsupported file descriptor #{}", fd)))?
-                        }
-                    }
+                    OpenTarget::FileNo(fd) => match fd {
+                        0 => quote! { std::io::stdin() },
+                        1 => quote! { std::io::stdout() },
+                        2 => quote! { std::io::stderr() },
+                        _ => Err(syn::Error::new(
+                            ctx.span(),
+                            format!("Unsupported file descriptor #{}", fd),
+                        ))?,
+                    },
                     OpenTarget::CmdArg(idx) => {
                         quote! {
                             std::fs::File::open(cmd_args[#idx as usize])?
@@ -33,35 +34,36 @@ impl Expand for OpenParam {
                     let bed_type_name = format!("Bed{}", self.num_of_fields);
                     let bed_type_id = syn::Ident::new(&bed_type_name, ctx.span());
                     let imports = if self.sorted {
-                        quote!{
+                        quote! {
                             use grass_runtime::LineRecordStreamExt;
                             use grass_runtime::algorithm::AssumeSorted;
                         }
                     } else {
-                        quote!{
+                        quote! {
                             use grass_runtime::LineRecordStreamExt;
                         }
                     };
                     let assume_sorted = if self.sorted {
-                        quote!{.assume_sorted()}
+                        quote! {.assume_sorted()}
                     } else {
                         quote! {}
                     };
                     let code = quote! {
                         {
                             #imports
-                            (#open_expr).into_record_iter::<grass_runtime::record::#bed_type_id>() 
+                            (#open_expr).into_record_iter::<grass_runtime::record::#bed_type_id>()
                             #assume_sorted
                         }
                     };
                     Ok(ctx.push(code))
-                }  else {
+                } else {
                     todo!()
                 }
             }
-            whatever => {
-                Err(syn::Error::new(ctx.span(), format!("Unsupported input file type: {:?}", whatever)))
-            }
+            whatever => Err(syn::Error::new(
+                ctx.span(),
+                format!("Unsupported input file type: {:?}", whatever),
+            )),
         }
     }
 }

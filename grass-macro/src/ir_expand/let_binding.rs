@@ -1,4 +1,4 @@
-use super::{Expand, ExpandResult, ExpansionContext, expand_grass_ir};
+use super::{expand_grass_ir, Expand, ExpandResult, ExpansionContext};
 
 use grass_ir::LetBinding;
 

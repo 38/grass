@@ -1,8 +1,8 @@
 use std::collections::BTreeMap;
 
 pub use field_expr::{
-    BinaryParam, ComponentFieldRefParam, CondParam, ConstParam, FieldExpression, FieldRefParam,
-    RecordRefParam, UnaryParam, ConstValue, StringRepr
+    BinaryParam, ComponentFieldRefParam, CondParam, ConstParam, ConstValue, FieldExpression,
+    FieldRefParam, RecordRefParam, StringRepr, UnaryParam,
 };
 use serde::{Deserialize, Serialize};
 
@@ -14,7 +14,7 @@ mod field_expr;
 #[serde(tag = "opcode")]
 pub enum GrassIR {
     /// Cast the inner data stream to a bed3 data stream
-    CastToBed3(CastToBed3Param),
+    CastToBed(CastToBedParam),
     /// Assign a label to a GRASS expression
     Let(LetBinding),
     /// Reference to an existing GRASS expression
@@ -38,13 +38,13 @@ pub enum GrassIR {
 
     AssumeSorted(AssumeSortedParam),
 
-    InlineRust(InlineRustParam)
+    InlineRust(InlineRustParam),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct InlineRustParam {
-    pub env : BTreeMap<String, GrassIR>,
-    pub src : String,
+    pub env: BTreeMap<String, GrassIR>,
+    pub src: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -124,15 +124,15 @@ pub struct AlterParam {
     pub value: FieldExpression,
 }
 
-
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct AssumeSortedParam {
     pub inner: Box<GrassIR>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct CastToBed3Param {
+pub struct CastToBedParam {
     pub inner: Box<GrassIR>,
+    pub num_of_fields: u32,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

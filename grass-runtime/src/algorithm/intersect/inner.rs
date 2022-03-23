@@ -1,7 +1,7 @@
 use super::heap::RegionHeap;
-use crate::ChrRef;
 use crate::algorithm::Sorted;
 use crate::property::{Region, RegionCore};
+use crate::ChrRef;
 
 pub(super) struct Context<I: Iterator + Sorted>
 where

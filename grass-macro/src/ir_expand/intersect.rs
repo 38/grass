@@ -1,8 +1,7 @@
-use grass_ir::{IntersectParam, IntersectFlavor};
+use grass_ir::{IntersectFlavor, IntersectParam};
 use quote::quote;
 
-use super::{Expand, ExpandResult, ExpansionContext, expand_grass_ir};
-
+use super::{expand_grass_ir, Expand, ExpandResult, ExpansionContext};
 
 impl Expand for IntersectParam {
     fn expand(&self, ctx: &mut ExpansionContext) -> ExpandResult {
@@ -30,7 +29,7 @@ impl Expand for IntersectParam {
                         #left_token . sorted_right_outer_intersect(#right_token)
                     }
                 },
-                _ => todo!()
+                _ => todo!(),
             };
             Ok(ctx.push(code))
         } else {

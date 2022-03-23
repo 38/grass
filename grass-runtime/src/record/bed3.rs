@@ -1,6 +1,9 @@
-use std::{io::{Write, Result}};
+use std::io::{Result, Write};
 
-use crate::{ChrRef, property::{RegionCore, Scored, Stranded, Serializable, Parsable, Named}};
+use crate::{
+    property::{Named, Parsable, RegionCore, Scored, Serializable, Stranded},
+    ChrRef,
+};
 
 #[derive(Clone, Copy, PartialEq)]
 pub struct Bed3 {
@@ -10,7 +13,7 @@ pub struct Bed3 {
 }
 
 impl Serializable for Bed3 {
-    fn dump<W: Write>(&self, mut fp: W) -> Result<()>{
+    fn dump<W: Write>(&self, mut fp: W) -> Result<()> {
         fp.write_all(self.chrom().get_chr_name().as_bytes())?;
         fp.write(b"\t")?;
         crate::ioutils::write_number(&mut fp, self.start() as i32)?;
@@ -20,7 +23,7 @@ impl Serializable for Bed3 {
 }
 
 impl Serializable for Option<Bed3> {
-    fn dump<W: Write>(&self, mut fp: W) -> Result<()>{
+    fn dump<W: Write>(&self, mut fp: W) -> Result<()> {
         if let Some(inner) = self {
             inner.dump(fp)
         } else {
@@ -29,7 +32,7 @@ impl Serializable for Option<Bed3> {
     }
 }
 
-impl <'a> Parsable<'a> for Bed3 {
+impl<'a> Parsable<'a> for Bed3 {
     fn parse(s: &'a str) -> Option<(Self, usize)> {
         let mut bytes = s.as_bytes();
 
@@ -55,13 +58,13 @@ impl <'a> Parsable<'a> for Bed3 {
 }
 
 impl Bed3 {
-    pub fn new<T: RegionCore>(region :T) -> Self {
+    pub fn new<T: RegionCore>(region: &T) -> Self {
         Self {
             chrom: region.chrom(),
             start: region.start(),
             end: region.end(),
         }
-    } 
+    }
     #[inline(always)]
     pub fn set_start(&mut self, start: f64) {
         self.start = start as u32;
@@ -87,13 +90,13 @@ impl RegionCore for Bed3 {
     }
 }
 
-impl <T: Default> Scored<T> for Bed3 {
-   #[inline(always)]
-   fn score(&self) -> T {
-       T::default()
-   } 
+impl Scored<f64> for Bed3 {
+    #[inline(always)]
+    fn score(&self) -> Option<f64> {
+        Default::default()
+    }
 }
 
 impl Stranded for Bed3 {}
 
-impl Named for Bed3 {}
+impl<'a> Named<'a> for Bed3 {}

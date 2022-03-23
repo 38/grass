@@ -28,7 +28,7 @@ fn grass_impl(ir: &str, span: Span) -> TokenStream {
                 #code;
             }
         }
-        Err(err) => err.into_compile_error()
+        Err(err) => err.into_compile_error(),
     };
 
     result.into()

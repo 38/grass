@@ -45,9 +45,7 @@ impl<'a, R: Read> Iterator for LineRecordStream<R, Bed4<'a>> {
     fn next(&mut self) -> Option<Self::Item> {
         self.buffer.clear();
         self.reader.read_line(&mut self.buffer).ok()?;
-        let (parsed, _) = Bed4::parse(unsafe {
-            std::mem::transmute(self.buffer.trim_end())
-        })?;
+        let (parsed, _) = Bed4::parse(unsafe { std::mem::transmute(self.buffer.trim_end()) })?;
         Some(parsed)
     }
 }
@@ -57,9 +55,7 @@ impl<'a, R: Read> Iterator for LineRecordStream<R, Bed5<'a>> {
     fn next(&mut self) -> Option<Self::Item> {
         self.buffer.clear();
         self.reader.read_line(&mut self.buffer).ok()?;
-        let (parsed, _) = Bed5::parse(unsafe {
-            std::mem::transmute(self.buffer.trim_end())
-        })?;
+        let (parsed, _) = Bed5::parse(unsafe { std::mem::transmute(self.buffer.trim_end()) })?;
         Some(parsed)
     }
 }
@@ -69,9 +65,7 @@ impl<'a, R: Read> Iterator for LineRecordStream<R, Bed6<'a>> {
     fn next(&mut self) -> Option<Self::Item> {
         self.buffer.clear();
         self.reader.read_line(&mut self.buffer).ok()?;
-        let (parsed, _) = Bed6::parse(unsafe {
-            std::mem::transmute(self.buffer.trim_end())
-        })?;
+        let (parsed, _) = Bed6::parse(unsafe { std::mem::transmute(self.buffer.trim_end()) })?;
         Some(parsed)
     }
 }

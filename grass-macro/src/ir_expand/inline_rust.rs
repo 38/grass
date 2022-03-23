@@ -4,7 +4,7 @@ use quote::quote;
 
 use crate::ir_expand::expand_grass_ir;
 
-use super::{Expand, ExpansionContext, ExpandResult};
+use super::{Expand, ExpandResult, ExpansionContext};
 
 impl Expand for InlineRustParam {
     fn expand(&self, ctx: &mut ExpansionContext) -> ExpandResult {
@@ -17,7 +17,7 @@ impl Expand for InlineRustParam {
             args.push(arg_ident);
             vals.push(val_ident);
         }
-        let inline_code : TokenStream = syn::parse_str(self.src.as_str())?;
+        let inline_code: TokenStream = syn::parse_str(self.src.as_str())?;
         let code = quote! {
             {
                 let _temp = std::iter::once((#(#vals,)*)).map(|(#(#args,)*)|{

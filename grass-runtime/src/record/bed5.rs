@@ -1,25 +1,52 @@
-use std::{io::{Write, Result}, fmt::Display, str::FromStr};
+use std::{
+    borrow::Cow,
+    fmt::Display,
+    io::{Result, Write},
+    ops::{Deref, DerefMut},
+    str::FromStr,
+};
 
-use crate::{property::{Serializable, Parsable, RegionCore, Scored, Stranded, Named}, ChrRef};
+use crate::{
+    property::{Named, Parsable, RegionCore, Scored, Serializable, Stranded},
+    ChrRef,
+};
 
 use super::Bed4;
 
 #[derive(Clone, PartialEq)]
 pub struct Bed5<'a, T = f64> {
     inner: Bed4<'a>,
-    score: T,
+    pub score: Option<T>,
 }
 
-impl <'a, T : Display> Serializable for Bed5<'a, T> {
-    fn dump<W: Write>(&self, mut fp: W) -> Result<()>{
+impl<'a, T> Deref for Bed5<'a, T> {
+    type Target = Bed4<'a>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.inner
+    }
+}
+
+impl<'a> DerefMut for Bed5<'a> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.inner
+    }
+}
+
+impl<'a, T: Display> Serializable for Bed5<'a, T> {
+    fn dump<W: Write>(&self, mut fp: W) -> Result<()> {
         self.inner.dump(&mut fp)?;
-        write!(fp, "\t{}", self.score)?;
+        if let Some(score) = self.score.as_ref() {
+            write!(fp, "\t{}", score)?;
+        } else {
+            write!(fp, "\t.")?;
+        }
         Ok(())
     }
 }
 
-impl <'a, T : Display> Serializable for Option<Bed5<'a, T>> {
-    fn dump<W: Write>(&self, mut fp: W) -> Result<()>{
+impl<'a, T: Display> Serializable for Option<Bed5<'a, T>> {
+    fn dump<W: Write>(&self, mut fp: W) -> Result<()> {
         if let Some(inner) = self {
             inner.dump(fp)
         } else {
@@ -28,7 +55,7 @@ impl <'a, T : Display> Serializable for Option<Bed5<'a, T>> {
     }
 }
 
-impl <'a, T: FromStr> Parsable<'a> for Bed5<'a, T> {
+impl<'a, T: FromStr> Parsable<'a> for Bed5<'a, T> {
     fn parse(s: &'a str) -> Option<(Self, usize)> {
         let (inner, mut start) = Bed4::parse(s)?;
         if s[start..].starts_with('\t') {
@@ -36,40 +63,28 @@ impl <'a, T: FromStr> Parsable<'a> for Bed5<'a, T> {
         }
         let s = &s[start..];
         let brk = memchr::memchr(b'\t', s.as_bytes()).unwrap_or(s.len());
-        let score = s[..brk].parse().ok()?;
-        Some((Self {inner, score}, start + brk))
+        let score = s[..brk].parse().ok();
+        Some((Self { inner, score }, start + brk))
     }
 }
 
-impl <'a, S> Bed5<'a, S> {
-    pub fn new<T: RegionCore>(region :T) -> Self where S: Default {
+impl<'a, S> Bed5<'a, S> {
+    pub fn new<T: RegionCore + Named<'a> + Scored<S>>(region: &T) -> Self
+    where
+        S: Default,
+    {
+        let score = region.score();
         let inner = Bed4::new(region);
-        let score = S::default();
-        Self { inner , score }
-    } 
-
-    #[inline(always)]
-    pub fn set_start(&mut self, start: f64) {
-        self.inner.set_start(start);
-    }
-
-    #[inline(always)]
-    pub fn set_end(&mut self, end: f64) {
-        self.inner.set_end(end);
-    }
-
-    #[inline(always)]
-    pub fn set_name(&mut self, name: &'a str) {
-        self.inner.set_name(name);
+        Self { inner, score }
     }
 
     #[inline(always)]
     pub fn set_score(&mut self, score: S) {
-        self.score = score;
+        self.score = Some(score);
     }
 }
 
-impl <'a, S> RegionCore for Bed5<'a, S> {
+impl<'a, S> RegionCore for Bed5<'a, S> {
     #[inline(always)]
     fn start(&self) -> u32 {
         self.inner.start()
@@ -84,17 +99,20 @@ impl <'a, S> RegionCore for Bed5<'a, S> {
     }
 }
 
-impl <'a, T: Clone> Scored<T> for Bed5<'a, T> {
-   #[inline(always)]
-   fn score(&self) -> T {
-       self.score.clone()
-   } 
+impl<'a, T: Clone> Scored<T> for Bed5<'a, T> {
+    #[inline(always)]
+    fn score(&self) -> Option<T> {
+        self.score.clone()
+    }
 }
 
-impl <'a, T> Stranded for Bed5<'a, T> {}
+impl<'a, T> Stranded for Bed5<'a, T> {}
 
-impl <'a, T> Named for Bed5<'a, T> {
+impl<'a, T> Named<'a> for Bed5<'a, T> {
     fn name(&self) -> &str {
         self.inner.name()
+    }
+    fn to_cow(&self) -> Cow<'a, str> {
+        self.inner.to_cow()
     }
 }
