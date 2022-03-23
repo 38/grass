@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from pygrass import IntervalFile, item, length,start,end, CmdArg
+from pygrass import IntervalFile, item, length, CmdArg
 
 # Using the "Input" class, GRASS will automatically detect the file format
 first_file = IntervalFile(CmdArg(1), sorted = True)

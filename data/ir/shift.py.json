@@ -32,7 +32,7 @@
                         },
                         "rhs": {
                             "opcode": "ConstValue",
-                            "value": "+"
+                            "value": "-"
                         }
                     },
                     "then": {
@@ -77,7 +77,7 @@
                     },
                     "rhs": {
                         "opcode": "ConstValue",
-                        "value": "+"
+                        "value": "-"
                     }
                 },
                 "then": {

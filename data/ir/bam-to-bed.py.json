@@ -4,7 +4,7 @@
         "opcode": "Let",
         "id": "_grass_res_0",
         "value": {
-            "opcode": "CastToBed3",
+            "opcode": "CastToBed",
             "inner": {
                 "opcode": "Let",
                 "id": "_grass_res_1",
@@ -18,7 +18,8 @@
                     "compression": false,
                     "sorted": true
                 }
-            }
+            },
+            "num_of_fields": 3
         }
     },
     "target": "b.bed"
