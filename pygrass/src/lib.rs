@@ -26,6 +26,32 @@ fn expand_macro(s: &str) -> PyResult<()> {
 }
 
 #[pyfunction]
+fn build_job(s: &str) -> PyResult<String> {
+    match serde_json::from_str::<JobDefinition>(s) {
+        Ok(mut job) => {
+            Ok(job.build_artifact().map_err(|e|
+                PyRuntimeError::new_err(format!("RustError: {}", e))
+            )?.to_string_lossy().into_owned())
+        },
+        Err(e) => Err(PyRuntimeError::new_err(format!("IRParsingError: {}", e))),
+    }
+}
+
+#[pyfunction]
+fn build_job_and_copy(s: &str, dest: &str) -> PyResult<()> {
+    match serde_json::from_str::<JobDefinition>(s) {
+        Ok(mut job) => {
+            let binary = job.build_artifact().map_err(|e|
+                PyRuntimeError::new_err(format!("RustError: {}", e))
+            )?;
+            std::fs::copy(binary, dest)?;
+            Ok(())
+        },
+        Err(e) => Err(PyRuntimeError::new_err(format!("IRParsingError: {}", e))),
+    }
+}
+
+#[pyfunction]
 fn create_code_compilation_dir(s: &str) -> PyResult<()> {
     match serde_json::from_str::<JobDefinition>(s) {
         Ok(mut job) => {
@@ -43,5 +69,7 @@ pub fn rust(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(execute_job, m)?)?;
     m.add_function(wrap_pyfunction!(expand_macro, m)?)?;
     m.add_function(wrap_pyfunction!(create_code_compilation_dir, m)?)?;
+    m.add_function(wrap_pyfunction!(build_job, m)?)?;
+    m.add_function(wrap_pyfunction!(build_job_and_copy, m)?)?;
     Ok(())
 }

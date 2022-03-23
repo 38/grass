@@ -2,7 +2,6 @@ from pygrass.interval.base import IntervalBase
 from pygrass.file_format import detect_file_format
 from pygrass.ir import IRBase, OpenFile
 
-import os
 import sys
 
 class CmdArg(object):

@@ -1,5 +1,5 @@
 use lazy_static::lazy_static;
-use std::{sync::RwLock, collections::HashMap, io::{Read, BufReader, BufRead}, fmt::Display};
+use std::{sync::RwLock, collections::HashMap, io::{Read, BufReader, BufRead}, fmt::Display, cell::RefCell, hash::{Hasher, Hash}};
 
 #[derive(Default)]
 pub struct Genome {
@@ -73,10 +73,28 @@ impl <'a> ChrRef<'a> {
         match self {
             Self::Unassigned(name) => name,
             Self::Assigned(id) => {
-                let storage = GENOME_STORAGE.read().unwrap();
-                unsafe {
-                    std::mem::transmute(storage.chr_name_list[*id].as_str())
+                if let Some(name) = LAST_NAME.with(|cached_name| {
+                    if let Some(cached_name) = cached_name.borrow().as_ref() {
+                        if cached_name.0 == *id {
+                            return Some(cached_name.1);
+                        }
+                    }
+                    None
+                }) {
+                    return name;
                 }
+
+                let storage = GENOME_STORAGE.read().unwrap();
+
+                let ret = unsafe {
+                    std::mem::transmute(storage.chr_name_list[*id].as_str())
+                };
+
+                LAST_NAME.with(|cached_name| {
+                    *cached_name.borrow_mut() = Some((*id, ret));
+                });
+
+                ret
             }
             Self::Dummy => {
                 "."
@@ -123,10 +141,30 @@ impl <'a> ChrRef<'a> {
     }
 }
 
+thread_local! {
+    static LAST_QUERY : RefCell<Option<(usize, u64)>> = RefCell::new(None);
+    static LAST_NAME  : RefCell<Option<(usize, &'static str)>> = RefCell::new(None);
+}
+
 impl Genome {
     pub fn query_chr(name: &str) -> ChrRef {
+       let mut hasher = std::collections::hash_map::DefaultHasher::new();
+       name.hash(&mut hasher);
+       let hash = hasher.finish();
+
+       if let Some((id, cached_hash)) = LAST_QUERY.with(|id| id.borrow().clone()) {
+           // Definitely, hash == cached_hash doesn't means it's the same. But in practise, chrom
+           // name's hash code never collides 
+           if hash == cached_hash {
+               return ChrRef::Assigned(id)
+           }
+       }
+
        let storage = GENOME_STORAGE.read().unwrap(); 
        if let Some(id) = storage.name_id_map.get(name) {
+           LAST_QUERY.with(|cache| {
+               *cache.borrow_mut() = Some((*id, hash));
+           });
            return ChrRef::Assigned(*id);
        }
        ChrRef::Unassigned(name)

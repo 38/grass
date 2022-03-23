@@ -1,6 +1,6 @@
 use std::{io::{Write, Result}};
 
-use crate::{ChrRef, property::{RegionCore, Scored, Stranded, Serializable, Parsable}};
+use crate::{ChrRef, property::{RegionCore, Scored, Stranded, Serializable, Parsable, Named}};
 
 #[derive(Clone, Copy, PartialEq)]
 pub struct Bed3 {
@@ -29,8 +29,8 @@ impl Serializable for Option<Bed3> {
     }
 }
 
-impl Parsable for Bed3 {
-    fn parse(s: &str) -> Option<(Self, usize)> {
+impl <'a> Parsable<'a> for Bed3 {
+    fn parse(s: &'a str) -> Option<(Self, usize)> {
         let mut bytes = s.as_bytes();
 
         if bytes.last() == Some(&b'\n') {
@@ -61,31 +61,39 @@ impl Bed3 {
             start: region.start(),
             end: region.end(),
         }
-    }
+    } 
+    #[inline(always)]
     pub fn set_start(&mut self, start: f64) {
         self.start = start as u32;
     }
+    #[inline(always)]
     pub fn set_end(&mut self, end: f64) {
         self.end = end as u32;
     }
 }
 
 impl RegionCore for Bed3 {
+    #[inline(always)]
     fn start(&self) -> u32 {
         self.start
     }
+    #[inline(always)]
     fn end(&self) -> u32 {
         self.end
     }
+    #[inline(always)]
     fn chrom(&self) -> ChrRef<'static> {
         self.chrom
     }
 }
 
-impl <T: Default + Sized> Scored<T> for Bed3 {
+impl <T: Default> Scored<T> for Bed3 {
+   #[inline(always)]
    fn score(&self) -> T {
        T::default()
    } 
 }
 
 impl Stranded for Bed3 {}
+
+impl Named for Bed3 {}

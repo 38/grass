@@ -20,6 +20,7 @@ use crate::return_true;
 pub enum BuildFlavor {
     Debug,
     Release,
+    ReleaseWithDebugInfo,
 }
 
 impl Default for BuildFlavor {
@@ -180,7 +181,7 @@ impl JobDefinition {
         ret.push("target");
         match self.build_flavor {
             BuildFlavor::Debug => ret.push("debug"),
-            BuildFlavor::Release => ret.push("release"),
+            BuildFlavor::Release | BuildFlavor::ReleaseWithDebugInfo => ret.push("release"),
         }
         ret.push(self.get_artifact_name()?);
         Ok(ret)
@@ -210,6 +211,17 @@ impl JobDefinition {
             ),
         ]) {
             dep.write_dependency_line(&mut manifest_file)?;
+        }
+        match self.build_flavor {
+            BuildFlavor::Release => {
+                writeln!(&mut manifest_file, "[profile.release]")?;
+                writeln!(&mut manifest_file, "strip = true")?;
+            }
+            BuildFlavor::ReleaseWithDebugInfo => {
+                writeln!(&mut manifest_file, "[profile.release]")?;
+                writeln!(&mut manifest_file, "debug = true")?;
+            }
+            _ => ()
         }
         Ok(())
     }
@@ -283,11 +295,11 @@ impl JobDefinition {
             Ok(self.compilation_dir.as_ref().unwrap().path())
         }
     }
-    pub fn get_artifact_impl(&mut self) -> Result<&Path> {
+    pub fn build_artifact(&mut self) -> Result<&Path> {
         log::info!("Building artifact {}", self.get_artifact_name()?);
         let mut child = match self.build_flavor {
             BuildFlavor::Debug => self.cargo(&["build"], true),
-            BuildFlavor::Release => self.cargo(&["build", "--release"], true),
+            BuildFlavor::Release | BuildFlavor::ReleaseWithDebugInfo => self.cargo(&["build", "--release"], true),
         }?;
         let status = child.wait()?;
         if status.success() {
@@ -330,7 +342,7 @@ impl JobDefinition {
             cache.as_mut().unwrap().update_cache(
                 &hash, 
                 |buf| {
-                    let path = self.get_artifact_impl()?;
+                    let path = self.build_artifact()?;
                     *buf = path.to_path_buf();
                     Ok(())
                 }, 
@@ -339,7 +351,7 @@ impl JobDefinition {
             self.artifact_path = Some(cached_path);
             return self.get_artifact();
         }
-        self.get_artifact_impl()
+        self.build_artifact()
     }
 
     pub fn execute_artifact(&mut self) -> Result<Child> {

@@ -1,8 +1,8 @@
-use std::io::{Result, Write};
+use std::{io::{Result, Write}, fmt::Display};
 use crate::ChrRef;
 
-pub trait Parsable: Sized {
-    fn parse(s: &str) -> Option<(Self, usize)>;
+pub trait Parsable<'a>: Sized {
+    fn parse(s: &'a str) -> Option<(Self, usize)>;
 }
 
 pub trait Serializable {
@@ -40,24 +40,30 @@ pub trait Region: RegionCore {
 impl<T: RegionCore> Region for T {}
 
 impl <T: Region> RegionCore for Option<T> {
+    #[inline(always)]
     fn start(&self) -> u32 {
         self.as_ref().map_or(0, |what| what.start())
     }
+    #[inline(always)]
     fn end(&self) -> u32 {
         self.as_ref().map_or(0, |what| what.end())
     }
+    #[inline(always)]
     fn chrom(&self) -> ChrRef<'static> {
         self.as_ref().map_or(ChrRef::Dummy, |what| what.chrom())
     }
 }
 
 impl<'a, T: Region> RegionCore for &'a T {
+    #[inline(always)]
     fn start(&self) -> u32 {
         T::start(*self)
     }
+    #[inline(always)]
     fn end(&self) -> u32 {
         T::end(*self)
     }
+    #[inline(always)]
     fn chrom(&self) -> ChrRef<'static> {
         T::chrom(*self)
     }
@@ -160,14 +166,17 @@ impl_with_region_for_tuple!((A, B, C, D, E, F), (0, 1, 2, 3, 4), 5);
 impl_with_region_for_tuple!((A, B, C, D, E, F, G), (0, 1, 2, 3, 4, 5), 6);
 impl_with_region_for_tuple!((A, B, C, D, E, F, G, H), (0, 1, 2, 3, 4, 5, 6), 7);
 
-pub trait WithName {
-    fn name(&self) -> &str;
+pub trait Named {
+    fn name(&self) -> &str {
+        "."
+    }
 }
 
-pub trait Scored<T : Sized> {
+pub trait Scored<T> {
     fn score(&self) -> T;
 }
 
+#[derive(Clone, Copy, PartialEq)]
 pub enum Strand {
     Negative,
     Positive,
@@ -180,6 +189,16 @@ impl Strand {
     }
     pub fn is_negative(&self) -> bool {
         matches!(self, Strand::Negative)
+    }
+}
+
+impl Display for Strand {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Positive => write!(f, "+"),
+            Self::Negative => write!(f, "-"),
+            Self::Unknown => write!(f, "."),
+        }
     }
 }
 

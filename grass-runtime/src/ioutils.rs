@@ -1,9 +1,11 @@
 use std::io::{Result, Write};
+
+#[inline(always)]
 pub(crate) fn write_number<W: Write>(mut fp: W, mut n: i32) -> Result<()> {
     if n == 0 {
         fp.write_all(b"0")
     } else {
-        let mut buf = [0; 10];
+        let mut buf = [0; 11];
         let mut offset = 0;
         let mut begin = 0;
         let is_negative = if n < 0 {

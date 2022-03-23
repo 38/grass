@@ -17,7 +17,7 @@ impl Expand for AlterParam {
             {
                 #inner_var . map(
                     |mut item| {
-                        let new_value = Some(item).map(#value).unwrap();
+                        let new_value = Some(&item).map(#value).unwrap();
                         item . #setter_id (new_value);
                         item
                     }
