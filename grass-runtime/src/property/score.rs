@@ -1,4 +1,3 @@
-
 pub trait Scored<T> {
     fn score(&self) -> Option<T>;
 }

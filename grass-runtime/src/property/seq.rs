@@ -1,4 +1,3 @@
-
 pub enum Nuclide {
     A,
     T,

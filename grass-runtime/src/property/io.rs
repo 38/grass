@@ -1,4 +1,4 @@
-use std::io::{Write, Result};
+use std::io::{Result, Write};
 
 pub trait Parsable<'a>: Sized {
     fn parse(s: &'a str) -> Option<(Self, usize)>;

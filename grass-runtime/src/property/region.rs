@@ -1,6 +1,5 @@
 use crate::ChrRef;
 
-
 pub trait RegionCore {
     fn start(&self) -> u32;
     fn end(&self) -> u32;
