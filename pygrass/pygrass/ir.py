@@ -71,8 +71,17 @@ class InlineRust(IRBase):
             ret.extend(var.defs())
         return ret
 
-## Label assignment
+## Genome file manipulation
+class LoadGenomeFile(IRBase):
+    def __init__(self, path: str):
+        super().__init__("LoadGenomeFile")
+        self._path = path
+    def to_dict(self) -> dict[str]:
+        ret = super().to_dict()
+        ret["File"] = self._path
+        return ret
 
+## Label assignment
 class LabelAssignmentBase(IRBase):
     pass
 

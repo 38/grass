@@ -18,6 +18,7 @@ mod intersect;
 mod let_binding;
 mod open;
 mod write;
+mod load_genome;
 
 pub fn expand_grass_ir(ir: &GrassIR, ctx: &mut ExpansionContext) -> ExpandResult {
     match ir {
@@ -37,6 +38,7 @@ pub fn expand_grass_ir(ir: &GrassIR, ctx: &mut ExpansionContext) -> ExpandResult
         GrassIR::AssumeSorted(param) => param.expand(ctx),
         GrassIR::InlineRust(param) => param.expand(ctx),
         GrassIR::CastToBed(param) => param.expand(ctx),
+        GrassIR::LoadGenomeFile(param) => param.expand(ctx),
         _ => panic!("Unimplemented IR {}", ir.as_ref()),
     }
 }

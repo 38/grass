@@ -152,6 +152,18 @@ thread_local! {
 }
 
 impl Genome {
+    pub fn get_chrom_sizes() -> Vec<(&'static str, usize)> {
+        let storage = GENOME_STORAGE.read().unwrap();
+
+        storage.chr_name_list.iter().zip(storage.chr_size_list.iter()).filter_map(|(name, size)| {
+            let name = name.as_str();
+            let size = size.clone();
+            size.map(|size| (
+                unsafe { std::mem::transmute::<_, &'static str>(name) },
+                size
+            ))
+        }).collect()
+    }
     pub fn query_chr(name: &str) -> ChrRef {
         let mut hasher = std::collections::hash_map::DefaultHasher::new();
         name.hash(&mut hasher);
@@ -185,14 +197,23 @@ impl Genome {
         let mut br = BufReader::new(reader);
         let mut buf = String::new();
         let mut id = 0;
-        while let Ok(_sz) = br.read_line(&mut buf) {
-            let mut tokenized = buf.split('\t').take(2);
-            let chr_name = tokenized.next().unwrap();
-            let chr_size: usize = tokenized.next().unwrap().parse()?;
+        while let Ok(sz) = br.read_line(&mut buf) {
+            if sz == 0 {
+                break;
+            }
 
-            storage.chr_name_list.push(chr_name.to_string());
-            storage.chr_size_list.push(Some(chr_size));
-            storage.name_id_map.insert(chr_name.to_string(), id);
+            let line = buf.trim_end();
+            let mut tokenized = line.split('\t');
+            if let Some(chr_name) = tokenized.next() {
+                if let Some(chr_size_txt) = tokenized.next() {
+
+                    let chr_size : usize = chr_size_txt.parse()?;
+                    
+                    storage.chr_name_list.push(chr_name.to_string());
+                    storage.chr_size_list.push(Some(chr_size));
+                    storage.name_id_map.insert(chr_name.to_string(), id);
+                }
+            }
 
             buf.clear();
             id += 1;

@@ -11,3 +11,4 @@ repository = "https://github.com/38/grass"
 [dependencies]
 lazy_static = "1.4.0"
 memchr = "2.4.1"
+rand = "0.8.5"

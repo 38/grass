@@ -1,6 +1,6 @@
 from abc import abstractclassmethod
 
-from pygrass.ir import IRBase, InlineRust, Let, Ref, WriteFile, Count
+from pygrass.ir import IRBase, InlineRust, Let, Ref, WriteFile, Count, LoadGenomeFile
 
 def _make_free_var_closure():
 	nextid = 0
@@ -23,6 +23,9 @@ def drain_method(origin_method):
 		ir = origin_method(self, *args, **kwargs)
 		send_to_backend(ir)
 	return modified_method
+
+def load_genome_file(path):
+	send_to_backend(LoadGenomeFile(path))
 
 class IteratorBase(object):
 	pass

@@ -39,7 +39,15 @@ pub enum GrassIR {
     AssumeSorted(AssumeSortedParam),
 
     InlineRust(InlineRustParam),
+
+    LoadGenomeFile(LoadGenomeFileParam)
 }
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub enum LoadGenomeFileParam {
+    File(String),
+}
+
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct InlineRustParam {

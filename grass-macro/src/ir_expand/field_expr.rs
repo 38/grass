@@ -170,7 +170,7 @@ fn expand_field_expr_impl(expr: &FieldExpression, span: Span) -> TokenStream {
         },
         FieldExpression::FullRecordRef => {
             quote! {
-                _arg
+                &_arg
             }
         }
         FieldExpression::RecordRef(param) => {
@@ -178,7 +178,7 @@ fn expand_field_expr_impl(expr: &FieldExpression, span: Span) -> TokenStream {
             quote! {
                 ({
                     use grass_runtime::property::*;
-                    _arg . #id
+                    &_arg . #id
                 })
             }
         }

@@ -6,7 +6,7 @@ from pygrass.interval.formats import BedFile, BamFile, Bed3File, CmdArg
 from pygrass.interval.cast import Bed3, Bed4, Bed5, Bed6
 from pygrass.interval.field_expr import length, start, end, length, name, chr, strand, item, If
 from pygrass.backend import DumpIR, BackendBase, RustBackend
-from pygrass.record_base import RustEnv
+from pygrass.record_base import RustEnv, load_genome_file
 
 import os
 import importlib
