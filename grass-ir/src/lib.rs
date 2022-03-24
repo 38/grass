@@ -40,7 +40,16 @@ pub enum GrassIR {
 
     InlineRust(InlineRustParam),
 
-    LoadGenomeFile(LoadGenomeFileParam)
+    LoadGenomeFile(LoadGenomeFileParam),
+
+    SortedRandom(SortedRandomParam),
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct SortedRandomParam {
+    pub count: usize,
+    pub min_length: u32,
+    pub max_length: u32,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

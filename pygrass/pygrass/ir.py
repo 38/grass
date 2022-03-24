@@ -47,6 +47,20 @@ class IRBase(object):
 
 # Actual IR representations
 
+## Random generated bed3
+class SortedRandomInterval(IRBase):
+    def __init__(self, count: int, min_len: int, max_len: int):
+        super().__init__("SortedRandom")
+        self._count = count
+        self._min_len = min_len
+        self._max_len = max_len
+    def to_dict(self) -> dict[str]:
+        ret = super().to_dict()
+        ret["count"] = self._count
+        ret["min_length"] = self._min_len
+        ret["max_length"] = self._max_len
+        return ret
+
 ## Inline Rust Source Code
 class InlineRust(IRBase):
     def __init__(self, env : dict[str, IRBase], src):

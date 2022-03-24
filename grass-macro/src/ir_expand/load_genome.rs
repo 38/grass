@@ -10,7 +10,7 @@ impl Expand for LoadGenomeFileParam {
                 quote! {
                     {
                         use grass_runtime::Genome;
-                        Genome::load_genome_file(#path)?;
+                        Genome::load_genome_file(std::fs::File::open(#path)?)?;
                     }
                 }
             }

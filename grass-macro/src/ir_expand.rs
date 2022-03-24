@@ -19,6 +19,7 @@ mod let_binding;
 mod open;
 mod write;
 mod load_genome;
+mod random;
 
 pub fn expand_grass_ir(ir: &GrassIR, ctx: &mut ExpansionContext) -> ExpandResult {
     match ir {
@@ -39,6 +40,7 @@ pub fn expand_grass_ir(ir: &GrassIR, ctx: &mut ExpansionContext) -> ExpandResult
         GrassIR::InlineRust(param) => param.expand(ctx),
         GrassIR::CastToBed(param) => param.expand(ctx),
         GrassIR::LoadGenomeFile(param) => param.expand(ctx),
+        GrassIR::SortedRandom(param) => param.expand(ctx),
         _ => panic!("Unimplemented IR {}", ir.as_ref()),
     }
 }

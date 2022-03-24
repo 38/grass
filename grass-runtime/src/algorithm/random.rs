@@ -16,10 +16,7 @@ pub struct SortedRandomInterval {
 
 impl SortedRandomInterval {
     pub fn new(length_min: usize, length_max: usize, count: usize) -> SortedRandomInterval {
-        let mut chrom_sizes = Genome::get_chrom_sizes();
-        for idx in 1..chrom_sizes.len() {
-            chrom_sizes[idx].1 += chrom_sizes[idx - 1].1;
-        }
+        let chrom_sizes = Genome::get_chrom_sizes();
         let mut regions = Vec::new();
         let mut flatten_region_end = 0;
         for size in chrom_sizes.iter().map(|(_, size)| (*size).max(length_min) - length_min) {
@@ -63,7 +60,7 @@ impl SortedRandomInterval {
 
     fn generate_raw_interval(&mut self) -> (usize, usize) {
         let begin = self.generate_next_random_point(self.count);
-        let end = self.rng.gen_range(begin + self.length_min..begin + self.length_max);
+        let end = self.rng.gen_range(begin + self.length_min..=begin + self.length_max);
         (begin, end)
     }
 
