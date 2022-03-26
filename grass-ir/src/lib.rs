@@ -139,6 +139,7 @@ pub struct AlterParam {
     pub field: String,
     /// The new value this field should assigned to
     pub value: FieldExpression,
+    pub sorted: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -150,6 +151,7 @@ pub struct AssumeSortedParam {
 pub struct CastToBedParam {
     pub inner: Box<GrassIR>,
     pub num_of_fields: u32,
+    pub sorted: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

@@ -1,3 +1,29 @@
+"""A fast, flexible genomics data record processing infrastructure 
+
+PyGRASS enables rapid manipulation of numbers of genomics data record data format, inlcuding but not limited in:
+
+- BED file variantions: BED3, BED4, BED5, BED6, BED12 and BEDPE
+- VCF
+- GFF
+- SAM, BAM and CRAM
+- FASTA and FASTQ
+
+Unlike normal python package, PyGRASS doesn't actually use python for data manipulation. 
+It capture the semantics that written in Python script and transcompile it down to Rust source code. 
+And the actual data manipulation is done by the native binary artifact compiled from the Rust source code. 
+This approach gives pygrass a performance that is similar or even faster than carefully written C/C++ program. 
+At the time time, pygrass is very flexible and configurable. 
+
+Quick example of pygrass:
+```
+    from pygrass import *
+
+    file_a = IntervalFile(CmdArg(1))
+    file_b = IntervalFile(CmdArg(2))
+    file_a.intersect(file_b).print_to_stdout()
+```
+
+"""
 from abc import abstractclassmethod
 from typing import Callable
 
@@ -20,17 +46,27 @@ def _load_default_backend():
     else:
         return RustBackend
 
-ActiveBackendCtr : Callable[[], BackendBase] = _load_default_backend()
 
-backend_session = None
+_ActiveBackendCtr : Callable[[], BackendBase] = _load_default_backend()
+
+_backend_session = None
 
 def set_active_backend(backend_type: Callable[[], BackendBase]):
-    global backend_session, ActiveBackendCtr
-    ActiveBackendCtr = backend_type
-    backend_session = None
+    """Set the currently active GRASS backend. The parameter is any callable that returning a pygrass.BackendBase object"""
+    global _backend_session, _ActiveBackendCtr
+    _ActiveBackendCtr = backend_type
+    _backend_session = None
 
 def get_backend_session() -> BackendBase:
-    global backend_session
-    if backend_session == None:
-        backend_session = ActiveBackendCtr()
-    return backend_session
+    """Get the currently active GRASS backend session. This allows you to actually touch the backend session object.
+
+    One of the important usage of this is when pygrass is being used interactively, you need either quite the REPR shell
+    or manually call pygrass.get_backend_session().flush() to initialize the compile and run process.
+
+    NOTE: When the pygrass is used within a script file, the compile and run process happends at the time the backend session
+    gets deleted.
+    """
+    global _backend_session
+    if _backend_session == None:
+        _backend_session = _ActiveBackendCtr()
+    return _backend_session

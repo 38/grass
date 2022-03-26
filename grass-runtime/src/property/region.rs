@@ -16,6 +16,18 @@ pub trait RegionCore {
     }
 }
 
+impl <'a> RegionCore for (ChrRef<'a>, u32, u32) {
+    fn start(&self) -> u32 {
+        self.1
+    }
+    fn end(&self) -> u32 {
+        self.2
+    }
+    fn chrom(&self) -> ChrRef<'static> {
+        self.0.to_static()
+    }
+}
+
 pub trait Region: RegionCore {
     #[inline(always)]
     fn overlaps(&self, b: &impl Region) -> bool {

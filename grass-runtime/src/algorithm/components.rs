@@ -6,31 +6,75 @@ use std::{
     iter::Enumerate,
 };
 
-use crate::property::{Region, RegionCore};
+use crate::{property::{Region, RegionCore}, record::ToSelfContained};
 use crate::ChrRef;
 
-pub struct Point<T: Region> {
+pub struct RegionComponent<T: Region> {
     pub is_open: bool,
     pub index: usize,
     pub depth: usize,
     pub value: T,
 }
 
-impl<T: Region> Debug for Point<T> {
+impl <T: RegionCore + ToSelfContained> ToSelfContained for RegionComponent<T> 
+where
+    T::SelfContained : RegionCore
+{
+    type SelfContained = RegionComponent<T::SelfContained>;
+
+    fn to_self_contained(&self) -> Self::SelfContained {
+        RegionComponent {
+            value: self.value.to_self_contained(),
+            is_open: self.is_open,
+            index: self.index,
+            depth: self.depth,
+        }
+    }
+}
+
+impl <T:Region> RegionCore for RegionComponent<T> {
+    fn start(&self) -> u32 {
+        if self.is_open {
+            self.value.start()
+        } else {
+            self.value.end()
+        }
+    }
+
+    fn end(&self) -> u32 {
+        self.start() + 1
+    }
+
+    fn chrom(&self) -> ChrRef<'static> {
+        self.value.chrom()
+    }
+}
+
+impl<T: Region> Debug for RegionComponent<T> {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         if self.is_open {
             write!(f, "Open(")?;
         } else {
             write!(f, "Close(")?;
         }
-
         let (chrom, pos) = self.position();
-
         write!(f, "{}, {}, {})", chrom.to_string(), pos, self.depth)
     }
 }
 
-impl<T: Region> Point<T> {
+impl<T: Region> RegionComponent<T> {
+    pub fn is_start(&self) -> bool {
+        self.is_open
+    }
+
+    pub fn is_end(&self) -> bool {
+        !self.is_open
+    }
+
+    pub fn depth(&self) -> usize {
+        self.depth
+    }
+
     pub fn position(&self) -> (ChrRef<'static>, u32) {
         if self.is_open {
             (self.value.chrom(), self.value.start())
@@ -40,14 +84,14 @@ impl<T: Region> Point<T> {
     }
 }
 
-impl<T: Region> PartialEq for Point<T> {
-    fn eq(&self, other: &Point<T>) -> bool {
+impl<T: Region> PartialEq for RegionComponent<T> {
+    fn eq(&self, other: &RegionComponent<T>) -> bool {
         self.position() == other.position()
     }
 }
 
-impl<T: Region> PartialOrd for Point<T> {
-    fn partial_cmp(&self, other: &Point<T>) -> Option<Ordering> {
+impl<T: Region> PartialOrd for RegionComponent<T> {
+    fn partial_cmp(&self, other: &RegionComponent<T>) -> Option<Ordering> {
         let ret = self
             .position()
             .cmp(&other.position())
@@ -56,9 +100,9 @@ impl<T: Region> PartialOrd for Point<T> {
     }
 }
 
-impl<T: Region> Eq for Point<T> {}
+impl<T: Region> Eq for RegionComponent<T> {}
 
-impl<T: Region> Ord for Point<T> {
+impl<T: Region> Ord for RegionComponent<T> {
     fn cmp(&self, other: &Self) -> Ordering {
         self.partial_cmp(other).unwrap()
     }
@@ -71,7 +115,7 @@ where
 {
     iter: Enumerate<I>,
     peek_buffer: Option<(usize, I::Item)>,
-    heap: BinaryHeap<Reverse<Point<I::Item>>>,
+    heap: BinaryHeap<Reverse<RegionComponent<I::Item>>>,
 }
 
 pub trait Components
@@ -99,7 +143,7 @@ where
     I: Iterator,
     I::Item: Region + Clone,
 {
-    type Item = Point<I::Item>;
+    type Item = RegionComponent<I::Item>;
     fn next(&mut self) -> Option<Self::Item> {
         if let Some((index, peek_buffer)) = self.peek_buffer.as_ref() {
             let index = *index;
@@ -114,13 +158,13 @@ where
             }
             let depth = self.heap.len() + 1;
 
-            self.heap.push(Reverse(Point {
+            self.heap.push(Reverse(RegionComponent {
                 index,
                 depth: 0,
                 value: peek_buffer.clone(),
                 is_open: false,
             }));
-            let ret = Some(Point {
+            let ret = Some(RegionComponent {
                 index,
                 depth,
                 is_open: true,
@@ -140,7 +184,7 @@ where
 
 pub struct TaggedComponent<I, R, T, F>
 where
-    I: Iterator<Item = Point<R>>,
+    I: Iterator<Item = RegionComponent<R>>,
     R: Region + Clone,
     T: Clone + Hash + Eq,
     F: FnMut(&R) -> T,
@@ -153,7 +197,7 @@ where
 pub trait TaggedComponentExt<R>
 where
     R: Region + Clone,
-    Self: Iterator<Item = Point<R>>,
+    Self: Iterator<Item = RegionComponent<R>>,
 {
     fn with_tag<T, F>(self, tag_func: F) -> TaggedComponent<Self, R, T, F>
     where
@@ -172,18 +216,18 @@ where
 impl<T, R> TaggedComponentExt<R> for T
 where
     R: Region + Clone,
-    Self: Iterator<Item = Point<R>>,
+    Self: Iterator<Item = RegionComponent<R>>,
 {
 }
 
 impl<I, R, T, F> Iterator for TaggedComponent<I, R, T, F>
 where
-    I: Iterator<Item = Point<R>>,
+    I: Iterator<Item = RegionComponent<R>>,
     R: Region + Clone,
     T: Clone + Hash + Eq,
     F: FnMut(&R) -> T,
 {
-    type Item = (T, Point<R>);
+    type Item = (T, RegionComponent<R>);
     fn next(&mut self) -> Option<Self::Item> {
         let mut next_comp = self.component_iter.next()?;
         let tag = (self.tag_func)(&next_comp.value);

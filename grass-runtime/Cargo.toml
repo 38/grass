@@ -12,3 +12,11 @@ repository = "https://github.com/38/grass"
 lazy_static = "1.4.0"
 memchr = "2.4.1"
 rand = "0.8.5"
+itertools = "0.10.3"
+
+[dependencies.d4-hts]
+version = "0.3.5"
+optional = true
+
+[features]
+htslib = ["d4-hts"]

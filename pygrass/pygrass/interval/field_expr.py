@@ -131,7 +131,7 @@ class If(FieldExpr):
             elze = self._else.lower_to_ir(subs),
         )
 
-chr = FieldReference("chr")
+chr = FieldReference("chrom")
 start = FieldReference("start")
 end = FieldReference("end")
 name = FieldReference("name")

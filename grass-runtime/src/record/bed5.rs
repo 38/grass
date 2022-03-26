@@ -1,5 +1,4 @@
 use std::{
-    borrow::Cow,
     fmt::Display,
     io::{Result, Write},
     ops::{Deref, DerefMut},
@@ -11,9 +10,9 @@ use crate::{
     ChrRef,
 };
 
-use super::Bed4;
+use super::{Bed4, RcCowString, ToSelfContained};
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Bed5<'a, T = f64> {
     inner: Bed4<'a>,
     pub score: Option<T>,
@@ -112,7 +111,17 @@ impl<'a, T> Named<'a> for Bed5<'a, T> {
     fn name(&self) -> &str {
         self.inner.name()
     }
-    fn to_cow(&self) -> Cow<'a, str> {
+    fn to_cow(&self) -> RcCowString<'a> {
         self.inner.to_cow()
+    }
+}
+
+impl <'a> ToSelfContained for Bed5<'a> {
+    type SelfContained = Bed5<'static>;
+    fn to_self_contained(&self) -> Self::SelfContained {
+        Bed5 {
+            inner: self.inner.to_self_contained(),
+            score: self.score,
+        }
     }
 }

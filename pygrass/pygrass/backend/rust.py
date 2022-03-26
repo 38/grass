@@ -19,6 +19,7 @@ def _compose_job_file(ir_list : list[IRBase], argv, build_flavor):
     #ret["macro_source"] = {"dep-kind": "CratesIO", "value": None}
     ret["build_flavor"] = build_flavor
     ret["cmdline_args"] = argv 
+    ret["env_vars"] = dict()
     return ret
 
 class RustBackendBase(BackendBase):
@@ -40,7 +41,8 @@ class RustBackendBase(BackendBase):
     def register_ir(self, ir: IRBase):
         self._ir_list.append(ir)
     def get_job_str(self):
-        job_str = json.dumps(_compose_job_file(self._ir_list, self._argv, self._build_flavor))
+        job = _compose_job_file(self._ir_list, self._argv, self._build_flavor)
+        job_str = json.dumps(job)
         return job_str
     def _flush_impl(self):
         pass
@@ -62,9 +64,10 @@ class CreateRustPackage(RustBackendBase):
 
 class DumpJobDesc(RustBackendBase):
     def _flush_impl(self):
-        print(json.dumps(_compose_job_file(self._ir_list, self._argv, self._build_flavor), indent = 4))
+        job = self._make_job()
+        print(json.dumps(job, indent = 4))
 
 class BuildBinary(RustBackendBase):
     def _flush_impl(self):
         output_path = os.environ.get("GRASS_BIN_OUTPUT", "grass_artifact")
-        artifact_path = build_job_and_copy(json.dumps(_compose_job_file(self._ir_list, self._argv, self._build_flavor)), output_path)
+        artifact_path = build_job_and_copy(self.get_job_str(), output_path)

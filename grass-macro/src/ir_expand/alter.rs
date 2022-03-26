@@ -14,15 +14,24 @@ impl Expand for AlterParam {
 
         let value = expand_field_expr(&self.value, ctx.span());
 
+        let post_steps = if self.sorted {
+            quote! { let ret = ret.assume_sorted(); }
+        } else {
+            quote! { (); }
+        };
+
         let code = quote! {
             {
-                #inner_var . map(
+                use grass_runtime::algorithm::AssumeSorted;
+                let ret = #inner_var . map(
                     |mut item| {
                         let new_value = Some(&item).map(#value).unwrap();
                         item . #setter_id (new_value);
                         item
                     }
-                )
+                );
+                #post_steps;
+                ret
             }
         };
         Ok(ctx.push(code))

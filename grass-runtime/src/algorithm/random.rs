@@ -1,6 +1,8 @@
 use rand::{prelude::ThreadRng, thread_rng, Rng};
 use crate::{Genome, record::Bed3};
 
+use super::Sorted;
+
 
 pub struct SortedRandomInterval {
     rng: ThreadRng,
@@ -13,6 +15,8 @@ pub struct SortedRandomInterval {
     length_max: usize,
     count: usize,
 }
+
+impl Sorted for SortedRandomInterval {}
 
 impl SortedRandomInterval {
     pub fn new(length_min: usize, length_max: usize, count: usize) -> SortedRandomInterval {

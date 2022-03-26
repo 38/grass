@@ -1,5 +1,4 @@
 use std::{
-    borrow::Cow,
     fmt::Display,
     io::{Result, Write},
     ops::{Deref, DerefMut},
@@ -11,9 +10,9 @@ use crate::{
     ChrRef,
 };
 
-use super::Bed5;
+use super::{Bed5, RcCowString, ToSelfContained};
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Bed6<'a, T = f64> {
     inner: Bed5<'a, T>,
     pub strand: Strand,
@@ -83,7 +82,7 @@ impl<'a, S> Bed6<'a, S> {
     pub fn set_strand(&mut self, strand: &str) {
         match strand {
             "+" => self.strand = Strand::Positive,
-            "-" => self.strand = Strand::Positive,
+            "-" => self.strand = Strand::Negative,
             _ => self.strand = Strand::Unknown,
         }
     }
@@ -121,7 +120,17 @@ impl<'a, T> Named<'a> for Bed6<'a, T> {
     fn name(&self) -> &str {
         self.inner.name()
     }
-    fn to_cow(&self) -> Cow<'a, str> {
+    fn to_cow(&self) -> RcCowString<'a> {
         self.inner.to_cow()
+    }
+}
+
+impl <'a> ToSelfContained for Bed6<'a> {
+    type SelfContained = Bed6<'static>;
+    fn to_self_contained(&self) -> Self::SelfContained {
+        Bed6 {
+            inner: self.inner.to_self_contained(),
+            strand: self.strand,
+        }
     }
 }

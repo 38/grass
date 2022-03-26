@@ -5,7 +5,9 @@ use crate::{
     ChrRef,
 };
 
-#[derive(Clone, Copy, PartialEq)]
+use super::ToSelfContained;
+
+#[derive(Clone, Copy, PartialEq, PartialOrd, Eq, Ord)]
 pub struct Bed3 {
     pub chrom: ChrRef<'static>,
     pub start: u32,
@@ -100,3 +102,10 @@ impl Scored<f64> for Bed3 {
 impl Stranded for Bed3 {}
 
 impl<'a> Named<'a> for Bed3 {}
+
+impl ToSelfContained for Bed3 {
+    type SelfContained = Bed3;
+    fn to_self_contained(&self) -> Self::SelfContained {
+        *self
+    }
+}

@@ -5,7 +5,10 @@ mod markers;
 pub use markers::{AssumeSorted, AssumingSortedIter, Sorted};
 
 mod components;
-pub use components::{Components, ComponentsIter, Point, TaggedComponent, TaggedComponentExt};
+pub use components::{Components, ComponentsIter, RegionComponent, TaggedComponent, TaggedComponentExt};
 
 mod random;
 pub use random::SortedRandomInterval;
+
+mod groupby;
+pub use groupby::{GroupBuffer, Groups};

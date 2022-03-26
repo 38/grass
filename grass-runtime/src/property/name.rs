@@ -1,11 +1,13 @@
-use std::borrow::Cow;
+use std::rc::Rc;
+use crate::record::RcCowString;
+
 
 pub trait Named<'a> {
     fn name(&self) -> &str {
         "."
     }
-    fn to_cow(&self) -> Cow<'a, str> {
-        Cow::Owned(self.name().to_string())
+    fn to_cow(&self) -> RcCowString<'a> {
+        RcCowString::RcOwned(Rc::new(self.name().to_string()))
     }
 }
 

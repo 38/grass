@@ -8,7 +8,7 @@ class BedBase(IntervalBase):
         self._inner = inner
         self._nof = num_of_fields
     def emit_eval_code(self) -> IRBase:
-        return CastToBed(self._inner.lower_to_ir(), self._nof)
+        return CastToBed(self._inner.lower_to_ir(), self._nof, self._sorted)
 
 class Bed3(BedBase):
     def __init__(self, inner: IntervalBase):

@@ -3,18 +3,88 @@ from pygrass.record_base import RecordCollectionBase
 from pygrass.ir import AssumeSortedIR, Alter, And, Filter as FilterIR, Format, GroupBy as GroupByIR, IRBase, InlineRust, Merge, Intersection as IntersectionIR, SortedRandomInterval 
 
 class IntervalBase(RecordCollectionBase):
+    """The base class for PyGRASS runtime values which is an iterator of intervals"""
     def __init__(self):
         super().__init__()
         self._sorted = False
     def format(self, fmt : str, **kwargs):
+        """Format the iterator, returns a new iterator that contains formatted results. 
+        This methods gives a flexibility to what kinds of output PyGRASS can produce. 
+        The basic syntax for the formatting is mostly consistent with Rust's formatting string.
+
+        For example, to format an iterator of intervals to comma seperated chromosome, start and end:
+
+        ```
+            from pygrass import *
+            interval.format("{chrom},{start},{end}", chrom = chrom, start = start, end = end)
+        ```
+
+        Each of the formatting argument is a field expression. 
+        
+        To learn more about field expression, 
+        """
         return FormatedInterval(self, fmt, **kwargs)
     def alter(self, **kwargs):
+        """ Modify the interval in the iterator.
+        This method can be used to make many different interval manipulations. 
+        For example:
+        - Add 5 bases before and after the input interval (This is similar to `bedtools slop`):
+        ```
+            from pygrass import *
+            
+            interval.alter(start = start - 5, end = end - 5)
+        ```
+
+        - Change all the name of the interval if the interval size is larger than 1000bp:
+        ```
+            from pygrass import *
+
+            input.alter(name = If(length > 1000, "LargeRegion", name)
+        ```
+
+        - Move all the region 50 bps after the original locus (Similar to `bedtools shift`):
+        ```
+            from pygrass import *
+            
+            interval.alter(start = start + 50, end = end + 50)
+        ```
+
+        NOTE: All the parameters are described with field expression. 
+        To learn more about the field expression, read the documentation for `pygrass.interval.field_expr.FieldExpr`.
+        """
         return AlteredInterval(self, **kwargs)
     def assume_sorted(self):
+        """Force PyGRASS believe the iterator is a sorted iterator. 
+
+        Normally, PyGRASS can do automatically reasoning about if the iterator is sorted. 
+        For example, filtering a sorted iterator will result another sorted iterator; changing name doesn't make a sorted interator unordered. 
+        However, it's not possible for PyGRASS to infer if an altered iterator with new coordinate is still sorted. 
+
+        For example, `sorted_interal.alter(start = start - length)` is not ordered any more. 
+
+        But there are still cases, even the coordinate has been changed but the output are still ordered. 
+        For example shifting all intervals 50 bp after.
+
+        Thus, we need to use this method to convince PyGRASS the result iterator is still sorted. For example:
+
+        ```sorted_iter.alter(start = start + 1).assume_sorted()```
+
+        NOTE: Calling this method on an actually unsorted iterator may result unexpected outputs or runtime error. 
+        """
         return AssumeSorted(self)
     def filter(self, cond, *args):
+        """Filter out the intervals doesn't meet the requirement.
+
+        Example:
+
+        - Only keeps the interval with positive strand and a length > 50.
+        ```
+            input.filter(strand == "+", length > 50)
+        ```
+
+        """
         return FilteredInterval(self, cond, *args)
-    def merge(self):
+    def merge_overlaps(self):
         return MergedInterval(self)
     def intersect(self, other):
         return Intersection(self, other, flavor = "inner")
@@ -28,11 +98,20 @@ class IntervalBase(RecordCollectionBase):
         return GroupBy(self, *args)
 
 class SortedRandomBed3(IntervalBase):
-    def __init__(self, count, min_len = 100, max_len = 100):
+    def __init__(self, count, length = None):
         super().__init__()
-        self._min_len = min_len
-        self._max_len = max_len
+        if length != None:
+            if type(length) == range:
+                self._min_len = length.start
+                self._max_len = length.stop
+            else:
+                self._min_len = length
+                self._max_len = length
+        else:
+            self._min_len = 100
+            self._max_len = 100
         self._count = count
+        self._sorted = True
     def emit_eval_code(self) -> IRBase:
         return SortedRandomInterval(self._count, self._min_len, self._max_len)
 
@@ -92,16 +171,19 @@ class AlteredInterval(IntervalBase):
         super().__init__()
         self._alters = {}
         self._base = base
-        self._sorted = False
+        self._sorted = base._sorted
         for key, value in kwargs.items():
             self._alters[key] = make_field_expression(value)
+            if key in ["chrom", "start", "end"]:
+                self._sorted = False
     def emit_eval_code(self) -> IRBase:
         code = self._base.lower_to_ir()
         for key, value in self._alters.items():
             code = Alter(
                 base = code,
                 target_field = key,
-                value_expr = value.lower_to_ir()
+                value_expr = value.lower_to_ir(),
+                sorted = self._sorted
             )
         return code
 

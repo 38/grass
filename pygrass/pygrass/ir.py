@@ -148,14 +148,16 @@ class OpenFile(BatchOperationBase):
 
 ## Record type casting
 class CastToBed(BatchOperationBase):
-    def __init__(self, inner : IRBase, num_of_fields: int):
+    def __init__(self, inner : IRBase, num_of_fields: int, sorted: bool):
         super().__init__("CastToBed")
         self._inner = inner
         self._nof = num_of_fields
+        self._sorted = sorted
     def to_dict(self) -> dict[str]:
         ret = super().to_dict()
         ret["inner"] = self._inner.to_dict()
         ret["num_of_fields"] = self._nof
+        ret["sorted"] = self._sorted
         return ret
 
 ## Record collection operators
@@ -194,16 +196,18 @@ class AssumeSortedIR(BatchOperationBase):
         ret["inner"] = self._inner.to_dict()
         return ret
 class Alter(BatchOperationBase):
-    def __init__(self, base : IRBase, target_field : str, value_expr : IRBase):
+    def __init__(self, base : IRBase, target_field : str, value_expr : IRBase, sorted: bool):
         super().__init__("Alter")
         self._inner = base
         self._target_field = target_field
         self._value_expr = value_expr
+        self._sorted = sorted
     def to_dict(self) -> dict[str]:
         ret = super().to_dict()
         ret["inner"] = self._inner.to_dict()
         ret["field"] = self._target_field
         ret["value"] = self._value_expr.to_dict()
+        ret["sorted"] = self._sorted
         return ret
 
 class Filter(BatchOperationBase):

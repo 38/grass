@@ -25,15 +25,15 @@ impl Expand for IntersectParam {
                 },
                 IntersectFlavor::RightOuter => quote! {
                     {
-                        use grass_runtime::algorithm::SortedIntersect;
-                        #left_token . sorted_right_outer_intersect(#right_token)
+                        use grass_runtime::algorithm::{SortedIntersect, AssumeSorted};
+                        #right_token . sorted_left_outer_intersect(#left_token) . map (|i| (i.1, i.0)) . assume_sorted()
                     }
                 },
                 _ => todo!(),
             };
             Ok(ctx.push(code))
         } else {
-            todo!()
+            todo!("unsorted intersect is not implemented yet")
         }
     }
 }
