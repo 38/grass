@@ -1,14 +1,15 @@
 #![allow(unused)]
 
-use std::{rc::Rc, cell::RefCell};
+use std::{rc::Rc, cell::{RefCell, Cell}, borrow::Borrow};
 
 use crate::{record::ToSelfContained, property::{RegionCore, Region}, ChrRef};
+
 
 pub struct GroupBuffer<K:ToOwned, T : 'static> {
     key: <K as ToOwned>::Owned,
     buffer: Vec<T>,
-    overlap: Option<(ChrRef<'static>, u32, u32)>,
-    outline: Option<(ChrRef<'static>, u32, u32)>,
+    overlap: Cell<Option<Option<(ChrRef<'static>, u32, u32)>>>,
+    outline: Cell<Option<Option<(ChrRef<'static>, u32, u32)>>>,
 }
 
 impl <K: ToOwned, T: 'static + Region> GroupBuffer<K, T> {
@@ -17,7 +18,7 @@ impl <K: ToOwned, T: 'static + Region> GroupBuffer<K, T> {
     {
         GroupOverlap(self)   
     }
-    fn compute_overlap(&mut self) {
+    fn compute_overlap(&self) {
         let mut ret:Option<(_, u32, u32)> = None;
         for region in self.buffer.iter() {
             if let Some(cur) = ret {
@@ -35,9 +36,9 @@ impl <K: ToOwned, T: 'static + Region> GroupBuffer<K, T> {
                 ret = Some((region.chrom(), region.start(), region.end()))
             }
         }
-        self.overlap = ret;
+        self.overlap.set(Some(ret));
     }
-    fn compute_outline(&mut self) {
+    fn compute_outline(&self) {
         let mut ret:Option<(_, u32, u32)> = None;
         for region in self.buffer.iter() {
             if let Some(cur) = ret {
@@ -55,13 +56,23 @@ impl <K: ToOwned, T: 'static + Region> GroupBuffer<K, T> {
                 ret = Some((region.chrom(), region.start(), region.end()))
             }
         }
-        self.outline = ret;
+        self.outline.set(Some(ret));
     }
     fn get_outline(&self) -> Option<(ChrRef<'static>, u32, u32)> {
-        self.outline
+        if let Some(ret) = self.outline.clone().take() {
+            ret
+        } else {
+            self.compute_outline();
+            self.outline.clone().take().unwrap()
+        }
     }
     fn get_overlap(&self) -> Option<(ChrRef<'static>, u32, u32)> {
-        self.overlap
+        if let Some(ret) = self.overlap.clone().take() {
+            ret
+        } else {
+            self.compute_overlap();
+            self.overlap.clone().take().unwrap()
+        }
     }
 }
 
@@ -116,8 +127,28 @@ where
         Some(GroupBuffer {
             key: key.to_owned(),
             buffer: inner_group.map(|item| item.to_self_contained()).collect(),
-            overlap: None,
-            outline: None,
+            overlap: Cell::new(None),
+            outline: Cell::new(None),
         })
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use crate::{LineRecordStreamExt, record::Bed3, algorithm::{AssumeSorted, Components}};
+
+    #[test]
+    fn test_group_by() -> Result<(), Box<dyn std::error::Error>> {
+        let input = include_bytes!("../../../data/a.bed");
+        let bed3 = input.into_record_iter::<Bed3>().assume_sorted();
+        let comp_iter = bed3.components();
+        /*let mut idx = 0;
+        comp_iter.grou(move |comp| {
+            if comp.depth() == 0 {
+            idx += 1;
+            }
+            idx
+        )*/
+        Ok(())
     }
 }

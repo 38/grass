@@ -6,14 +6,24 @@ use std::{
     iter::Enumerate,
 };
 
-use crate::{property::{Region, RegionCore}, record::ToSelfContained};
+use crate::{property::{Region, RegionCore, Serializable}, record::ToSelfContained};
 use crate::ChrRef;
+
+use super::Sorted;
 
 pub struct RegionComponent<T: Region> {
     pub is_open: bool,
     pub index: usize,
     pub depth: usize,
     pub value: T,
+}
+
+impl <T: Region + Serializable> Serializable for RegionComponent<T> {
+    fn dump<W: std::io::Write>(&self, mut fp: W) -> std::io::Result<()> {
+        self.value.dump(&mut fp)?;
+        write!(&mut fp, "\t{}", if self.is_open { "open" } else { "close" })?;
+        write!(&mut fp, "\t#{}\t{}", self.index, self.depth)
+    }
 }
 
 impl <T: RegionCore + ToSelfContained> ToSelfContained for RegionComponent<T> 
@@ -34,15 +44,11 @@ where
 
 impl <T:Region> RegionCore for RegionComponent<T> {
     fn start(&self) -> u32 {
-        if self.is_open {
-            self.value.start()
-        } else {
-            self.value.end()
-        }
+        self.value.start()
     }
 
     fn end(&self) -> u32 {
-        self.start() + 1
+        self.value.end()
     }
 
     fn chrom(&self) -> ChrRef<'static> {
@@ -110,7 +116,7 @@ impl<T: Region> Ord for RegionComponent<T> {
 
 pub struct ComponentsIter<I>
 where
-    I: Iterator,
+    I: Iterator + Sorted,
     I::Item: Region + Clone,
 {
     iter: Enumerate<I>,
@@ -118,9 +124,15 @@ where
     heap: BinaryHeap<Reverse<RegionComponent<I::Item>>>,
 }
 
+impl <I> Sorted for ComponentsIter<I>
+where
+    I: Iterator + Sorted,
+    I::Item: Region + Clone,
+{}
+
 pub trait Components
 where
-    Self: Iterator + Sized,
+    Self: Iterator + Sized + Sorted,
 {
     fn components(self) -> ComponentsIter<Self>
     where
@@ -136,11 +148,11 @@ where
     }
 }
 
-impl<T> Components for T where T: Iterator + Sized {}
+impl<T> Components for T where T: Iterator + Sized + Sorted {}
 
 impl<I> Iterator for ComponentsIter<I>
 where
-    I: Iterator,
+    I: Iterator + Sorted,
     I::Item: Region + Clone,
 {
     type Item = RegionComponent<I::Item>;
@@ -251,5 +263,21 @@ where
         };
         next_comp.depth = tagged_depth;
         Some((tag, next_comp))
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use crate::{LineRecordStreamExt, record::Bed3, algorithm::AssumeSorted};
+
+    use super::Components;
+
+    #[test]
+    fn test_component_iter() -> Result<(), Box<dyn std::error::Error>> {
+        let input = include_bytes!("../../../data/a.bed");
+        let bed3 = input.into_record_iter::<Bed3>().assume_sorted();
+        let comp_iter = bed3.components();
+        comp_iter.count();
+        Ok(())
     }
 }

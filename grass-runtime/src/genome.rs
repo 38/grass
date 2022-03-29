@@ -152,6 +152,16 @@ thread_local! {
 }
 
 impl Genome {
+    pub fn clear_genome_definition() {
+        let mut storage = GENOME_STORAGE.write().unwrap();
+        LAST_NAME.with(|last_name| {
+            *last_name.borrow_mut() = None;
+        });
+        LAST_QUERY.with(|last_query| {
+            *last_query.borrow_mut() = None;
+        });
+        *storage = Default::default();
+    }
     pub fn get_chrom_sizes() -> Vec<(&'static str, usize)> {
         let storage = GENOME_STORAGE.read().unwrap();
 

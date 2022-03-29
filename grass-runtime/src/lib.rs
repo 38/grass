@@ -17,6 +17,7 @@ mod test {
 
     #[test]
     fn test_genome_storage() {
+        Genome::clear_genome_definition();
         let id = Genome::query_chr("chr1").get_id_or_update();
         assert_eq!(id, 0);
         assert_eq!(Genome::query_chr("chr1").id(), Some(0));
