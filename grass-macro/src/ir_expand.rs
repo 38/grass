@@ -16,10 +16,10 @@ mod format;
 mod inline_rust;
 mod intersect;
 mod let_binding;
-mod open;
-mod write;
 mod load_genome;
+mod open;
 mod random;
+mod write;
 
 pub fn expand_grass_ir(ir: &GrassIR, ctx: &mut ExpansionContext) -> ExpandResult {
     match ir {

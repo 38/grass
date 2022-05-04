@@ -116,7 +116,7 @@ impl<'a, T> Named<'a> for Bed5<'a, T> {
     }
 }
 
-impl <'a> ToSelfContained for Bed5<'a> {
+impl<'a> ToSelfContained for Bed5<'a> {
     type SelfContained = Bed5<'static>;
     fn to_self_contained(&self) -> Self::SelfContained {
         Bed5 {

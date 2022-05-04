@@ -57,7 +57,6 @@ pub enum LoadGenomeFileParam {
     File(String),
 }
 
-
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct InlineRustParam {
     pub env: BTreeMap<String, GrassIR>,

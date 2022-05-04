@@ -1,6 +1,6 @@
+use std::io::{Result, Write};
 use std::ops::{Deref, DerefMut};
 use std::rc::Rc;
-use std::io::{Result, Write};
 
 use crate::{
     property::{Named, Parsable, RegionCore, Scored, Serializable, Stranded},
@@ -15,7 +15,7 @@ pub enum RcCowString<'a> {
     RcOwned(Rc<String>),
 }
 
-impl <'a> Deref for RcCowString<'a> {
+impl<'a> Deref for RcCowString<'a> {
     type Target = str;
 
     fn deref(&self) -> &Self::Target {
@@ -26,21 +26,21 @@ impl <'a> Deref for RcCowString<'a> {
     }
 }
 
-impl <'a> PartialEq for RcCowString<'a> {
+impl<'a> PartialEq for RcCowString<'a> {
     fn eq(&self, other: &Self) -> bool {
         str::eq(self.deref(), other.deref())
     }
 }
 
-impl <'a> PartialOrd for RcCowString<'a> {
+impl<'a> PartialOrd for RcCowString<'a> {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         str::partial_cmp(self.as_ref(), other.as_ref())
     }
 }
 
-impl <'a> Eq for RcCowString<'a> {}
+impl<'a> Eq for RcCowString<'a> {}
 
-impl <'a> Ord for RcCowString<'a> {
+impl<'a> Ord for RcCowString<'a> {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         self.deref().cmp(other)
     }
@@ -112,7 +112,7 @@ impl<'a> Bed4<'a> {
     pub fn get_self_contained_name(&self) -> RcCowString<'static> {
         match &self.name {
             RcCowString::Borrowed(name) => RcCowString::RcOwned(Rc::new(name.to_string())),
-            RcCowString::RcOwned(rc_name) => RcCowString::RcOwned(rc_name.clone())
+            RcCowString::RcOwned(rc_name) => RcCowString::RcOwned(rc_name.clone()),
         }
     }
 }
@@ -159,7 +159,7 @@ impl<'a> AsRef<Bed3> for Bed4<'a> {
     }
 }
 
-impl <'a> ToSelfContained for Bed4<'a> {
+impl<'a> ToSelfContained for Bed4<'a> {
     type SelfContained = Bed4<'static>;
     fn to_self_contained(&self) -> Self::SelfContained {
         Bed4 {

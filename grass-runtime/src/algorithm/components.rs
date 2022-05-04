@@ -6,8 +6,11 @@ use std::{
     iter::Enumerate,
 };
 
-use crate::{property::{Region, RegionCore, Serializable}, record::ToSelfContained};
 use crate::ChrRef;
+use crate::{
+    property::{Region, RegionCore, Serializable},
+    record::ToSelfContained,
+};
 
 use super::Sorted;
 
@@ -18,7 +21,7 @@ pub struct RegionComponent<T: Region> {
     pub value: T,
 }
 
-impl <T: Region + Serializable> Serializable for RegionComponent<T> {
+impl<T: Region + Serializable> Serializable for RegionComponent<T> {
     fn dump<W: std::io::Write>(&self, mut fp: W) -> std::io::Result<()> {
         self.value.dump(&mut fp)?;
         write!(&mut fp, "\t{}", if self.is_open { "open" } else { "close" })?;
@@ -26,9 +29,9 @@ impl <T: Region + Serializable> Serializable for RegionComponent<T> {
     }
 }
 
-impl <T: RegionCore + ToSelfContained> ToSelfContained for RegionComponent<T> 
+impl<T: RegionCore + ToSelfContained> ToSelfContained for RegionComponent<T>
 where
-    T::SelfContained : RegionCore
+    T::SelfContained: RegionCore,
 {
     type SelfContained = RegionComponent<T::SelfContained>;
 
@@ -42,7 +45,7 @@ where
     }
 }
 
-impl <T:Region> RegionCore for RegionComponent<T> {
+impl<T: Region> RegionCore for RegionComponent<T> {
     fn start(&self) -> u32 {
         self.value.start()
     }
@@ -124,11 +127,12 @@ where
     heap: BinaryHeap<Reverse<RegionComponent<I::Item>>>,
 }
 
-impl <I> Sorted for ComponentsIter<I>
+impl<I> Sorted for ComponentsIter<I>
 where
     I: Iterator + Sorted,
     I::Item: Region + Clone,
-{}
+{
+}
 
 pub trait Components
 where
@@ -268,7 +272,7 @@ where
 
 #[cfg(test)]
 mod test {
-    use crate::{LineRecordStreamExt, record::Bed3, algorithm::AssumeSorted};
+    use crate::{algorithm::AssumeSorted, record::Bed3, LineRecordStreamExt};
 
     use super::Components;
 

@@ -1,25 +1,33 @@
 #![allow(unused)]
 
-use std::{rc::Rc, cell::{RefCell, Cell}, borrow::Borrow};
+use std::{
+    borrow::Borrow,
+    cell::{Cell, RefCell},
+    rc::Rc,
+};
 
-use crate::{record::ToSelfContained, property::{RegionCore, Region}, ChrRef};
+use crate::{
+    property::{Region, RegionCore},
+    record::ToSelfContained,
+    ChrRef,
+};
 
-
-pub struct GroupBuffer<K:ToOwned, T : 'static> {
+pub struct GroupBuffer<K: ToOwned, T: 'static> {
     key: <K as ToOwned>::Owned,
     buffer: Vec<T>,
     overlap: Cell<Option<Option<(ChrRef<'static>, u32, u32)>>>,
     outline: Cell<Option<Option<(ChrRef<'static>, u32, u32)>>>,
 }
 
-impl <K: ToOwned, T: 'static + Region> GroupBuffer<K, T> {
-    pub fn overlap(self) -> GroupOverlap<K, T> 
-    where T: Region
+impl<K: ToOwned, T: 'static + Region> GroupBuffer<K, T> {
+    pub fn overlap(self) -> GroupOverlap<K, T>
+    where
+        T: Region,
     {
-        GroupOverlap(self)   
+        GroupOverlap(self)
     }
     fn compute_overlap(&self) {
-        let mut ret:Option<(_, u32, u32)> = None;
+        let mut ret: Option<(_, u32, u32)> = None;
         for region in self.buffer.iter() {
             if let Some(cur) = ret {
                 if region.overlaps(&cur) {
@@ -27,8 +35,8 @@ impl <K: ToOwned, T: 'static + Region> GroupBuffer<K, T> {
                     break;
                 } else {
                     ret = Some((
-                        region.chrom(), 
-                        region.start().max(cur.1), 
+                        region.chrom(),
+                        region.start().max(cur.1),
                         region.end().min(cur.2),
                     ));
                 }
@@ -39,7 +47,7 @@ impl <K: ToOwned, T: 'static + Region> GroupBuffer<K, T> {
         self.overlap.set(Some(ret));
     }
     fn compute_outline(&self) {
-        let mut ret:Option<(_, u32, u32)> = None;
+        let mut ret: Option<(_, u32, u32)> = None;
         for region in self.buffer.iter() {
             if let Some(cur) = ret {
                 if region.chrom() != cur.0 {
@@ -47,8 +55,8 @@ impl <K: ToOwned, T: 'static + Region> GroupBuffer<K, T> {
                     break;
                 } else {
                     ret = Some((
-                        region.chrom(), 
-                        region.start().min(cur.1), 
+                        region.chrom(),
+                        region.start().min(cur.1),
                         region.end().max(cur.2),
                     ));
                 }
@@ -76,7 +84,7 @@ impl <K: ToOwned, T: 'static + Region> GroupBuffer<K, T> {
     }
 }
 
-impl <K: ToOwned, T: 'static + Region> RegionCore for GroupBuffer<K, T> {
+impl<K: ToOwned, T: 'static + Region> RegionCore for GroupBuffer<K, T> {
     fn start(&self) -> u32 {
         self.get_outline().map_or(0, |(_, s, _)| s)
     }
@@ -91,7 +99,7 @@ impl <K: ToOwned, T: 'static + Region> RegionCore for GroupBuffer<K, T> {
 }
 pub struct GroupOverlap<K: ToOwned, T: 'static + Region>(GroupBuffer<K, T>);
 
-impl <K: ToOwned, T: 'static + Region> RegionCore for GroupOverlap<K, T> {
+impl<K: ToOwned, T: 'static + Region> RegionCore for GroupOverlap<K, T> {
     fn start(&self) -> u32 {
         self.0.get_overlap().map_or(0, |(_, s, _)| s)
     }
@@ -105,20 +113,20 @@ impl <K: ToOwned, T: 'static + Region> RegionCore for GroupOverlap<K, T> {
     }
 }
 
-pub struct Groups<'a, K, I, F> 
+pub struct Groups<'a, K, I, F>
 where
     K: ToOwned + PartialEq,
     I: Iterator,
-    I::Item : ToSelfContained,
+    I::Item: ToSelfContained,
 {
     inner: itertools::Groups<'a, K, I, F>,
 }
 
-impl <'a, K, I, F> Iterator for Groups<'a, K, I, F>
+impl<'a, K, I, F> Iterator for Groups<'a, K, I, F>
 where
     K: ToOwned + PartialEq,
     I: Iterator,
-    I::Item : ToSelfContained,
+    I::Item: ToSelfContained,
     F: FnMut(&I::Item) -> K,
 {
     type Item = GroupBuffer<K, <I::Item as ToSelfContained>::SelfContained>;
@@ -135,7 +143,11 @@ where
 
 #[cfg(test)]
 mod test {
-    use crate::{LineRecordStreamExt, record::Bed3, algorithm::{AssumeSorted, Components}};
+    use crate::{
+        algorithm::{AssumeSorted, Components},
+        record::Bed3,
+        LineRecordStreamExt,
+    };
 
     #[test]
     fn test_group_by() -> Result<(), Box<dyn std::error::Error>> {

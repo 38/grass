@@ -16,7 +16,7 @@ pub trait RegionCore {
     }
 }
 
-impl <'a> RegionCore for (ChrRef<'a>, u32, u32) {
+impl<'a> RegionCore for (ChrRef<'a>, u32, u32) {
     fn start(&self) -> u32 {
         self.1
     }

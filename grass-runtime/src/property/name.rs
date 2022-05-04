@@ -1,6 +1,5 @@
-use std::rc::Rc;
 use crate::record::RcCowString;
-
+use std::rc::Rc;
 
 pub trait Named<'a> {
     fn name(&self) -> &str {
