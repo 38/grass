@@ -9,16 +9,31 @@ from pygrass.ir import IRBase
 
 from pygrass.rust import expand_macro, execute_job, create_code_compilation_dir, build_job_and_copy
 
-def _compose_job_file(ir_list : list[IRBase], argv, build_flavor):
+def _compose_job_file(ir_list : list[IRBase], argv, build_flavor, const_bag = None):
     ret = dict()
-    ret["ir"] = [ir.to_dict() for ir in ir_list]
+    ret["ir"] = []
+    for ir in ir_list:
+        ret["ir"].append(ir.to_dict(const_bag))
     ret["working_dir"] = os.curdir
     ret["runtime_source"] = {"dep-kind": "Local", "value": "/home/haohou/source/grass-project/grass/grass-runtime"}
     ret["macro_source"] = {"dep-kind": "Local", "value": "/home/haohou/source/grass-project/grass/grass-macro"}
     #ret["runtime_source"] = {"dep-kind": "CratesIO", "value": None}
     #ret["macro_source"] = {"dep-kind": "CratesIO", "value": None}
     ret["build_flavor"] = build_flavor
-    ret["cmdline_args"] = argv 
+    ret["cmdline_args"] = argv
+    ret["const_bag_types"] = []
+    if const_bag != None:
+        for value in const_bag:
+            ty = type(value)
+            if ty == str:
+                ret["const_bag_types"].append("str")
+            elif ty == int:
+                ret["const_bag_types"].append("i64")
+            elif ty == float:
+                ret["const_bag_types"].append("f64")
+            else:
+                raise RuntimeError("Unsupported constant bag type")
+    # TODO: pass the constant bag and hookup with Rust code
     ret["env_vars"] = dict()
     return ret
 
@@ -27,6 +42,7 @@ class RustBackendBase(BackendBase):
         super().__init__()
         self._ir_list = []
         self._argv = sys.argv[1:]
+        self._const_bag = None if os.environ.get("NO_PASS_CONST_WITH_ENV", "0") == "1" else list()
         if build_flavor == None and debug == False and profiling == False:
             self._build_flavor = os.environ["BUILD_FLAVOR"] if os.environ.get("BUILD_FLAVOR") in ["Debug", "Release", "ReleaseWithDebugInfo"] else "Release"
             if os.environ.get("DEBUG") == "1":
@@ -40,8 +56,10 @@ class RustBackendBase(BackendBase):
             self.flush()
     def register_ir(self, ir: IRBase):
         self._ir_list.append(ir)
+    def get_job_obj(self):
+        return _compose_job_file(self._ir_list, self._argv, self._build_flavor, self._const_bag)
     def get_job_str(self):
-        job = _compose_job_file(self._ir_list, self._argv, self._build_flavor)
+        job = self.get_job_obj() 
         job_str = json.dumps(job)
         return job_str
     def _flush_impl(self):
@@ -64,7 +82,7 @@ class CreateRustPackage(RustBackendBase):
 
 class DumpJobDesc(RustBackendBase):
     def _flush_impl(self):
-        job = self._make_job()
+        job = self.get_job_obj()
         print(json.dumps(job, indent = 4))
 
 class BuildBinary(RustBackendBase):
