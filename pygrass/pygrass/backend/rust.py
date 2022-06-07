@@ -33,8 +33,9 @@ def _compose_job_file(ir_list : list[IRBase], argv, build_flavor, const_bag = No
                 ret["const_bag_types"].append("f64")
             else:
                 raise RuntimeError("Unsupported constant bag type")
-    # TODO: pass the constant bag and hookup with Rust code
     ret["env_vars"] = dict()
+    if const_bag != None:
+        ret["env_vars"]["__GRASS_CONST_BAG"] = json.dumps(const_bag)
     return ret
 
 class RustBackendBase(BackendBase):

@@ -169,8 +169,8 @@ class OpenFile(BatchOperationBase):
         self._sorted = sorted
     def to_dict(self, bag) -> dict[str]:
         ret = super().to_dict(bag)
-        if "path" in self._target and bag != None:
-            ret["target"] = make_const_bag_ref(self._target["path"], bag)
+        if "Path" in self._target and bag != None:
+            ret["target"] = make_const_bag_ref(self._target["Path"], bag)
         else:
             ret["target"] = self._target
         ret["format"] = self._format
