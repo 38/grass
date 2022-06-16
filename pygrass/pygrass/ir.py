@@ -54,8 +54,7 @@ def make_const_bag_ref(value, bag):
     key_id = len(bag)
     bag.append(value)
     return {
-        "opcode": "ConstBagRef",
-        "id": key_id
+        "const_bag_key": key_id
     }
 def lift_constant_to_env(dict_value: dict[str, Any], const_bag: list):
     if const_bag == None:
@@ -170,7 +169,9 @@ class OpenFile(BatchOperationBase):
     def to_dict(self, bag) -> dict[str]:
         ret = super().to_dict(bag)
         if "Path" in self._target and bag != None:
-            ret["target"] = make_const_bag_ref(self._target["Path"], bag)
+            ret["target"] = {
+                "Path": make_const_bag_ref(self._target["Path"], bag)
+            }
         else:
             ret["target"] = self._target
         ret["format"] = self._format
@@ -391,11 +392,11 @@ class ConstValue(UnaryBase):
     def __init__(self, value : Any):
         super().__init__("ConstValue", "value", value)
     def to_dict(self, bag) -> dict[str]:
+        ret = super().to_dict(bag)
         type_of_value = type(self._dict["value"])
         if bag != None and (type_of_value in [int, float, str]):
-            return make_const_bag_ref(self._dict["value"], bag)
-        else:
-            return super().to_dict(bag)
+            ret["value"] = make_const_bag_ref(self._dict["value"], bag)
+        return ret
 
 class FullRecordRef(RuntimeValueBase):
     def __init__(self):

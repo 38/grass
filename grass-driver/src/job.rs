@@ -43,6 +43,8 @@ pub struct JobDefinition {
     cmdline_args: Vec<String>,
     #[serde(default)]
     env_vars: HashMap<String, String>,
+    #[serde(default)]
+    const_bag_types: Vec<String>,
 
     // ############# Runtime Configuration ######################
     #[serde(default = "default_runtime")]
@@ -239,6 +241,27 @@ impl JobDefinition {
             let ir_path = source_dir.as_path().join(format!("grass_ir_{}.json", id));
             let ir_file = File::create(&ir_path)?;
             serde_json::to_writer(ir_file, ir)?;
+            writeln!(
+                &mut source_file,
+                "use grass_runtime::const_bag::ConstBagRef;"
+            )?;
+
+            for (id, t) in self.const_bag_types.iter().enumerate() {
+                let ty = match t.as_str() {
+                    "str" => "String",
+                    "i64" => "i64",
+                    "f64" => "f64",
+                    _ => {
+                        panic!("Unsupported const bag type: {}", t);
+                    }
+                };
+                writeln!(
+                    &mut source_file,
+                    "const __CONST_BAG_VALUE_{id} : ConstBagRef<{ty}> = ConstBagRef::<{ty}>::new({id});",
+                    id = id,
+                    ty = ty,
+                )?;
+            }
 
             writeln!(
                 &mut source_file,
@@ -374,11 +397,15 @@ impl JobDefinition {
     }
 
     pub fn execute_artifact(&mut self) -> Result<Child> {
+        let working_dir = self.working_dir.clone();
+        let environment = self.env_vars.clone();
         let artifact_path = self.get_artifact()?;
         log::info!(
             "Launching artifact {}",
             artifact_path.as_os_str().to_string_lossy()
         );
+        log::info!("Working directory = {:?}", working_dir);
+        log::info!("Environment vars: {:?}", environment);
         Ok(Command::new(artifact_path)
             .current_dir(&self.working_dir)
             .envs(&self.env_vars)

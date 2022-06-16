@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+use crate::ConstOrEnv;
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(tag = "opcode")]
 pub enum FieldExpression {
@@ -46,7 +48,7 @@ pub enum ConstValue {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ConstParam {
-    pub value: ConstValue,
+    pub value: ConstOrEnv<ConstValue>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

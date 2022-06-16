@@ -1,4 +1,4 @@
-use grass_ir::{ConstValue, FieldExpression};
+use grass_ir::{ConstOrEnv, ConstValue, FieldExpression};
 use proc_macro2::{Span, TokenStream};
 use quote::quote;
 
@@ -153,17 +153,21 @@ fn expand_field_expr_impl(expr: &FieldExpression, span: Span) -> TokenStream {
             }
         }
         FieldExpression::ConstValue(param) => match &param.value {
-            ConstValue::Float(value) => {
+            ConstOrEnv::Const(ConstValue::Float(value)) => {
                 let tk = syn::LitFloat::new(&format!("{}f64", value), span);
                 quote! { #tk }
             }
-            ConstValue::Number(value) => {
+            ConstOrEnv::Const(ConstValue::Number(value)) => {
                 let tk = syn::LitFloat::new(&format!("{}f64", value), span);
                 quote! { #tk }
             }
-            ConstValue::Str(value) => {
+            ConstOrEnv::Const(ConstValue::Str(value)) => {
                 let tk = syn::LitStr::new(value, span);
                 quote! { #tk }
+            }
+            ConstOrEnv::Env(key) => {
+                let tk = syn::Ident::new(&key.get_const_bag_ident(), span);
+                quote! { #tk.value() }
             }
         },
         FieldExpression::FullRecordRef => {

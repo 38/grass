@@ -11,6 +11,12 @@ repository = "https://github.com/38/grass"
 [dependencies]
 serde = {version = "1.0.136", features = ["derive"] }
 strum = {version = "0.24.0", features = ["derive"]}
+serde_json = {version = "1.0.79", optional = true}
 
 [dev-dependencies]
 serde_json = {version = "1.0.79"}
+
+[[bin]]
+name = "validator"
+path = "src/validator.rs"
+required-features = ["serde_json"]

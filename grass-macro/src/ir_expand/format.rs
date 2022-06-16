@@ -1,4 +1,5 @@
-use grass_ir::{FormatParam, WriteTarget};
+use grass_ir::{ConstOrEnv, FormatParam, WriteTarget};
+use proc_macro2::Ident;
 use quote::quote;
 
 use super::{expand_grass_ir, field_expr::expand_field_expr, ExpandResult, ExpansionContext};
@@ -32,7 +33,7 @@ pub fn expand_write_record_rec(
                 }
             }
         },
-        WriteTarget::Path(path) => quote! {
+        WriteTarget::Path(ConstOrEnv::Const(path)) => quote! {
             {
                 use std::io::Write;
                 use grass_runtime::property::Serializable;
@@ -42,6 +43,19 @@ pub fn expand_write_record_rec(
                 }
             }
         },
+        WriteTarget::Path(ConstOrEnv::Env(key)) => {
+            let path_tk = Ident::new(&key.get_const_bag_ident(), ctx.span());
+            quote! {
+                {
+                    use std::io::Write;
+                    use grass_runtime::property::Serializable;
+                    let mut out_f = std::fs::File::open(#path_tk.value());
+                    for item in #inner_var {
+                        writeln!(#fmt_str, #(#arguments,)*)?;
+                    }
+                }
+            }
+        }
     };
     Ok(ctx.push(code))
 }

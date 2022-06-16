@@ -28,14 +28,24 @@ def _compose_job_file(ir_list : list[IRBase], argv, build_flavor, const_bag = No
             if ty == str:
                 ret["const_bag_types"].append("str")
             elif ty == int:
-                ret["const_bag_types"].append("i64")
+                ret["const_bag_types"].append("f64")
             elif ty == float:
                 ret["const_bag_types"].append("f64")
             else:
                 raise RuntimeError("Unsupported constant bag type")
     ret["env_vars"] = dict()
     if const_bag != None:
-        ret["env_vars"]["__GRASS_CONST_BAG"] = json.dumps(const_bag)
+        ret["env_vars"]["__GRASS_CONST_BAG"] = ""
+        for value in const_bag:
+            ty = type(value)
+            if ty == str:
+                value = value.replace('\\', '\\\\')
+                value = value.replace(';', '\;')
+            else:
+                value = str(value)
+            if ret["env_vars"]["__GRASS_CONST_BAG"] != "":
+                ret["env_vars"]["__GRASS_CONST_BAG"] += ";"
+            ret["env_vars"]["__GRASS_CONST_BAG"] += value
     return ret
 
 class RustBackendBase(BackendBase):

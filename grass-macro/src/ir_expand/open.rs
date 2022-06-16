@@ -1,4 +1,5 @@
-use grass_ir::{InputFormat, OpenParam, OpenTarget};
+use grass_ir::{ConstOrEnv, InputFormat, OpenParam, OpenTarget};
+use proc_macro2::Ident;
 use quote::quote;
 use syn::LitStr;
 
@@ -9,10 +10,16 @@ impl Expand for OpenParam {
         match &self.format {
             InputFormat::Bed => {
                 let open_expr = match &self.target {
-                    OpenTarget::Path(path) => {
+                    OpenTarget::Path(ConstOrEnv::Const(path)) => {
                         let path = LitStr::new(path, ctx.span());
                         quote! {
                             std::fs::File::open(#path)?
+                        }
+                    }
+                    OpenTarget::Path(ConstOrEnv::Env(key)) => {
+                        let path = Ident::new(&key.get_const_bag_ident(), ctx.span());
+                        quote! {
+                            std::fs::File::open(#path.value())?
                         }
                     }
                     OpenTarget::FileNo(fd) => match fd {

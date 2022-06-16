@@ -1,4 +1,4 @@
-use std::collections::BTreeMap;
+use std::{collections::BTreeMap, marker::PhantomData};
 
 pub use field_expr::{
     BinaryParam, ComponentFieldRefParam, CondParam, ConstParam, ConstValue, FieldExpression,
@@ -9,6 +9,27 @@ use serde::{Deserialize, Serialize};
 use strum::AsRefStr;
 
 mod field_expr;
+
+// TODO: Make sure that we use this type for all the IR values that can be passed by runtime environ
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ConstBagRef<T> {
+    const_bag_key: usize,
+    #[serde(skip)]
+    _phantom_data: PhantomData<T>,
+}
+
+impl<T> ConstBagRef<T> {
+    pub fn get_const_bag_ident(&self) -> String {
+        format!("__CONST_BAG_VALUE_{}", self.const_bag_key)
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(untagged)]
+pub enum ConstOrEnv<T> {
+    Const(T),
+    Env(ConstBagRef<T>),
+}
 
 #[derive(Serialize, Deserialize, Debug, Clone, AsRefStr)]
 #[serde(tag = "opcode")]
@@ -47,14 +68,14 @@ pub enum GrassIR {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct SortedRandomParam {
-    pub count: usize,
-    pub min_length: u32,
-    pub max_length: u32,
+    pub count: ConstOrEnv<usize>,
+    pub min_length: ConstOrEnv<u32>,
+    pub max_length: ConstOrEnv<u32>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum LoadGenomeFileParam {
-    File(String),
+    File(ConstOrEnv<String>),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -164,7 +185,7 @@ pub enum InputFormat {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum OpenTarget {
-    Path(String),
+    Path(ConstOrEnv<String>),
     FileNo(u32),
     CmdArg(u32),
 }
@@ -186,7 +207,7 @@ pub struct OpenParam {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(untagged)]
 pub enum WriteTarget {
-    Path(String),
+    Path(ConstOrEnv<String>),
     FileNo(i32),
 }
 

@@ -1,4 +1,5 @@
-use grass_ir::WriteFileParam;
+use grass_ir::{ConstOrEnv, WriteFileParam};
+use proc_macro2::Ident;
 use quote::quote;
 
 use super::{expand_grass_ir, Expand, ExpandResult, ExpansionContext};
@@ -27,6 +28,13 @@ impl Expand for WriteFileParam {
             grass_ir::WriteTarget::Path(path) => {
                 let inner = expand_grass_ir(self.what.as_ref(), ctx)?;
                 let inner_ref = ctx.get_var_ref(&inner);
+                let path = match path {
+                    ConstOrEnv::Const(value) => quote! { #value },
+                    ConstOrEnv::Env(key) => {
+                        let id = Ident::new(&key.get_const_bag_ident(), ctx.span());
+                        quote! { #id.value() }
+                    }
+                };
                 let code = quote! {
                     {
                         use std::io::Write;

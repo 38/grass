@@ -3,6 +3,7 @@ mod genome;
 mod ioutils;
 
 pub mod algorithm;
+pub mod const_bag;
 pub mod property;
 pub mod record;
 
