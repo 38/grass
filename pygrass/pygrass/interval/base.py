@@ -1,6 +1,6 @@
 from pygrass.interval.field_expr import FieldExpr, make_field_expression
 from pygrass.record_base import RecordCollectionBase
-from pygrass.ir import AssumeSortedIR, Alter, And, Filter as FilterIR, Format, GroupBy as GroupByIR, IRBase, InlineRust, Merge, Intersection as IntersectionIR, SortedRandomInterval 
+from pygrass.ir import AssumeSortedIR, Alter, And, Filter as FilterIR, Format, GroupBy as GroupByIR, IRBase, InlineRust, MergeOverlap, Intersection as IntersectionIR, SortedRandomInterval, Nop, InternalSort
 
 class IntervalBase(RecordCollectionBase):
     """The base class for PyGRASS runtime values which is an iterator of intervals"""
@@ -84,6 +84,8 @@ class IntervalBase(RecordCollectionBase):
 
         """
         return FilteredInterval(self, cond, *args)
+    def sort(self):
+        return SortInterval(self)
     def merge_overlaps(self):
         return MergedInterval(self)
     def intersect(self, other):
@@ -187,6 +189,17 @@ class AlteredInterval(IntervalBase):
             )
         return code
 
+class SortInterval(IntervalBase):
+    def __init__(self, base: IntervalBase):
+        super().__init__()
+        self._base = base
+        self._sorted = True
+    def emit_eval_code(self) -> IRBase:
+        if self._base._sorted:
+            return Nop(self._base.lower_to_ir())
+        else:
+            return InternalSort(self._base.lower_to_ir())
+    
 class FilteredInterval(IntervalBase):
     def __init__(self, base : IntervalBase, cond : FieldExpr, *args):
         super().__init__()
@@ -213,10 +226,7 @@ class MergedInterval(IntervalBase):
         self._base = base
         self._sorted = base._sorted
     def emit_eval_code(self) -> IRBase:
-        return Merge(
-            inner = self._base.lower_to_ir(),
-            sorted = self._sorted
-        )
+        return MergeOverlap(inner = self._base.lower_to_ir())
 
 class Intersection(IntervalBase):
     def __init__(self, left : IntervalBase, right : IntervalBase, flavor : str = "inner"):

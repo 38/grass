@@ -17,6 +17,7 @@ def _compose_job_file(ir_list : list[IRBase], argv, build_flavor, const_bag = No
     ret["working_dir"] = os.curdir
     ret["runtime_source"] = {"dep-kind": "Local", "value": "/home/haohou/source/grass-project/grass/grass-runtime"}
     ret["macro_source"] = {"dep-kind": "Local", "value": "/home/haohou/source/grass-project/grass/grass-macro"}
+    ret["deps"] = []
     #ret["runtime_source"] = {"dep-kind": "CratesIO", "value": None}
     #ret["macro_source"] = {"dep-kind": "CratesIO", "value": None}
     ret["build_flavor"] = build_flavor

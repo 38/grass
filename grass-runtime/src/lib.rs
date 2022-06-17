@@ -10,6 +10,8 @@ pub mod record;
 pub use file::LineRecordStreamExt;
 pub use genome::{ChrRef, Genome};
 
+pub use itertools::Itertools;
+
 pub mod prelude {}
 
 #[cfg(test)]

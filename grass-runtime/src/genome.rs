@@ -29,6 +29,22 @@ impl<'a> Display for ChrRef<'a> {
     }
 }
 
+impl<'a> PartialEq<str> for ChrRef<'a> {
+    fn eq(&self, other: &str) -> bool {
+        if other == "." {
+            self == &ChrRef::Dummy
+        } else {
+            self == &ChrRef::Unassigned(other)
+        }
+    }
+}
+
+impl<'a> PartialEq<&String> for ChrRef<'a> {
+    fn eq(&self, other: &&String) -> bool {
+        self == other.as_str()
+    }
+}
+
 impl<'a> PartialEq for ChrRef<'a> {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
@@ -39,7 +55,7 @@ impl<'a> PartialEq for ChrRef<'a> {
             (Self::Dummy, _) => false,
             _ => {
                 let this_str = self.get_chr_name();
-                let that_str = self.get_chr_name();
+                let that_str = other.get_chr_name();
                 this_str == that_str
             }
         }

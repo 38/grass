@@ -14,6 +14,7 @@ use crate::{
 
 use super::Sorted;
 
+#[derive(Clone, Copy)]
 pub struct RegionComponent<T: Region> {
     pub is_open: bool,
     pub index: usize,

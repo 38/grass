@@ -49,7 +49,7 @@ pub enum GrassIR {
     /// Filter records in a GRASS expression
     Filter(FilterParam),
     /// Merge any overlapped records in a GRASS expression
-    Merge(MergeParam),
+    MergeOverlap(MergeOverlapParam),
     /// Intersect two GRASS expression
     Intersection(IntersectParam),
     /// Customize the output format of records in a GRASS expression
@@ -64,6 +64,20 @@ pub enum GrassIR {
     LoadGenomeFile(LoadGenomeFileParam),
 
     SortedRandom(SortedRandomParam),
+
+    InternalSort(InternalSortParam),
+
+    Nop(NopParam),
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct InternalSortParam {
+    pub inner: Box<GrassIR>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct NopParam {
+    pub inner: Box<GrassIR>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -135,10 +149,9 @@ pub struct IntersectParam {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct MergeParam {
+pub struct MergeOverlapParam {
     #[serde(rename = "inner")]
     pub input_expr: Box<GrassIR>,
-    pub sorted: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

@@ -14,9 +14,12 @@ mod field_expr;
 mod filter;
 mod format;
 mod inline_rust;
+mod internal_sort;
 mod intersect;
 mod let_binding;
 mod load_genome;
+mod merge_overlap;
+mod nop;
 mod open;
 mod random;
 mod write;
@@ -41,6 +44,9 @@ pub fn expand_grass_ir(ir: &GrassIR, ctx: &mut ExpansionContext) -> ExpandResult
         GrassIR::CastToBed(param) => param.expand(ctx),
         GrassIR::LoadGenomeFile(param) => param.expand(ctx),
         GrassIR::SortedRandom(param) => param.expand(ctx),
+        GrassIR::Nop(param) => param.expand(ctx),
+        GrassIR::InternalSort(param) => param.expand(ctx),
+        GrassIR::MergeOverlap(param) => param.expand(ctx),
         _ => panic!("Unimplemented IR {}", ir.as_ref()),
     }
 }
