@@ -2,6 +2,7 @@ use std::io::{Result, Write};
 use std::ops::{Deref, DerefMut};
 use std::rc::Rc;
 
+use crate::property::Tagged;
 use crate::{
     property::{Named, Parsable, RegionCore, Scored, Serializable, Stranded},
     ChrRef,
@@ -168,3 +169,5 @@ impl<'a> ToSelfContained for Bed4<'a> {
         }
     }
 }
+
+impl<'a, T: Clone> Tagged<T> for Bed4<'a> {}

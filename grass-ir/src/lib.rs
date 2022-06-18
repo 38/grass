@@ -67,7 +67,38 @@ pub enum GrassIR {
 
     InternalSort(InternalSortParam),
 
+    Invert(InvertParam),
+
+    AssignTag(AssignTagParam),
+
+    TwoWayMerge(TwoWayMergeParam),
+
     Nop(NopParam),
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct TwoWayMergeParam {
+    pub expr_1: Box<GrassIR>,
+    pub expr_2: Box<GrassIR>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(untagged)]
+pub enum TagValue {
+    String(String),
+    Int(i64),
+    Float(f64),
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct AssignTagParam {
+    pub inner: Box<GrassIR>,
+    pub tag: TagValue,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct InvertParam {
+    pub inner: Box<GrassIR>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

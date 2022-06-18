@@ -241,9 +241,10 @@ impl JobDefinition {
             let ir_path = source_dir.as_path().join(format!("grass_ir_{}.json", id));
             let ir_file = File::create(&ir_path)?;
             serde_json::to_writer(ir_file, ir)?;
+            writeln!(&mut source_file, "#[allow(unused_imports)]")?;
             writeln!(
                 &mut source_file,
-                "use grass_runtime::const_bag::ConstBagRef;"
+                "use grass_runtime::const_bag::{{ConstBagRef, ConstBagType}};"
             )?;
 
             for (id, t) in self.const_bag_types.iter().enumerate() {

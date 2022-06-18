@@ -14,3 +14,12 @@ pub use random::SortedRandomInterval;
 
 mod groupby;
 pub use groupby::{GroupBuffer, Groups};
+
+mod invert;
+pub use invert::SortedInversionExt;
+
+mod merge;
+pub use merge::TwoWayMergeExt;
+
+mod tag;
+pub use tag::TaggedIterExt;

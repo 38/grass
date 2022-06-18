@@ -49,7 +49,21 @@ pub struct ConstBagRef<T> {
 
 pub trait ConstBagType {
     type ReadOutput;
-    fn read(&self) -> Self::ReadOutput;
+    fn value(self) -> Self::ReadOutput;
+}
+
+impl<'a> ConstBagType for &'a ConstBagRef<f64> {
+    type ReadOutput = f64;
+    fn value(self) -> f64 {
+        *self.get_ref()
+    }
+}
+
+impl<'a> ConstBagType for &'a ConstBagRef<String> {
+    type ReadOutput = &'a str;
+    fn value(self) -> &'a str {
+        self.get_ref().as_str()
+    }
 }
 
 impl<T> ConstBagRef<T> {
@@ -58,7 +72,7 @@ impl<T> ConstBagRef<T> {
             inner: UnsafeCell::new(ConstBagRefImpl::BagRef(size)),
         }
     }
-    pub fn value(&self) -> &T
+    pub fn get_ref(&self) -> &T
     where
         T: FromStr,
     {

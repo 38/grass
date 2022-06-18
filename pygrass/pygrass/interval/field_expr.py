@@ -137,6 +137,7 @@ end = FieldReference("end")
 name = FieldReference("name")
 score = FieldReference("score")
 strand = FieldReference("strand")
+tag = FieldReference("tag_str")
 
 length = end - start
 

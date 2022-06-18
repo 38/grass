@@ -6,7 +6,7 @@ use std::{
 };
 
 use crate::{
-    property::{Named, Parsable, RegionCore, Scored, Serializable, Strand, Stranded},
+    property::{Named, Parsable, RegionCore, Scored, Serializable, Strand, Stranded, Tagged},
     ChrRef,
 };
 
@@ -134,3 +134,5 @@ impl<'a> ToSelfContained for Bed6<'a> {
         }
     }
 }
+
+impl<'a, T: Clone> Tagged<T> for Bed6<'a> {}

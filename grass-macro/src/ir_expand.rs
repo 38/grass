@@ -8,6 +8,7 @@ use uuid::adapter::Simple;
 use self::format::expand_write_record_rec;
 
 mod alter;
+mod assign_tag;
 mod assume_sorted;
 mod cast;
 mod field_expr;
@@ -16,12 +17,14 @@ mod format;
 mod inline_rust;
 mod internal_sort;
 mod intersect;
+mod invert;
 mod let_binding;
 mod load_genome;
 mod merge_overlap;
 mod nop;
 mod open;
 mod random;
+mod twoway_merge;
 mod write;
 
 pub fn expand_grass_ir(ir: &GrassIR, ctx: &mut ExpansionContext) -> ExpandResult {
@@ -47,6 +50,9 @@ pub fn expand_grass_ir(ir: &GrassIR, ctx: &mut ExpansionContext) -> ExpandResult
         GrassIR::Nop(param) => param.expand(ctx),
         GrassIR::InternalSort(param) => param.expand(ctx),
         GrassIR::MergeOverlap(param) => param.expand(ctx),
+        GrassIR::Invert(param) => param.expand(ctx),
+        GrassIR::AssignTag(param) => param.expand(ctx),
+        GrassIR::TwoWayMerge(param) => param.expand(ctx),
         _ => panic!("Unimplemented IR {}", ir.as_ref()),
     }
 }

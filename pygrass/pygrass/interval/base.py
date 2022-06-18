@@ -1,6 +1,7 @@
+from sympy import Interval
 from pygrass.interval.field_expr import FieldExpr, make_field_expression
 from pygrass.record_base import RecordCollectionBase
-from pygrass.ir import AssumeSortedIR, Alter, And, Filter as FilterIR, Format, GroupBy as GroupByIR, IRBase, InlineRust, MergeOverlap, Intersection as IntersectionIR, SortedRandomInterval, Nop, InternalSort
+from pygrass.ir import AssignTag, AssumeSortedIR, Alter, And, Filter as FilterIR, Format, GroupBy as GroupByIR, IRBase, InlineRust, Invert, MergeOverlap, Intersection as IntersectionIR, SortedRandomInterval, Nop, InternalSort, TwoWayMerge as TwoWayMergeIR
 
 class IntervalBase(RecordCollectionBase):
     """The base class for PyGRASS runtime values which is an iterator of intervals"""
@@ -86,6 +87,12 @@ class IntervalBase(RecordCollectionBase):
         return FilteredInterval(self, cond, *args)
     def sort(self):
         return SortInterval(self)
+    def invert(self):
+        return InvertedInterval(self)
+    def tagged(self, tag):
+        return TaggedInterval(self, tag)
+    def merge_with(self, other):
+        return TwoWayMerge(self, other)
     def merge_overlaps(self):
         return MergedInterval(self)
     def intersect(self, other):
@@ -150,7 +157,16 @@ class GroupBy(IntervalBase):
             inner = code,
             key_func = [key_comp.lower_to_ir() for key_comp in self._key_func]
         )
-    
+
+
+class InvertedInterval(RecordCollectionBase) :
+    def __init__(self, inner: IntervalBase):
+        super().__init__()
+        self._inner = inner
+        self._sorted = True
+    def emit_eval_code(self) -> IRBase:
+        inner_code = self._inner.lower_to_ir()
+        return Invert(inner_code)
 class FormatedInterval(RecordCollectionBase):
     def __init__(self, inner : IntervalBase, fmt_str : str, **kwargs):
         super().__init__()
@@ -168,6 +184,26 @@ class FormatedInterval(RecordCollectionBase):
             fmt_str = self._fmt_str,
             values = values
         )
+class TwoWayMerge(IntervalBase):
+    def __init__(self, a: IntervalBase, b: IntervalBase):
+        super().__init__()
+        self._a = a
+        self._b = b
+        self._sorted = True
+    def emit_eval_code(self) -> IRBase:
+        code_a = self._a.lower_to_ir()
+        code_b = self._b.lower_to_ir()
+        return TwoWayMergeIR(code_a, code_b)
+class TaggedInterval(IntervalBase):
+    def __init__(self, base: IntervalBase, tag):
+        super().__init__()
+        self._base = base
+        self._tag = tag
+        self._sorted = self._base._sorted
+    def emit_eval_code(self) -> IRBase:
+        base = self._base.lower_to_ir()
+        return AssignTag(base, self._tag)
+
 class AlteredInterval(IntervalBase):
     def __init__(self, base : IntervalBase, **kwargs):
         super().__init__()

@@ -4,6 +4,8 @@ from functools import wraps
 from json import dumps
 from typing import Any
 
+from numpy import inner
+
 class IRBase(object):
     def __init__(self, opcode : str):
         self._opcode = opcode
@@ -273,6 +275,37 @@ class Filter(BatchOperationBase):
         ret = super().to_dict(bag)
         ret["inner"] = self._inner.to_dict(bag)
         ret["cond"] = self._cond.to_dict(bag)
+        return ret
+
+class Invert(BatchOperationBase):
+    def __init__(self, inner: IRBase):
+        super().__init__("Invert")
+        self._inner = inner
+    def to_dict(self, bag = None) -> dict[str]:
+        ret = super().to_dict(bag)
+        ret["inner"] = self._inner.to_dict(bag)
+        return ret
+
+class AssignTag(BatchOperationBase):
+    def __init__(self, inner: IRBase, tag):
+        super().__init__("AssignTag")
+        self._inner = inner
+        self._tag = tag
+    def to_dict(self, bag = None) -> dict[str]:
+        ret = super().to_dict(bag)
+        ret["inner"] = self._inner.to_dict(bag)
+        ret["tag"] = self._tag
+        return ret
+
+class TwoWayMerge(BatchOperationBase):
+    def __init__(self, a: IRBase, b: IRBase):
+        super().__init__("TwoWayMerge")
+        self._a = a
+        self._b = b
+    def to_dict(self, bag = None) -> dict[str]:
+        ret = super().to_dict(bag)
+        ret["expr_1"] = self._a.to_dict(bag)
+        ret["expr_2"] = self._b.to_dict(bag)
         return ret
 
 class MergeOverlap(BatchOperationBase):

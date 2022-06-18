@@ -168,6 +168,14 @@ thread_local! {
 }
 
 impl Genome {
+    pub fn get_chr_by_id(id: usize) -> Option<ChrRef<'static>> {
+        let storage = GENOME_STORAGE.read().unwrap();
+        if storage.chr_name_list.len() > id {
+            Some(ChrRef::Assigned(id))
+        } else {
+            None
+        }
+    }
     pub fn clear_genome_definition() {
         let mut storage = GENOME_STORAGE.write().unwrap();
         LAST_NAME.with(|last_name| {

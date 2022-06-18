@@ -11,7 +11,7 @@ pub trait Serializable {
 impl<A: Serializable, B: Serializable> Serializable for (A, B) {
     fn dump<W: Write>(&self, mut fp: W) -> Result<()> {
         self.0.dump(&mut fp)?;
-        write!(fp, "|")?;
+        write!(fp, "\t")?;
         self.1.dump(&mut fp)
     }
 }

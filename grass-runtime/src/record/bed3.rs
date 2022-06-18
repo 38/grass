@@ -1,7 +1,7 @@
 use std::io::{Result, Write};
 
 use crate::{
-    property::{Named, Parsable, RegionCore, Scored, Serializable, Stranded},
+    property::{Named, Parsable, RegionCore, Scored, Serializable, Stranded, Tagged},
     ChrRef,
 };
 
@@ -109,3 +109,5 @@ impl ToSelfContained for Bed3 {
         *self
     }
 }
+
+impl<T: Clone> Tagged<T> for Bed3 {}

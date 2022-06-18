@@ -11,15 +11,27 @@ from pygrass.rust import expand_macro, execute_job, create_code_compilation_dir,
 
 def _compose_job_file(ir_list : list[IRBase], argv, build_flavor, const_bag = None):
     ret = dict()
+    def _add_dependency(name, features = []):
+        if "deps" not in ret:
+            ret["deps"] = []
+        ret["deps"].append({
+            "name": name,
+            "source": {
+                "dep-kind": "CratesIO",
+                "value": None
+            },
+            "features": features
+        })
     ret["ir"] = []
     for ir in ir_list:
         ret["ir"].append(ir.to_dict(const_bag))
     ret["working_dir"] = os.curdir
     ret["runtime_source"] = {"dep-kind": "Local", "value": "/home/haohou/source/grass-project/grass/grass-runtime"}
     ret["macro_source"] = {"dep-kind": "Local", "value": "/home/haohou/source/grass-project/grass/grass-macro"}
-    ret["deps"] = []
     #ret["runtime_source"] = {"dep-kind": "CratesIO", "value": None}
     #ret["macro_source"] = {"dep-kind": "CratesIO", "value": None}
+    _add_dependency("genawaiter", ["futures03"])
+    _add_dependency("futures")
     ret["build_flavor"] = build_flavor
     ret["cmdline_args"] = argv
     ret["const_bag_types"] = []
