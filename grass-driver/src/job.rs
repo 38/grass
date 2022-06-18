@@ -237,32 +237,34 @@ impl JobDefinition {
         let source_path = source_dir.join("main.rs");
         let mut source_file = File::create(source_path)?;
 
+        writeln!(&mut source_file, "#[allow(unused_imports)]")?;
+        writeln!(
+            &mut source_file,
+            "use grass_runtime::const_bag::{{ConstBagRef, ConstBagType}};"
+        )?;
+
+        for (id, t) in self.const_bag_types.iter().enumerate() {
+            let ty = match t.as_str() {
+                "str" => "String",
+                "i64" => "i64",
+                "f64" => "f64",
+                _ => {
+                    panic!("Unsupported const bag type: {}", t);
+                }
+            };
+            writeln!(
+                &mut source_file,
+                "const __CONST_BAG_VALUE_{id} : ConstBagRef<{ty}> = ConstBagRef::<{ty}>::new({id});",
+                id = id,
+                ty = ty,
+            )?;
+        }
+
         for (id, ir) in self.ir.iter().enumerate() {
             let ir_path = source_dir.as_path().join(format!("grass_ir_{}.json", id));
             let ir_file = File::create(&ir_path)?;
             serde_json::to_writer(ir_file, ir)?;
-            writeln!(&mut source_file, "#[allow(unused_imports)]")?;
-            writeln!(
-                &mut source_file,
-                "use grass_runtime::const_bag::{{ConstBagRef, ConstBagType}};"
-            )?;
 
-            for (id, t) in self.const_bag_types.iter().enumerate() {
-                let ty = match t.as_str() {
-                    "str" => "String",
-                    "i64" => "i64",
-                    "f64" => "f64",
-                    _ => {
-                        panic!("Unsupported const bag type: {}", t);
-                    }
-                };
-                writeln!(
-                    &mut source_file,
-                    "const __CONST_BAG_VALUE_{id} : ConstBagRef<{ty}> = ConstBagRef::<{ty}>::new({id});",
-                    id = id,
-                    ty = ty,
-                )?;
-            }
 
             writeln!(
                 &mut source_file,
