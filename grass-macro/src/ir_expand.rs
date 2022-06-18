@@ -26,6 +26,7 @@ mod open;
 mod random;
 mod twoway_merge;
 mod write;
+mod limit;
 
 pub fn expand_grass_ir(ir: &GrassIR, ctx: &mut ExpansionContext) -> ExpandResult {
     match ir {
@@ -53,6 +54,7 @@ pub fn expand_grass_ir(ir: &GrassIR, ctx: &mut ExpansionContext) -> ExpandResult
         GrassIR::Invert(param) => param.expand(ctx),
         GrassIR::AssignTag(param) => param.expand(ctx),
         GrassIR::TwoWayMerge(param) => param.expand(ctx),
+        GrassIR::Limit(param) => param.expand(ctx),
         _ => panic!("Unimplemented IR {}", ir.as_ref()),
     }
 }

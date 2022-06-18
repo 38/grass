@@ -3,18 +3,19 @@
 """
 This is equivalent to bedtools command:
 
-    bedtools intersect -a exons.bed -b cpg.bed gwas.bed hesc.chromHmm.bed -sorted | head
-    chr1    11873   11937   NR_046018_exon_0_0_chr1_11874_f 0   +
-    chr1    11937   12137   NR_046018_exon_0_0_chr1_11874_f 0   +
-    chr1    12137   12227   NR_046018_exon_0_0_chr1_11874_f 0   +
-    chr1    12612   12721   NR_046018_exon_1_0_chr1_12613_f 0   +
-    chr1    13220   14137   NR_046018_exon_2_0_chr1_13221_f 0   +
-    chr1    14137   14409   NR_046018_exon_2_0_chr1_13221_f 0   +
-    chr1    14361   14829   NR_024540_exon_0_0_chr1_14362_r 0   -
-    chr1    14969   15038   NR_024540_exon_1_0_chr1_14970_r 0   -
-    chr1    15795   15947   NR_024540_exon_2_0_chr1_15796_r 0   -
-    chr1    16606   16765   NR_024540_exon_3_0_chr1_16607_r 0   -
-
+    bedtools intersect -a exons.bed -b cpg.bed gwas.bed hesc.chromHmm.bed -sorted -wa -wb -names cpg gwas chromhmm \
+      | head -10000 \
+      | tail -10
+    chr1    27632676    27635124    NM_001276252_exon_15_0_chr1_27632677_f  0   +   chromhmm    chr1    27633213    27635013    5_Strong_Enhancer
+    chr1    27632676    27635124    NM_001276252_exon_15_0_chr1_27632677_f  0   +   chromhmm    chr1    27635013    27635413    7_Weak_Enhancer
+    chr1    27632676    27635124    NM_015023_exon_15_0_chr1_27632677_f 0   +   chromhmm    chr1    27632613    27632813    6_Weak_Enhancer
+    chr1    27632676    27635124    NM_015023_exon_15_0_chr1_27632677_f 0   +   chromhmm    chr1    27632813    27633213    7_Weak_Enhancer
+    chr1    27632676    27635124    NM_015023_exon_15_0_chr1_27632677_f 0   +   chromhmm    chr1    27633213    27635013    5_Strong_Enhancer
+    chr1    27632676    27635124    NM_015023_exon_15_0_chr1_27632677_f 0   +   chromhmm    chr1    27635013    27635413    7_Weak_Enhancer
+    chr1    27648635    27648882    NM_032125_exon_0_0_chr1_27648636_f  0   +   cpg chr1    27648453    27649006    CpG:_63
+    chr1    27648635    27648882    NM_032125_exon_0_0_chr1_27648636_f  0   +   chromhmm    chr1    27648613    27649413    1_Active_Promoter
+    chr1    27648635    27648882    NR_037576_exon_0_0_chr1_27648636_f  0   +   cpg chr1    27648453    27649006    CpG:_63
+    chr1    27648635    27648882    NR_037576_exon_0_0_chr1_27648636_f  0   +   chromhmm    chr1    27648613    27649413    1_Active_Promoter
 """
 
 from pygrass import IntervalFile, item, tag

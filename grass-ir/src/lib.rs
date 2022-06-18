@@ -73,7 +73,15 @@ pub enum GrassIR {
 
     TwoWayMerge(TwoWayMergeParam),
 
+    Limit(LimitParam),
+
     Nop(NopParam),
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct LimitParam {
+    pub what: Box<GrassIR>,
+    pub count: ConstOrEnv<f64>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

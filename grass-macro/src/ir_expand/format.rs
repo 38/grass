@@ -29,7 +29,10 @@ pub fn expand_write_record_rec(
                 use grass_runtime::property::Serializable;
                 let mut out_f = unsafe { std::fs::File::from_raw_fd(#fd) };
                 for item in #inner_var {
-                    writeln!(out_f, #fmt_str, #(#arguments,)*)?;
+                    match writeln!(out_f, #fmt_str, #(#arguments,)*) {
+                        Err(err) if err.kind() != std::io::ErrorKind::BrokenPipe => return Err(err.into()),
+                        _ => ()
+                    }
                 }
             }
         },

@@ -1,7 +1,7 @@
 from sympy import Interval
 from pygrass.interval.field_expr import FieldExpr, make_field_expression
 from pygrass.record_base import RecordCollectionBase
-from pygrass.ir import AssignTag, AssumeSortedIR, Alter, And, Filter as FilterIR, Format, GroupBy as GroupByIR, IRBase, InlineRust, Invert, MergeOverlap, Intersection as IntersectionIR, SortedRandomInterval, Nop, InternalSort, TwoWayMerge as TwoWayMergeIR
+from pygrass.ir import AssignTag, AssumeSortedIR, Alter, And, Filter as FilterIR, Format, GroupBy as GroupByIR, IRBase, InlineRust, Invert, Limit, MergeOverlap, Intersection as IntersectionIR, SortedRandomInterval, Nop, InternalSort, TwoWayMerge as TwoWayMergeIR
 
 class IntervalBase(RecordCollectionBase):
     """The base class for PyGRASS runtime values which is an iterator of intervals"""
@@ -93,6 +93,8 @@ class IntervalBase(RecordCollectionBase):
         return TaggedInterval(self, tag)
     def merge_with(self, other):
         return TwoWayMerge(self, other)
+    def limit(self, n: int):
+        return LimitInterval(self, n)
     def merge_overlaps(self):
         return MergedInterval(self)
     def intersect(self, other):
@@ -203,6 +205,15 @@ class TaggedInterval(IntervalBase):
     def emit_eval_code(self) -> IRBase:
         base = self._base.lower_to_ir()
         return AssignTag(base, self._tag)
+
+class LimitInterval(IntervalBase):
+    def __init__(self, what: IntervalBase, count: int):
+        super().__init__()
+        self._what = what
+        self._count = count
+        self._sorted = self._what._sorted
+    def emit_eval_code(self) -> IRBase:
+        return Limit(self._what.lower_to_ir(), self._count)
 
 class AlteredInterval(IntervalBase):
     def __init__(self, base : IntervalBase, **kwargs):

@@ -359,6 +359,20 @@ class Count(BatchOperationBase):
         ret["what"] = self._what.to_dict(bag)
         return ret
 
+class Limit(BatchOperationBase):
+    def __init__(self, what: IRBase, count: int):
+        super().__init__("Limit")
+        self._what = what
+        self._count = count
+    def to_dict(self, bag = None) -> dict[str]:
+        ret = super().to_dict(bag)
+        ret["what"] = self._what.to_dict(bag)
+        if bag != None:
+            ret["count"] = make_const_bag_ref(self._count, bag) 
+        else:
+            ret["count"] = self._count
+        return ret
+
 ## The Field Expression
 class FieldExpressionBase(IRBase):
     pass
