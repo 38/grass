@@ -265,7 +265,6 @@ impl JobDefinition {
             let ir_file = File::create(&ir_path)?;
             serde_json::to_writer(ir_file, ir)?;
 
-
             writeln!(
                 &mut source_file,
                 "fn grass_query_{id}(cmd_args: &[&str]) -> Result<(), Box<dyn std::error::Error>> {{",

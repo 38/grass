@@ -7,7 +7,8 @@ use lazy_static::lazy_static;
 lazy_static! {
     static ref RAW_VALUES: Vec<String> = {
         let mut ret = Vec::new();
-        let const_bag = std::env::var("__GRASS_CONST_BAG").unwrap();
+        let const_bag = std::env::var("__GRASS_CONST_BAG")
+            .unwrap_or_else(|_| panic!("Unable to read environment variable __GRASS_CONST_BAG"));
         let mut buf = String::new();
         let mut escape = false;
         for c in const_bag.chars() {
