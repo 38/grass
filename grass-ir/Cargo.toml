@@ -17,6 +17,6 @@ serde_json = {version = "1.0.79", optional = true}
 serde_json = {version = "1.0.79"}
 
 [[bin]]
-name = "validator"
+name = "grass-ir-validator"
 path = "src/validator.rs"
 required-features = ["serde_json"]

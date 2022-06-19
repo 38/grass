@@ -49,7 +49,7 @@ def _load_default_backend():
 
 _ActiveBackendCtr : Callable[[], BackendBase] = _load_default_backend()
 
-_backend_session = None
+_backend_session : BackendBase = None
 
 def set_active_backend(backend_type: Callable[[], BackendBase]):
     """Set the currently active GRASS backend. The parameter is any callable that returning a pygrass.BackendBase object"""

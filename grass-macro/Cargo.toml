@@ -17,8 +17,8 @@ strum = "0.24.0"
 uuid = {version = "0.8.2", default_features = false, features = ["v4"]}
 
 [dependencies.grass-ir]
-version = "0.1.4"
-#path = "../grass-ir"
+#version = "0.1.4"
+path = "../grass-ir"
 
 [lib]
 proc-macro = true

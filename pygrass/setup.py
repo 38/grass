@@ -59,7 +59,7 @@ setup(
     long_description=open("README.md").read(),
     long_description_content_type='text/markdown',
     packages=["pygrass", "pygrass.backend", "pygrass.interval"],
-    rust_extensions=[RustExtension("pygrass.rust", "Cargo.toml", debug="DEBUG" in os.environ)],
+    rust_extensions=[RustExtension("pygrass.rust", "Cargo.toml", debug="RELEASE" in os.environ)],
     install_requires=install_requires,
     setup_requires=setup_requires,
     include_package_data=True,

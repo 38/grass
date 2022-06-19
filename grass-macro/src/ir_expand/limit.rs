@@ -1,4 +1,4 @@
-use grass_ir::{LimitParam, ConstOrEnv, ConstBagRef};
+use grass_ir::{LimitParam, ConstOrEnv};
 use proc_macro2::Ident;
 use quote::quote;
 
