@@ -4,8 +4,6 @@ from functools import wraps
 from json import dumps
 from typing import Any
 
-from numpy import inner
-
 class IRBase(object):
     def __init__(self, opcode : str):
         self._opcode = opcode
@@ -417,8 +415,6 @@ class BinaryBase(FieldExpressionBase):
             else:
                 ret[key] = self._dict[key]
         return ret
-
-
 
 class Cond(FieldExpressionBase):
     def __init__(self, cond : IRBase, then : IRBase, elze : IRBase):

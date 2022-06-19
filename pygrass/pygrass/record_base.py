@@ -49,6 +49,10 @@ class RustEnv(object):
     """
     def __init__(self, **kwargs):
         self._env = kwargs
+    def import_crate(self, name, version = None):
+        from pygrass import get_backend_session
+        get_backend_session().add_dependency(name, version)
+        return self
     @_drain_method
     def inline_rust(self, code):
         """
