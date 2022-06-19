@@ -72,4 +72,5 @@ def get_backend_session() -> BackendBase:
     return _backend_session
 
 def parse_args():
+    """Configure GRASS backend according to the command line arguments. """
     get_backend_session().load_config_from_args()

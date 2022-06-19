@@ -50,6 +50,9 @@ class RustEnv(object):
     def __init__(self, **kwargs):
         self._env = kwargs
     def import_crate(self, name, version = None):
+        """
+        Import additional Rust dependency to the generated code.
+        """
         from pygrass import get_backend_session
         get_backend_session().add_dependency(name, version)
         return self
