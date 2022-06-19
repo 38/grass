@@ -13,7 +13,9 @@ chr1    327790  328229  CpG:_29 chr1    327035  328581  NR_028327_exon_3_0_chr1_
 
 """
 
-from pygrass import IntervalFile, item
+from pygrass import IntervalFile, item, parse_args
+
+parse_args()
 
 afile = IntervalFile("../data/cpg.bed")
 bfile = IntervalFile("../data/exons.bed")

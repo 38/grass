@@ -18,7 +18,9 @@ This is equivalent to bedtools command:
     chr1    788863  789211  CpG:_28 chr1    788858  794826  NR_047520_exon_6_0_chr1_788859_f    0       348
 """
 
-from pygrass import IntervalFile, length, item
+from pygrass import IntervalFile, length, item, parse_args
+
+parse_args()
 
 afile = IntervalFile("../data/cpg.bed")
 bfile = IntervalFile("../data/exons.bed")

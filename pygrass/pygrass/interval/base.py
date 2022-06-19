@@ -1,4 +1,3 @@
-from sympy import Interval
 from pygrass.interval.field_expr import FieldExpr, make_field_expression
 from pygrass.record_base import RecordCollectionBase
 from pygrass.ir import AssignTag, AssumeSortedIR, Alter, And, Filter as FilterIR, Format, GroupBy as GroupByIR, IRBase, InlineRust, Invert, Limit, MergeOverlap, Intersection as IntersectionIR, SortedRandomInterval, Nop, InternalSort, TwoWayMerge as TwoWayMergeIR
@@ -269,9 +268,12 @@ class FilteredInterval(IntervalBase):
 
 class MergedInterval(IntervalBase):
     def __init__(self, base : IntervalBase):
+        from pygrass import get_backend_session
         super().__init__()
         self._base = base
         self._sorted = base._sorted
+        get_backend_session().add_dependency("genawaiter", features = ["futures03"])
+        get_backend_session().add_dependency("futures")
     def emit_eval_code(self) -> IRBase:
         return MergeOverlap(inner = self._base.lower_to_ir())
 

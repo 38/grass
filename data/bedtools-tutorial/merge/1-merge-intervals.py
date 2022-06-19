@@ -26,7 +26,9 @@ This is equivalent to bedtools command:
     chr1    140074  140566
 """
 
-from pygrass import IntervalFile, chr as chrom, start, end, name
+from pygrass import IntervalFile, chr as chrom, start, end, name, parse_args
+
+parse_args()
 
 file = IntervalFile("../data/exons.bed")
 

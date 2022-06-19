@@ -38,7 +38,7 @@ class CargoModifiedSdist(SdistCommand):
 
 def read_package_version():
     manifest = toml.load(open("Cargo.toml", "r"))
-    return manifest["package"]["version"]
+    return manifest["package"]["version"].replace("-", ".")
 
 
 setup_requires = ["setuptools-rust>=0.10.1", "wheel"]

@@ -70,3 +70,6 @@ def get_backend_session() -> BackendBase:
     if _backend_session == None:
         _backend_session = _ActiveBackendCtr()
     return _backend_session
+
+def parse_args():
+    get_backend_session().load_config_from_args()

@@ -17,7 +17,9 @@ This is equivalent to bedtools command:
 
 """
 
-from pygrass import IntervalFile, chr as chrom, start, end, name, strand
+from pygrass import IntervalFile, chr as chrom, start, end, name, strand, parse_args
+
+parse_args()
 
 afile = IntervalFile("../data/exons.bed")
 bfile_1 = IntervalFile("../data/cpg.bed")

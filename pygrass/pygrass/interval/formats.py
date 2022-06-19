@@ -8,7 +8,7 @@ class CmdArg(object):
     def __init__(self, nth):
         self._nth = nth
     def get_value(self):
-       return sys.argv[self._nth]
+        return sys.argv[self._nth]
 
 class IntervalFormatBase(IntervalBase):
     def __init__(self, sorted : bool = True):

@@ -19,7 +19,9 @@ This is equivalent to bedtools command:
 
 """
 
-from pygrass import IntervalFile, load_genome_file
+from pygrass import IntervalFile, load_genome_file, parse_args
+
+parse_args()
 
 load_genome_file("../data/genome.txt")
 

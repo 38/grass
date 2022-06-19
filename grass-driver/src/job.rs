@@ -401,13 +401,15 @@ impl JobDefinition {
     pub fn execute_artifact(&mut self) -> Result<Child> {
         let working_dir = self.working_dir.clone();
         let environment = self.env_vars.clone();
+        let cmdline_args = self.cmdline_args.clone();
         let artifact_path = self.get_artifact()?;
         log::info!(
             "Launching artifact {}",
             artifact_path.as_os_str().to_string_lossy()
         );
-        log::info!("Working directory = {:?}", working_dir);
+        log::info!("Working directory: {:?}", working_dir);
         log::info!("Environment vars: {:?}", environment);
+        log::info!("Command line arguments: {:?}", cmdline_args);
         Ok(Command::new(artifact_path)
             .current_dir(&self.working_dir)
             .envs(&self.env_vars)

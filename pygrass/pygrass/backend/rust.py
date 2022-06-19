@@ -1,4 +1,4 @@
-from argparse import ArgumentParser
+from argparse import REMAINDER, ArgumentParser
 import os
 import sys
 import json
@@ -46,6 +46,11 @@ class RustBackendBase(BackendBase):
                 if ret["env_vars"]["__GRASS_CONST_BAG"] != "":
                     ret["env_vars"]["__GRASS_CONST_BAG"] += ";"
                 ret["env_vars"]["__GRASS_CONST_BAG"] += value
+        ret["deps"] = self._deps
+        ret["use_cache"] = self._enable_cache
+        ret["update_cache"] = self._update_cache
+        if self._cache_root != None:
+            ret["cache_root"] = self._cache_root
         return ret
     def _build_crate_source(self, source):
         if source == None:
@@ -59,6 +64,10 @@ class RustBackendBase(BackendBase):
         self.enable_env_const_bag(os.environ.get("ENV_CONST_BAG", "1") == "1")
         self.set_build_flavor(os.environ.get("BUILD_FLAVOR", "Release"))
         self.set_args(sys.argv[1:])
+        runtime_path = os.environ.get("GRASS_RUNTIME_PATH") 
+        if runtime_path != None:
+            self.set_runtime_source(runtime_path + "/grass-runtime")
+            self.set_macro_source(runtime_path + "/grass-macro") 
     def set_build_flavor(self, flavor : str):
         flavor = flavor.upper()
         if flavor == "DEBUG":
@@ -73,6 +82,8 @@ class RustBackendBase(BackendBase):
         elif value == False and self._const_bag != None:
             self._const_bag = None
     def add_dependency(self, crate_name, source: str = None, version = None, features = [], default_features = True):
+        if crate_name in self._imported_crates:
+            return
         source = self._build_crate_source(source)
         dep = {
             "name": crate_name,
@@ -82,6 +93,7 @@ class RustBackendBase(BackendBase):
             "default_features": default_features,
         }
         self._deps.append(dep)
+        self._imported_crates.add("crate_name")
     def set_args(self, argv):
         self._argv = argv
     def add_env_vars(self, name, value):
@@ -90,18 +102,26 @@ class RustBackendBase(BackendBase):
         self._runtime_source = self._build_crate_source(source)
     def set_macro_source(self, source):
         self._macro_source = self._build_crate_source(source)
+    def enable_cache(self, value = True):
+        self._enable_cache = value
+    def update_cache(self, value = True):
+        self._update_cache = value
+    def cache_root(self, value):
+        self._cache_root = value
     def __init__(self):
         super().__init__()
+        self._imported_crates = set(["grass-runtime", "grass-macro"])
+        self._enable_cache = True
+        self._update_cache = True
+        self._cache_root = None
         self._const_bag = None
         self._ir_list = []
         self._argv = sys.argv[1:]
         self._deps = list()
         self._environ = dict()
-        self._runtime_source = self._build_crate_source("/home/haohou/source/grass-project/grass/grass-runtime") 
-        self._macro_source = self._build_crate_source("/home/haohou/source/grass-project/grass/grass-macro")
+        self._runtime_source = self._build_crate_source(None) 
+        self._macro_source = self._build_crate_source(None)
         self.load_env_conf()
-        self.add_dependency("futures")
-        self.add_dependency("genawaiter", features = ["futures03"])
     def __del__(self):
         if len(self._ir_list) > 0:
             self.flush()

@@ -18,7 +18,9 @@ This is equivalent to bedtools command:
     chr1    27648635    27648882    NR_037576_exon_0_0_chr1_27648636_f  0   +   chromhmm    chr1    27648613    27649413    1_Active_Promoter
 """
 
-from pygrass import IntervalFile, item, tag
+from pygrass import IntervalFile, item, tag, parse_args
+
+parse_args()
 
 afile = IntervalFile("../data/exons.bed")
 bfile_1 = IntervalFile("../data/cpg.bed").tagged("cpg")
