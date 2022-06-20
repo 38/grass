@@ -67,6 +67,9 @@ impl Expand for OpenParam {
                     todo!()
                 }
             }
+            InputFormat::Bam => {
+                panic!("FIXME: HTSLIB Integration");
+            }
             whatever => Err(syn::Error::new(
                 ctx.span(),
                 format!("Unsupported input file type: {:?}", whatever),

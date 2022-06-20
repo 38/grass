@@ -43,6 +43,8 @@ class BamFile(IntervalFormatBase):
         super().__init__()
         self._target = { "CmdArg" : path._nth } if type(path) == CmdArg else { "Path": path }
         self._sorted = sorted
+        from pygrass import get_backend_session
+        get_backend_session().enable_runtime_feature("htslib")
     def emit_eval_code(self) -> IRBase:
         return OpenFile(
             target = self._target,

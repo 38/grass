@@ -165,3 +165,7 @@ class BackendBase(object):
         pass
     def cache_root(self, value):
         pass
+    def enable_runtime_feature(self, feature_name):
+        pass
+    def enable_macro_feature(self, feature_name):
+        pass

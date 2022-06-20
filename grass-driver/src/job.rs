@@ -53,12 +53,17 @@ pub struct JobDefinition {
     macro_package: String,
 
     runtime_source: DependencySource,
+    macro_source: DependencySource,
+   
     #[serde(default = "latest_grass_runtime")]
     runtime_version: String,
-
-    macro_source: DependencySource,
     #[serde(default = "latest_grass_runtime")]
     macro_version: String,
+    
+    #[serde(default)]
+    macro_features: Vec<String>,
+    #[serde(default)]
+    runtime_features: Vec<String>,
 
     // ################### Package Information ####################
     #[serde(default)]
@@ -154,10 +159,12 @@ impl JobDefinition {
             serde_json::to_writer(&mut buffer_writer, &self.macro_package)?;
             serde_json::to_writer(&mut buffer_writer, &self.macro_version)?;
             serde_json::to_writer(&mut buffer_writer, &self.macro_source)?;
+            serde_json::to_writer(&mut buffer_writer, &self.macro_features)?;
 
             serde_json::to_writer(&mut buffer_writer, &self.runtime_package)?;
             serde_json::to_writer(&mut buffer_writer, &self.runtime_version)?;
             serde_json::to_writer(&mut buffer_writer, &self.runtime_source)?;
+            serde_json::to_writer(&mut buffer_writer, &self.runtime_features)?;
         }
         let input_str = String::from_utf8(buffer).unwrap();
         log::debug!("Job hasher input: {}", input_str);
@@ -208,11 +215,13 @@ impl JobDefinition {
                 &self.runtime_package,
                 &self.runtime_source,
                 &self.runtime_version,
+                &self.runtime_features,
             ),
             &Dependency::create_grass_dep(
                 &self.macro_package,
                 &self.macro_source,
                 &self.macro_version,
+                &self.macro_features,
             ),
         ]) {
             dep.write_dependency_line(&mut manifest_file)?;

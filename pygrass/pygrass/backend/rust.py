@@ -49,6 +49,8 @@ class RustBackendBase(BackendBase):
         ret["deps"] = self._deps
         ret["use_cache"] = self._enable_cache
         ret["update_cache"] = self._update_cache
+        ret["macro_features"] = self._macro_features
+        ret["runtime_features"] = self._runtime_features
         if self._cache_root != None:
             ret["cache_root"] = self._cache_root
         return ret
@@ -94,6 +96,12 @@ class RustBackendBase(BackendBase):
         }
         self._deps.append(dep)
         self._imported_crates.add("crate_name")
+    def enable_runtime_feature(self, feature_name):
+        if feature_name not in self._runtime_features:
+            self._runtime_features.append(feature_name)
+    def enable_macro_feature(self, feature_name):
+        if feature_name not in self._macro_features:
+            self._macro_features.append(feature_name)
     def set_args(self, argv):
         self._argv = argv
     def add_env_vars(self, name, value):
@@ -119,6 +127,8 @@ class RustBackendBase(BackendBase):
         self._argv = sys.argv[1:]
         self._deps = list()
         self._environ = dict()
+        self._runtime_features = []
+        self._macro_features = []
         self._runtime_source = self._build_crate_source(None) 
         self._macro_source = self._build_crate_source(None)
         self.load_env_conf()

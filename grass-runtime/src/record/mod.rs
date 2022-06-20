@@ -3,6 +3,9 @@ mod bed4;
 mod bed5;
 mod bed6;
 
+#[cfg(feature = "htslib")]
+mod bam;
+
 pub use bed3::Bed3;
 pub use bed4::{Bed4, RcCowString};
 pub use bed5::Bed5;

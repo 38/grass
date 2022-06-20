@@ -35,7 +35,9 @@ def genomecov(input):
                 let counted_bases = chr_size - stat.values().sum::<usize>();
                 println!("{}\t0\t{}\t{}\t{}", chr_name, counted_bases, chr_size, counted_bases as f64 / chr_size as f64);
                 for (k, v) in stat {
-                    println!("{}\t{}\t{}\t{}\t{}", chr_name, k, v, chr_size, *v as f64 / chr_size as f64);
+                    if *v > 0 {
+                        println!("{}\t{}\t{}\t{}\t{}", chr_name, k, v, chr_size, *v as f64 / chr_size as f64);
+                    }
                 }
             }
             for comp in input.components() {

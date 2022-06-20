@@ -25,5 +25,6 @@ parse_args()
 afile = IntervalFile("../data/cpg.bed")
 bfile = IntervalFile("../data/exons.bed")
 
-# TODO
-raise RuntimeError("TODO!")
+# TODO: Not implemented yet
+a.intersect(b) \
+    .group_by(item[0]) \

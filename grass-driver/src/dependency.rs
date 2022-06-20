@@ -56,12 +56,12 @@ impl Dependency {
         }?;
         writeln!(target, "")
     }
-    pub fn create_grass_dep(component: &str, source: &DependencySource, version: &str) -> Self {
+    pub fn create_grass_dep(component: &str, source: &DependencySource, version: &str, features: &[String]) -> Self {
         Self {
             name: component.to_string(),
             source: source.clone(),
             version: Some(version.to_string()),
-            features: vec![],
+            features: features.to_owned(),
             default_features: true,
         }
     }
