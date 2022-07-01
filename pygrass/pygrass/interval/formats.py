@@ -5,6 +5,16 @@ from pygrass.ir import IRBase, OpenFile
 import sys
 
 class CmdArg(object):
+    """
+    Represents a runtime command line argument. 
+
+    You can use python's `sys.argv` to access the command line arguments,
+    but this may result in different IRs which triggers recompilation. 
+
+    By using this class, you can pass the command line arguments at the time when 
+    Rust artifact is launched. Thus we can reuse the cached artifacts that was compiled
+    for different command line arguments. This improves the efficiency of the artifact caching.
+    """
     def __init__(self, nth):
         self._nth = nth
     def get_value(self):
@@ -15,6 +25,11 @@ class IntervalFormatBase(IntervalBase):
         super().__init__()
 
 class IntervalFile(IntervalFormatBase):
+    """
+    Represents any file that encodes intervals supported by GRASS. 
+
+    The actual file format is automatically detected. 
+    """
     def __init__(self, path, sorted : bool = True):
         super().__init__()
         arg_bag = dict()
@@ -35,6 +50,9 @@ class IntervalFile(IntervalFormatBase):
         return self._inner.emit_eval_code()
 
 class BamFile(IntervalFormatBase):
+    """
+    Represents a BAM file.
+    """
     def from_stdin(**kwargs):
         ret = BedFile(None, **kwargs)
         ret._target = { "FileNo": 0 }
@@ -53,6 +71,9 @@ class BamFile(IntervalFormatBase):
         )
 
 class CramFile(IntervalFormatBase):
+    """
+    Represents a CRAM file.
+    """
     def from_stdin(**kwargs):
         ret = BedFile(None, **kwargs)
         ret._target = { "FileNo": 0 }
@@ -72,6 +93,9 @@ class CramFile(IntervalFormatBase):
         )
 
 class BedFile(IntervalFormatBase):
+    """
+    Any variantion of the BED file.
+    """
     def from_stdin(**kwargs):
         ret = BedFile(None, **kwargs)
         ret._target = { "FileNo": 0 }
@@ -92,6 +116,9 @@ class BedFile(IntervalFormatBase):
         )
 
 class VcfFile(IntervalFormatBase):
+    """
+    Represents a VCF file.
+    """
     def from_stdin(**kwargs):
         ret = BedFile(None, **kwargs)
         ret._target = { "FileNo": 0 }
@@ -110,5 +137,8 @@ class VcfFile(IntervalFormatBase):
         )
 
 class Bed3File(BedFile):
+    """
+    Represents a BED file with 3 fields.
+    """
     def __init__(self, path : str, sorted : bool = True):
         super().__init__(path, sorted, num_of_fields= 3)

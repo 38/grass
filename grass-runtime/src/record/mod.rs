@@ -6,6 +6,9 @@ mod bed6;
 #[cfg(feature = "htslib")]
 mod bam;
 
+#[cfg(feature = "htslib")]
+pub use bam::{BamIter, BamRecord, BamReader};
+
 pub use bed3::Bed3;
 pub use bed4::{Bed4, RcCowString};
 pub use bed5::Bed5;

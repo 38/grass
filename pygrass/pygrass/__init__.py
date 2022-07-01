@@ -30,7 +30,7 @@ from typing import Callable
 from pygrass.interval import IntervalBase, IntervalFile, SortedRandomBed3
 from pygrass.interval.formats import BedFile, BamFile, Bed3File, CmdArg
 from pygrass.interval.cast import Bed3, Bed4, Bed5, Bed6
-from pygrass.interval.field_expr import length, start, end, length, name, chr, strand, item, tag, If
+from pygrass.interval.field_expr import length, start, end, length, name, chr, strand, item, tag, If, score
 from pygrass.backend import DumpIR, BackendBase, RustBackend
 from pygrass.record_base import RustEnv, load_genome_file
 
@@ -52,7 +52,22 @@ _ActiveBackendCtr : Callable[[], BackendBase] = _load_default_backend()
 _backend_session : BackendBase = None
 
 def set_active_backend(backend_type: Callable[[], BackendBase]):
-    """Set the currently active GRASS backend. The parameter is any callable that returning a pygrass.BackendBase object"""
+    """
+    Set the currently active GRASS backend. 
+    The parameter is any callable that returning a pygrass.BackendBase object.
+
+    There are few useful backends built-in in pygrass:
+
+    - pygrass.backend.RustBackend: The default backend that compiles and executes the Rust source code.
+    - pygrass.backend.DumpIR: The backend that dumps the intermediate representation of the GRASS backend.
+    - pygrass.backend.DumpJobDesc: The backend that dumps the job description.
+    - pygrass.backend.CreateRustPackage: The backend that creates a rust package, which is useful to debug the generated Rust source code.
+    - pygrass.backend.DumpRustCode: The backend that dumps the generated Rust source code.
+    - pygrass.backend.BuildBinary: The backend that builds the binary artifact, this artifact can be used later to run the query without the support of GRASS system.
+
+    The backend can be set by calling pygrass.set_active_backend(backend_type), or by setting the environment variable GRASS_BACKEND_CLASS.
+
+    """
     global _backend_session, _ActiveBackendCtr
     _ActiveBackendCtr = backend_type
     _backend_session = None

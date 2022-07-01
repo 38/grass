@@ -2,9 +2,17 @@ from typing import Callable
 from pygrass.ir import Add, And, ComponentFieldRef, Cond, Div, Eq, FieldRef, FullRecordRef, GreaterEqualThan, GreaterThan, IRBase, LeftShift, LessEqualThan, LessThan, Mod, Mul, Ne, Neg, Or, Not as NotIR, RecordRef, RightShift, StringRepr, Sub, Xor as XorIR, NumberOfComponents as NumberOfComponentsIR, ConstValue
 
 class FieldExpr(object):
+    """
+    This is the base class for capturing the semantics of manipulatioin of a interval. 
+    """
     def __getitem__(self, idx):
         return ComponentAccess(self, idx)
     def lower_to_ir(self, subs = None) -> IRBase:
+        """
+        Emit the underlying IR for the captured semantics.
+
+        subs is the subscript that to be applied to the field expression.
+        """
         pass
     def logic_and(self, other):
         return Operator(And, self, other)
@@ -131,7 +139,7 @@ class If(FieldExpr):
             elze = self._else.lower_to_ir(subs),
         )
 
-chr = FieldReference("chrom")
+chr = FieldReference("chrom") 
 start = FieldReference("start")
 end = FieldReference("end")
 name = FieldReference("name")

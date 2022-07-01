@@ -109,19 +109,24 @@ fn expand_field_expr_impl(expr: &FieldExpression, span: Span) -> TokenStream {
         }
         FieldExpression::FieldRef(param) => {
             let p = syn::Ident::new(param.field.as_str(), span);
-            if param.field != "start" && param.field != "end" {
-                quote! {
-                    ({
-                        use grass_runtime::property::*;
-                        _arg . #p ()
-                    })
-                }
-            } else {
-                quote! {
+            match param.field.as_str() {
+                "start" | "end" => quote! {
                     ({
                         use grass_runtime::property::*;
                         _arg . #p ()
                     } as f64)
+                },
+                "score" => quote! {
+                    ({
+                        use grass_runtime::property::*;
+                        _arg . #p () .unwrap_or_default()
+                    })
+                },
+                _ => quote! {
+                    ({
+                        use grass_runtime::property::*;
+                        _arg . #p ()
+                    })
                 }
             }
         }

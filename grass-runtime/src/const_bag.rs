@@ -2,8 +2,6 @@ use std::{cell::UnsafeCell, str::FromStr};
 
 use lazy_static::lazy_static;
 
-//TODO
-
 lazy_static! {
     static ref RAW_VALUES: Vec<String> = {
         let mut ret = Vec::new();

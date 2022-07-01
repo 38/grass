@@ -20,3 +20,4 @@ optional = true
 
 [features]
 htslib = ["d4-hts"]
+default = ["htslib"]

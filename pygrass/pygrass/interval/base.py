@@ -85,30 +85,160 @@ class IntervalBase(RecordCollectionBase):
         """
         return FilteredInterval(self, cond, *args)
     def sort(self):
+        """
+        Performe a internal sort on the interval iterator.
+
+        Example:
+
+        ```
+            input.sort()
+        ```
+
+        Note: This method should be distinguished from `assume_sorted`.
+              This method actually sorts the iterator, but `assume_sorted` make GRASS believe the iterator is sorted.
+        """
         return SortInterval(self)
     def invert(self):
+        """
+        Make the complement of the given input. This only works for sorted interator.
+
+        Example:
+
+        - Filter intervals from file_b which is competely non-overlapping with intervals from file_a.
+        ```
+            file_a.invert().intersect(file_b).filter(length == length[1])
+        ```
+        """
         return InvertedInterval(self)
     def tagged(self, tag):
+        """
+        Assign a tag to the interator. 
+        This tag is not a part of the output, but it can be use internally 
+        to distinguish the source of the interval, especially from a merged iterator.
+
+        Example:
+
+        ```
+            input.tagged("A").merge_with(input.tagged("B")).format("{tag}", tag = tag)
+        ```
+        """
         return TaggedInterval(self, tag)
     def merge_with(self, other):
+        """
+        Merge two sorted interval iterators.
+
+        This method is similar to `bedtools merge`. 
+
+        Example:
+
+        - Intersect with two file B with file A.
+        ```
+            file_a.intersect(file_b1.merge_with(file_b2))
+        ```
+        """
         return TwoWayMerge(self, other)
     def limit(self, n: int):
+        """
+        Return the first n intervals.
+
+        Example:
+        Return top 10 intersections of two files.
+        ```
+            file_a.intersect(file_b).limit(10)
+        ```
+        """
         return LimitInterval(self, n)
     def merge_overlaps(self):
+        """
+        Merge the overlapping intervals in the iterator, this requires the iterator is sorted.
+
+        Example:
+
+        ```
+            input.merge_overlaps()
+        ```
+        """
         return MergedInterval(self)
     def intersect(self, other):
+        """
+        Intersect two sorted interval iterators.
+        This method is similar to `bedtools intersect`.
+        This method performs the inner join of two sorted interval iterators.
+
+        Example:
+
+        ```
+            file_a.intersect(file_b)
+        ```
+
+        """
         return Intersection(self, other, flavor = "inner")
     def outter_intersect(self, other):
+        """
+        Performe a full outer join of two sorted interval iterators.
+
+        Example:
+
+        ```
+            file_a.outter_intersect(file_b)
+        ```
+        """
         return Intersection(self, other, flavor = "outter")
     def left_outer_intersect(self, other):
+        """
+        Performe a left outer join of two sorted interval iterators.
+
+        Example:
+
+        ```
+            file_a.left_outer_intersect(file_b)
+        ```
+        """
         return Intersection(self, other, flavor = "left-outer")
     def right_outer_intersect(self, other):
+        """
+        Performe a right outer join of two sorted interval iterators.
+
+        Example:
+
+        ```
+            file_a.right_outer_intersect(file_b)
+        ```
+        """
         return Intersection(self, other, flavor = "right-outer")
     def group_by(self, *args):
+        """
+        Group the intervals by the given field expression.
+
+        Example:
+
+        ```
+            input.group_by(start)
+        ```
+        """
         return GroupBy(self, *args)
 
 class SortedRandomBed3(IntervalBase):
+    """
+    The high level representation of a sorted random bed3 file.
+
+    Some of the usage may need to randomly sample a subset of the whole file.
+    This is the iterator that generates a set of sorted non-overlapping BED3 intervals,
+    so that we can intersect with any other sorted interval iterator to get a random
+    sample of the entire iterator.
+
+    Example:
+
+    ```
+        input.intersect(SortRandomBed3(input, n = 100))
+    ```
+
+    """
     def __init__(self, count, length = None):
+        """
+        count: The number of intervals in the iterator.
+        length: The length of each interval.
+        """
         super().__init__()
         if length != None:
             if type(length) == range:
@@ -123,9 +253,30 @@ class SortedRandomBed3(IntervalBase):
         self._count = count
         self._sorted = True
     def emit_eval_code(self) -> IRBase:
+        """
+        Emit the lower level IR code for this iterator.
+        """
         return SortedRandomInterval(self._count, self._min_len, self._max_len)
 
 class InlineRustIntervalIterator(IntervalBase):
+    """
+    The high level representation of an iterator that is defined by a inlined Rust code.
+
+    GRASS IR may not be expressive enough to support all features of genomics interval manipulation.
+    So we provide a way to put abitrary Rust code as a supplement to the GRASS IR.
+
+    See documentation of `RustEnv` for more details about usage of this iterator.
+
+    Example:
+
+    ```
+        RustEnv(input = RandomInterval(100, 100)).iterator_processor(\"\"\"
+            input.map(|interval| {
+                interval.start += 100;
+                interval.end += 100;
+            })
+        \"\"\")
+    """
     def __init__(self, env, code, sorted = False):
         super().__init__()
         self._env = env

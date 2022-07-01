@@ -131,8 +131,10 @@ class BackendBase(object):
         if args.build_flavor != None:
             self.set_build_flavor(args.build_flavor)
         self.enable_env_const_bag(not args.no_use_const_bag)
-        self.set_runtime_source(args.runtime)
-        self.set_macro_source(args.macro)
+        if args.runtime != None:
+            self.set_runtime_source(args.runtime)
+        if args.macro != None:
+            self.set_macro_source(args.macro)
         if args.disable_cache:
             self.enable_cache(False)
             self.update_cache(False)

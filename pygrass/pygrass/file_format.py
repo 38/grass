@@ -2,11 +2,17 @@ import gzip
 import pathlib
 
 def detect_gzip(path : str) -> bool:
+    """
+    Detect if the file is gzipped.
+    """
     fp = open(path, "rb")
     magic = fp.read(2)
     return magic == b"\x1f\x8b"
 
 def detect_xam(path : str) -> str:
+    """
+    Detect if the file is a BAM, CRAM, or SAM file.
+    """
     fp = open(path, "rb")
     head = fp.read(4)
     if head == b"CRAM":
@@ -19,6 +25,9 @@ def detect_xam(path : str) -> str:
     return "unknown"
 
 def detect_uncompressed_text_format(reader, arg_bag = None) -> str:
+    """
+    Detect the file format of the given uncompressed text file.
+    """
     detected_category = "none"
     for line in reader:
         if type(line) != str:
@@ -43,6 +52,10 @@ def detect_uncompressed_text_format(reader, arg_bag = None) -> str:
     return "unknown" 
 
 def detect_file_format(path : str, arg_bag = None) -> str:
+    """
+    Detect the file format of the given file.
+    arg_bag is a dictionary that can be used to pass extra information of the file format.
+    """
     arg_bag = dict() if arg_bag == None else arg_bag
     try:
         xam = detect_xam(path)
@@ -67,5 +80,3 @@ def detect_file_format(path : str, arg_bag = None) -> str:
         elif cmps[-1] == 'vcf' and len(cmps) > 1:
             return "vcf"
         return "unknown"
-        
-    
