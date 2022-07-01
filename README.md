@@ -8,10 +8,25 @@ GRASS uses python as frontend language and defines a DSL(domain specific languag
 
 ## Installation
 
+### Install with pip
+
 You can install pygrass from [PyPI](https://pypi.python.org/pypi/pygrass) and use GRASS.
 
 ```bash
 pip install pygrass
+```
+
+### Use the local build
+
+You can use the local build of GRASS.
+
+```bash
+git clone https://github.com/38/grass.git
+cd grass/pygrass
+python3 setup.py build
+export PYTHONPATH=$PYTHONPATH:$(pwd)/build/lib
+export GRASS_RUNTIME_PATH=$(pwd)/../grass-runtime
+export GRASS_MACRO_PATH=$(pwd)/../grass-macro
 ```
 
 ## Usage by Examples
@@ -231,3 +246,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 ```
+
+## Implementing bedtools tutorial with pygrass
+
+There are example implementations of the functionality of the [bedtools tutorial](https://bedtools.readthedocs.io/en/latest/tutorial.html) in pygrass available, 
+see [data/bedtools-tutorial](https://github.com/38/grass/tree/master/data/bedtools-tutorial) for details.
+
+To try these examples, you need to use the latest version of pygrass,
+see [use the local build](#use-the-local-build) for how to run the examples with the local grass build.
