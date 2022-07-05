@@ -249,7 +249,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ## Implementing bedtools tutorial with pygrass
 
-There are example implementations of the functionality of the [bedtools tutorial](https://bedtools.readthedocs.io/en/latest/tutorial.html) in pygrass available, 
+There are example implementations of the functionality of the [bedtools tutorial](http://quinlanlab.org/tutorials/bedtools/bedtools.html) in pygrass available, 
 see [data/bedtools-tutorial](https://github.com/38/grass/tree/master/data/bedtools-tutorial) for details.
 
 To try these examples, you need to use the latest version of pygrass,
