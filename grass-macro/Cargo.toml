@@ -13,7 +13,6 @@ syn = "1.0.86"
 quote = "1.0.15"
 proc-macro2 = "1.0.36"
 serde_json = "1.0.79"
-strum = "0.24.0"
 uuid = {version = "0.8.2", default_features = false, features = ["v4"]}
 
 [dependencies.grass-ir]
