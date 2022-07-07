@@ -6,8 +6,6 @@ pub use field_expr::{
 };
 use serde::{Deserialize, Serialize};
 
-use strum::AsRefStr;
-
 mod field_expr;
 
 // TODO: Make sure that we use this type for all the IR values that can be passed by runtime environ
@@ -31,7 +29,7 @@ pub enum ConstOrEnv<T> {
     Env(ConstBagRef<T>),
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, AsRefStr)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(tag = "opcode")]
 pub enum GrassIR {
     /// Cast the inner data stream to a bed3 data stream

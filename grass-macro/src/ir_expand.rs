@@ -55,7 +55,7 @@ pub fn expand_grass_ir(ir: &GrassIR, ctx: &mut ExpansionContext) -> ExpandResult
         GrassIR::AssignTag(param) => param.expand(ctx),
         GrassIR::TwoWayMerge(param) => param.expand(ctx),
         GrassIR::Limit(param) => param.expand(ctx),
-        _ => panic!("Unimplemented IR {}", ir.as_ref()),
+        _ => panic!("Unimplemented IR {}", serde_json::to_string(ir).unwrap()),
     }
 }
 
