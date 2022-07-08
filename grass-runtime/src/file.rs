@@ -45,6 +45,8 @@ impl<'a, R: Read> Iterator for LineRecordStream<R, Bed4<'a>> {
     fn next(&mut self) -> Option<Self::Item> {
         self.buffer.clear();
         self.reader.read_line(&mut self.buffer).ok()?;
+        // TODO: At this point we have a huge unsound hole as we can abitrarily give Bed4 file any lifetime we need
+        // But this is not the case
         let (parsed, _) = Bed4::parse(unsafe { std::mem::transmute(self.buffer.trim_end()) })?;
         Some(parsed)
     }

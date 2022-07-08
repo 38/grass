@@ -160,6 +160,10 @@ impl<'a> ChrRef<'a> {
         storage.chr_size_list[self.get_id_or_update()] = Some(size);
         true
     }
+    pub fn next_chrom(&self) -> Option<ChrRef<'static>> {
+        let id = self.id()?;
+        Genome::get_chr_by_id(id + 1)
+    }
 }
 
 thread_local! {

@@ -1,4 +1,5 @@
 use std::{
+    ops::Deref,
     cmp::{Ordering, Reverse},
     collections::{BinaryHeap, HashMap},
     fmt::{Debug, Formatter, Result},
@@ -20,6 +21,13 @@ pub struct RegionComponent<T: Region> {
     pub index: usize,
     pub depth: usize,
     pub value: T,
+}
+
+impl <T: Region> Deref for RegionComponent<T> {
+    type Target = T;
+    fn deref(&self) -> &Self::Target {
+        &self.value   
+    }
 }
 
 impl<T: Region + Serializable> Serializable for RegionComponent<T> {

@@ -18,13 +18,32 @@ This is equivalent to bedtools command:
 
 """
 
-from pygrass import IntervalFile, item, parse_args
+from pygrass import IntervalFile, item, parse_args, RustEnv, Bed4
 
 parse_args()
 
-afile = IntervalFile("../data/cpg.bed")
-bfile = IntervalFile("../data/exons.bed")
+afile = IntervalFile("../data/cpg.bed").tagged(0)
+bfile = Bed4(IntervalFile("../data/exons.bed")).tagged(1)
 
-# TODO: Not implemented yet
-a.intersect(b) \
-    .group_by(item[0]) \
+RustEnv(input = afile.merge_with(bfile)).inline_rust("""
+    use grass_runtime::algorithm::Components;
+    use grass_runtime::property::{Named, RegionCore, Tagged};
+    let mut cnt = (0, 0);
+    let mut active_a = std::collections::HashMap::<usize, usize>::new();
+    for comp in input.components() {
+        if comp.tag() == Some(1) {
+            if comp.is_open {
+                cnt.0 += 1;
+            } else {
+                cnt.1 += 1;
+            }
+        } else {
+            if comp.is_open {
+                active_a.insert(comp.index, cnt.1);
+            } else {
+                let count = cnt.0 - active_a.remove(&comp.index).unwrap();
+                println!("{}\t{}\t{}\t{}", comp.chrom(), comp.start(), comp.end(), count);
+            }
+        }
+    }
+""")
