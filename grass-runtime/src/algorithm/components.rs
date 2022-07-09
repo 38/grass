@@ -7,7 +7,7 @@ use std::{
     iter::Enumerate,
 };
 
-use crate::ChrRef;
+use crate::{ChrRef, property::{Named, Scored}};
 use crate::{
     property::{Region, RegionCore, Serializable},
     record::ToSelfContained,
@@ -65,6 +65,21 @@ impl<T: Region> RegionCore for RegionComponent<T> {
 
     fn chrom(&self) -> ChrRef<'static> {
         self.value.chrom()
+    }
+}
+
+impl <'a, T: Named<'a> + Region> Named<'a> for RegionComponent<T> {
+    fn name(&self) -> &str {
+        self.value.name()
+    }
+    fn rc_name(&self) -> crate::record::RcStr<'a> {
+        self.value.rc_name()
+    }
+}
+
+impl <S, T: Scored<S> + Region> Scored<S> for RegionComponent<T> {
+    fn score(&self) -> Option<S> {
+        self.value.score()
     }
 }
 

@@ -26,4 +26,4 @@ impl<T: Iterator> Iterator for AssumingSortedIter<T> {
 
 impl<T: Iterator> Sorted for AssumingSortedIter<T> {}
 
-impl<T: Iterator + Sorted, P> Sorted for std::iter::Filter<T, P> where P: Fn(&T::Item) -> bool {}
+impl<T: Iterator + Sorted, P> Sorted for std::iter::Filter<T, P> where P: FnMut(&T::Item) -> bool {}

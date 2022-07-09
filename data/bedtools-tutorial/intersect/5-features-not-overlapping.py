@@ -25,6 +25,9 @@ parse_args()
 afile = IntervalFile("../data/cpg.bed")
 bfile = IntervalFile("../data/exons.bed")
 
+# Use the `invert` method to get the compliment of the file
+# Then we can filter all the intersections where cpg is fully covered by exons.
+# Finally, we only print the cpg features.
 afile.intersect(bfile.invert()) \
     .filter(length[0] == length) \
     .format("{a}", a = item[0].str_repr) \

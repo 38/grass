@@ -37,7 +37,7 @@ class BackendBase(object):
             help = "Build the Rust artifact in profiling mode, enable all optimization and keep debug information",
             dest = "build_flavor",
             action = "store_const",
-            const = "Debug")
+            const = "Prof")
         parser.add_argument("--disable-env-const-bag",
             help = "Do not use environment variable for runtime constant passing, this will generate better optimized but less general binary artifact",
             dest = "no_use_const_bag",

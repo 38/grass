@@ -1,11 +1,11 @@
-use std::io::{Result, Write};
+use std::{io::{Result, Write}, rc::Rc};
 
 use crate::{
-    property::{Named, Parsable, RegionCore, Scored, Serializable, Stranded, Tagged},
-    ChrRef,
+    property::{Named, Parsable, RegionCore, Scored, Serializable, Stranded, Tagged, Region},
+    ChrRef, file::Buffer,
 };
 
-use super::ToSelfContained;
+use super::{ToSelfContained, RcStr, CastTo};
 
 #[derive(Clone, Copy, PartialEq, PartialOrd, Eq, Ord)]
 pub struct Bed3 {
@@ -34,8 +34,8 @@ impl Serializable for Option<Bed3> {
     }
 }
 
-impl<'a> Parsable<'a> for Bed3 {
-    fn parse(s: &'a str) -> Option<(Self, usize)> {
+impl Parsable for Bed3 {
+    fn parse(s: &Rc<Buffer>) -> Option<(Self, usize)> {
         let mut bytes = s.as_bytes();
 
         if bytes.last() == Some(&b'\n') {
@@ -101,7 +101,11 @@ impl Scored<f64> for Bed3 {
 
 impl Stranded for Bed3 {}
 
-impl<'a> Named<'a> for Bed3 {}
+impl Named<'static> for Bed3 {
+    fn rc_name(&self) -> RcStr<'static> {
+        RcStr::from_str(".")
+    }
+}
 
 impl ToSelfContained for Bed3 {
     type SelfContained = Bed3;
@@ -111,3 +115,9 @@ impl ToSelfContained for Bed3 {
 }
 
 impl<T: Clone> Tagged<T> for Bed3 {}
+
+impl <T: Region> CastTo<Bed3> for T {
+    fn make_record(&self) -> Bed3 {
+        Bed3::new(self)
+    }
+}

@@ -22,6 +22,9 @@ from pygrass import IntervalFile, item, tag, parse_args
 parse_args()
 
 afile = IntervalFile("../data/exons.bed")
+
+# When we need to know which file each record came from in b file, we can assign
+# different tag to each b file. Then we can distinguish then by the tag.
 bfile_1 = IntervalFile("../data/cpg.bed").tagged(1)
 bfile_2 = IntervalFile("../data/gwas.bed").tagged(2)
 bfile_3 = IntervalFile("../data/hesc.chromHmm.bed").tagged(3)

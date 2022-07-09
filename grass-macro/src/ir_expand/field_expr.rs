@@ -107,6 +107,11 @@ fn expand_field_expr_impl(expr: &FieldExpression, span: Span) -> TokenStream {
             let elze = expand_field_expr_impl(param.elze.as_ref(), span);
             quote! { if #cond {#then} else {#elze} }
         }
+        FieldExpression::Contains(param) => {
+            let lhs = expand_field_expr_impl(param.lhs.as_ref(), span);
+            let rhs = expand_field_expr_impl(param.rhs.as_ref(), span);
+            quote! { (#lhs).contains(#rhs) }
+        }
         FieldExpression::FieldRef(param) => {
             let p = syn::Ident::new(param.field.as_str(), span);
             match param.field.as_str() {

@@ -18,32 +18,18 @@ This is equivalent to bedtools command:
 
 """
 
-from pygrass import IntervalFile, item, parse_args, RustEnv, Bed4
+from pygrass import IntervalFile, item, parse_args, tag
+from grass_ext import count_overlaps
 
 parse_args()
 
-afile = IntervalFile("../data/cpg.bed").tagged(0)
-bfile = Bed4(IntervalFile("../data/exons.bed")).tagged(1)
+afile = IntervalFile("../data/cpg.bed")
+bfile = IntervalFile("../data/exons.bed")
 
-RustEnv(input = afile.merge_with(bfile)).inline_rust("""
-    use grass_runtime::algorithm::Components;
-    use grass_runtime::property::{Named, RegionCore, Tagged};
-    let mut cnt = (0, 0);
-    let mut active_a = std::collections::HashMap::<usize, usize>::new();
-    for comp in input.components() {
-        if comp.tag() == Some(1) {
-            if comp.is_open {
-                cnt.0 += 1;
-            } else {
-                cnt.1 += 1;
-            }
-        } else {
-            if comp.is_open {
-                active_a.insert(comp.index, cnt.1);
-            } else {
-                let count = cnt.0 - active_a.remove(&comp.index).unwrap();
-                println!("{}\t{}\t{}\t{}", comp.chrom(), comp.start(), comp.end(), count);
-            }
-        }
-    }
-""")
+# In this example, we demonstrate how to make your own library on top of pygrass.
+# Originally, pygrass doesn't directly support counting overlaps, but this example 
+# shows how to make your own library on top of it.
+# See lib/grass_ext/__init__.py for more details.
+count_overlaps(afile, bfile)\
+        .format("{bed}\t{count}", bed = item.str_repr, count = tag)\
+        .print_to_stdout()

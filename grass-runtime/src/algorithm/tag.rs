@@ -3,7 +3,7 @@ use crate::{
         Named, Nuclide, Region, RegionCore, Scored, Serializable, Strand, Stranded, Tagged,
         WithSequence,
     },
-    record::ToSelfContained,
+    record::{ToSelfContained, CastTo},
 };
 
 use super::Sorted;
@@ -40,6 +40,14 @@ pub struct TaggedItem<T: Clone, V> {
     value: V,
 }
 
+pub trait TagAssignmentExt<T: Clone> : Sized {
+    fn with_tag(self, tag: T) -> TaggedItem<T, Self> {
+        TaggedItem { tag, value: self }
+    }
+}
+
+impl <V: Sized, T: Clone> TagAssignmentExt<T> for V {}
+
 impl<T: Clone, V> Tagged<T> for TaggedItem<T, V> {
     fn tag(&self) -> Option<T> {
         Some(self.tag.clone())
@@ -63,6 +71,9 @@ impl<T: Clone, V: Region> RegionCore for TaggedItem<T, V> {
 impl<'a, T: Clone, V: Named<'a>> Named<'a> for TaggedItem<T, V> {
     fn name(&self) -> &str {
         self.value.name()
+    }
+    fn rc_name(&self) -> crate::record::RcStr<'a> {
+        self.value.rc_name()
     }
 }
 
@@ -103,6 +114,15 @@ impl<T: Clone + 'static, V: ToSelfContained> ToSelfContained for TaggedItem<T, V
         TaggedItem {
             tag: self.tag.clone(),
             value: self.value.to_self_contained(),
+        }
+    }
+}
+
+impl <A: CastTo<B>, B, T: Clone> CastTo<TaggedItem<T, B>> for TaggedItem<T, A> {
+    fn make_record(&self) -> TaggedItem<T, B> {
+        TaggedItem { 
+            tag: self.tag.clone(),
+            value: self.value.make_record(),
         }
     }
 }

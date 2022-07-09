@@ -1,6 +1,4 @@
 #!/bin/bash
-set -x
-
 gcc -o generate-random-bedfile generate-random-bedfile.c -O3 -lm
 
 for ((SIZE=1000000; SIZE < 20000000; SIZE += 2000000))

@@ -10,7 +10,9 @@ impl Expand for InvertParam {
         let code = quote! {
             {
                 use grass_runtime::algorithm::SortedInversionExt;
-                #inner_id . invert()
+                use grass_runtime::algorithm::AssumeSorted;
+                use grass_runtime::record::Bed3;
+                #inner_id .map(|i| Bed3::new(&i)) .assume_sorted() . invert()
             }
         };
         Ok(ctx.push(code.into()))

@@ -1,6 +1,6 @@
 use std::iter::Peekable;
 
-use crate::{property::Region, record::Bed3};
+use crate::{property::Region, record::{Bed3, CastTo, CastIter}};
 
 use super::Sorted;
 
@@ -45,13 +45,14 @@ where
     Self: Iterator + Sorted + Sized,
     Self::Item: Region,
 {
-    fn merge_with<T>(self, other: T) -> TwoWayMerge<Self, T, Self::Item>
+    fn merge_with<T>(self, other: T) -> TwoWayMerge<Self, CastIter<T, Self::Item>, Self::Item>
     where
-        T: Iterator<Item = Self::Item> + Sorted + Sized,
+        T: Iterator + Sorted + Sized,
+        T::Item : CastTo<Self::Item>,
     {
         TwoWayMerge {
             iter_a: self.peekable(),
-            iter_b: other.peekable(),
+            iter_b: CastIter::cast(other).peekable(),
         }
     }
 }

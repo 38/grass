@@ -6,13 +6,17 @@ mod bed6;
 #[cfg(feature = "htslib")]
 mod bam;
 
+use std::marker::PhantomData;
+
 #[cfg(feature = "htslib")]
 pub use bam::{BamIter, BamRecord, BamReader};
 
 pub use bed3::Bed3;
-pub use bed4::{Bed4, RcCowString};
+pub use bed4::{Bed4, RcStr};
 pub use bed5::Bed5;
 pub use bed6::Bed6;
+
+use crate::algorithm::Sorted;
 
 pub trait ToSelfContained {
     type SelfContained: 'static;
@@ -32,3 +36,33 @@ impl<T: ToSelfContained> ToSelfContained for Option<T> {
         self.as_ref().map(T::to_self_contained)
     }
 }
+
+pub trait CastTo<T>  {
+    fn make_record(&self) -> T;
+}
+
+pub struct CastIter<I, O> {
+    iter: I,
+    _phantom : PhantomData<O>,
+}
+
+impl <I, O> CastIter<I, O> {
+    pub fn cast(iter: I) -> Self {
+        CastIter { iter, _phantom: Default::default() }
+    }
+}
+
+impl <I, O> Iterator for CastIter<I, O> 
+where 
+    I: Iterator,
+    I::Item : CastTo<O>,
+{
+    type Item = O;
+    fn next(&mut self) -> Option<Self::Item> {
+        self.iter.next().as_ref().map(CastTo::make_record)
+    }
+}
+
+impl <I: Sorted + Iterator, O> Sorted for CastIter<I, O> 
+where I::Item : CastTo<O>
+{}

@@ -1,7 +1,9 @@
-use std::io::{Result, Write};
+use std::{io::{Result, Write}, rc::Rc};
 
-pub trait Parsable<'a>: Sized {
-    fn parse(s: &'a str) -> Option<(Self, usize)>;
+use crate::file::Buffer;
+
+pub trait Parsable: Sized {
+    fn parse(s: &Rc<Buffer>) -> Option<(Self, usize)>;
 }
 
 pub trait Serializable {

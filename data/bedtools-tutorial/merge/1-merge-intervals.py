@@ -32,4 +32,5 @@ parse_args()
 
 file = IntervalFile("../data/exons.bed")
 
+# This is directly supported by pygrass
 file.merge_overlaps().print_to_stdout()

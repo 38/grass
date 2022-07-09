@@ -172,6 +172,9 @@ thread_local! {
 }
 
 impl Genome {
+    pub fn first_chrom() -> Option<ChrRef<'static>> {
+        Genome::get_chr_by_id(0)
+    }
     pub fn get_chr_by_id(id: usize) -> Option<ChrRef<'static>> {
         let storage = GENOME_STORAGE.read().unwrap();
         if storage.chr_name_list.len() > id {

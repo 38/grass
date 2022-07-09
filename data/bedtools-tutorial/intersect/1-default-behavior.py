@@ -14,6 +14,9 @@ This is equivalent to bedtools command:
 
 from pygrass import IntervalFile, chr as chrom, start, end, name, parse_args
 
+# `parse_args` function will read the argv and parse the standard grass command line
+# options, like --dump-ir, --build-binary, etc. This is optional and you can handle
+# the command line arguments in any way you want.
 parse_args()
 
 # To open a interval file, you can use either reader for the sepcific file format

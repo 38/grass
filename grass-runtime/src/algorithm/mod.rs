@@ -22,4 +22,4 @@ mod merge;
 pub use merge::TwoWayMergeExt;
 
 mod tag;
-pub use tag::TaggedIterExt;
+pub use tag::{TaggedIterExt, TagAssignmentExt};

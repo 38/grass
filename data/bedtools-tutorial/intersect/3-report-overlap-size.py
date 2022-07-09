@@ -25,6 +25,16 @@ parse_args()
 afile = IntervalFile("../data/cpg.bed")
 bfile = IntervalFile("../data/exons.bed")
 
+# You are able to format the output highly customizable.
+#
+# The format parameter is a field expression. A field expression in pygrass is
+# an abstraction of expression for each record. For example, `start` refers to 
+# the start position for each record.
+#
+# item[0] and item[1] refer to the first and second item of the intersection. 
+# Similary, length[0] and length[1] refer to the length of the first and second item.
+# When you use length directly, it means the length of the intersection, which is what
+# we want in this example.
 afile.intersect(bfile).format(
     "{a}\t{b}\t{overlap_size}", 
     a = item[0].str_repr,

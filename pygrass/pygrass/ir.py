@@ -551,3 +551,7 @@ class LeftShift(BinaryBase):
 class Neg(BinaryBase):
     def __init__(self, lhs : IRBase, rhs: IRBase):
         super().__init__("Neg", lhs, rhs)
+
+class Contains(BinaryBase):
+    def __init__(self, lhs: IRBase, rhs: IRBase):
+        super().__init__("Contains", lhs, rhs)

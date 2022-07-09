@@ -2,15 +2,15 @@ use std::{
     fmt::Display,
     io::{Result, Write},
     ops::{Deref, DerefMut},
-    str::FromStr,
+    str::FromStr, rc::Rc,
 };
 
 use crate::{
-    property::{Named, Parsable, RegionCore, Scored, Serializable, Stranded, Tagged},
-    ChrRef,
+    property::{Named, Parsable, RegionCore, Scored, Serializable, Stranded, Tagged, Region},
+    ChrRef, file::Buffer,
 };
 
-use super::{Bed4, RcCowString, ToSelfContained};
+use super::{Bed4, ToSelfContained, CastTo};
 
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Bed5<'a, T = f64> {
@@ -54,8 +54,8 @@ impl<'a, T: Display> Serializable for Option<Bed5<'a, T>> {
     }
 }
 
-impl<'a, T: FromStr> Parsable<'a> for Bed5<'a, T> {
-    fn parse(s: &'a str) -> Option<(Self, usize)> {
+impl<'a, T: FromStr> Parsable for Bed5<'a, T> {
+    fn parse(s: &Rc<Buffer>) -> Option<(Self, usize)> {
         let (inner, mut start) = Bed4::parse(s)?;
         if s[start..].starts_with('\t') {
             start += 1;
@@ -111,8 +111,8 @@ impl<'a, T> Named<'a> for Bed5<'a, T> {
     fn name(&self) -> &str {
         self.inner.name()
     }
-    fn to_cow(&self) -> RcCowString<'a> {
-        self.inner.to_cow()
+    fn rc_name(&self) -> super::RcStr<'a> {
+        self.inner.rc_name()
     }
 }
 
@@ -127,3 +127,9 @@ impl<'a> ToSelfContained for Bed5<'a> {
 }
 
 impl<'a, T: Clone> Tagged<T> for Bed5<'a> {}
+
+impl <'a, S: Default, T: Region + Named<'a> + Scored<S>> CastTo<Bed5<'a, S>> for T {
+    fn make_record(&self) -> Bed5<'a, S> {
+        Bed5::new(self)
+    }
+}

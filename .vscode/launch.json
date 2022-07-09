@@ -4,129 +4,13 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug unit tests in library 'grass-ir'",
-            "cargo": {
-                "args": [
-                    "test",
-                    "--no-run",
-                    "--lib",
-                    "--package=grass-ir"
-                ],
-                "filter": {
-                    "name": "grass-ir",
-                    "kind": "lib"
-                }
-            },
+            "name": "Debug",
+            "program": "${workspaceFolder}/data/bedtools-tutorial/intersect/4-counting-overlaps",
             "args": [],
-            "cwd": "${workspaceFolder}"
-        },
-        {
-            "type": "lldb",
-            "request": "launch",
-            "name": "Debug executable 'grass-macro-test'",
-            "cargo": {
-                "args": [
-                    "build",
-                    "--bin=grass-macro-test",
-                    "--package=grass-macro-test"
-                ],
-                "filter": {
-                    "name": "grass-macro-test",
-                    "kind": "bin"
-                }
-            },
-            "args": [],
-            "cwd": "${workspaceFolder}/grass-macro-test"
-        },
-        {
-            "type": "lldb",
-            "request": "launch",
-            "name": "Debug unit tests in executable 'grass-macro-test'",
-            "cargo": {
-                "args": [
-                    "test",
-                    "--no-run",
-                    "--bin=grass-macro-test",
-                    "--package=grass-macro-test"
-                ],
-                "filter": {
-                    "name": "grass-macro-test",
-                    "kind": "bin"
-                }
-            },
-            "args": [],
-            "cwd": "${workspaceFolder}"
-        },
-        {
-            "type": "lldb",
-            "request": "launch",
-            "name": "Debug unit tests in library 'grass-runtime'",
-            "cargo": {
-                "args": [
-                    "test",
-                    "--no-run",
-                    "--lib",
-                    "--package=grass-runtime"
-                ],
-                "filter": {
-                    "name": "grass-runtime",
-                    "kind": "lib"
-                }
-            },
-            "args": [],
-            "cwd": "${workspaceFolder}"
-        },
-        {
-            "type": "lldb",
-            "request": "launch",
-            "name": "Debug executable 'grass-driver'",
-            "cargo": {
-                "args": [
-                    "build",
-                    "--bin=grass-driver",
-                    "--package=grass-driver"
-                ],
-                "filter": {
-                    "name": "grass-driver",
-                    "kind": "bin"
-                }
-            },
-            "args": ["exec", "/tmp/test.job"],
-            "cwd": "${workspaceFolder}"
-        },
-        {
-            "type": "lldb",
-            "request": "launch",
-            "name": "Debug unit tests in executable 'grass-driver'",
-            "cargo": {
-                "args": [
-                    "test",
-                    "--no-run",
-                    "--bin=grass-driver",
-                    "--package=grass-driver"
-                ],
-                "filter": {
-                    "name": "grass-driver",
-                    "kind": "bin"
-                }
-            },
-            "args": [],
-            "cwd": "${workspaceFolder}"
-        },
-        {
-            "type": "lldb",
-            "request": "launch",
-            "name": "Debug pygrass native code",
-            "program": "python3",
-            "env": {
-                "PYTHONPATH": "${workspaceFolder}/pygrass/build/lib"
-            },
-            "args": ["pygrass/examples/sorted-intersect-overlap-filter.py", "a.bed", "b.bed"],
-            "cwd": "${workspaceFolder}"
+            "cwd": "${workspaceFolder}/data/bedtools-tutorial/intersect/"
         }
     ]
 }

@@ -7,11 +7,11 @@ This is equivalent to bedtools command:
 """
 
 from pygrass import parse_args, IntervalFile, load_genome_file, score
-import genomecovlib
+import grass_ext
 
 parse_args()
 
 load_genome_file("../data/genome.txt")
 file = IntervalFile("../data/exons.bed")
 
-genomecovlib.genomecov(file)
+grass_ext.print_genomecov(file)

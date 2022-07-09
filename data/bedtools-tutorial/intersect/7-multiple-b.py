@@ -26,8 +26,11 @@ bfile_1 = IntervalFile("../data/cpg.bed")
 bfile_2 = IntervalFile("../data/gwas.bed")
 bfile_3 = IntervalFile("../data/hesc.chromHmm.bed")
 
+# You can also intersect multiple files, by merging multiple b files into a single one
+# Note that this won't create a new file, it performes merge sort on the fly
 bfile = bfile_1.merge_with(bfile_2).merge_with(bfile_3)
 
+# Then we just do the normal intersection
 afile.intersect(bfile).format(
     "{chrom}\t{start}\t{end}\t{name}\t{strand}",
     chrom = chrom,

@@ -23,6 +23,8 @@ from pygrass import IntervalFile, item, tag, parse_args
 parse_args()
 
 afile = IntervalFile("../data/exons.bed")
+
+# The tag can be a string as well
 bfile_1 = IntervalFile("../data/cpg.bed").tagged("cpg")
 bfile_2 = IntervalFile("../data/gwas.bed").tagged("gwas")
 bfile_3 = IntervalFile("../data/hesc.chromHmm.bed").tagged("chromhmm")

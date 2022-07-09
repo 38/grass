@@ -1,5 +1,5 @@
 from typing import Callable
-from pygrass.ir import Add, And, ComponentFieldRef, Cond, Div, Eq, FieldRef, FullRecordRef, GreaterEqualThan, GreaterThan, IRBase, LeftShift, LessEqualThan, LessThan, Mod, Mul, Ne, Neg, Or, Not as NotIR, RecordRef, RightShift, StringRepr, Sub, Xor as XorIR, NumberOfComponents as NumberOfComponentsIR, ConstValue
+from pygrass.ir import Add, And, ComponentFieldRef, Cond, Div, Eq, FieldRef, FullRecordRef, GreaterEqualThan, GreaterThan, IRBase, LeftShift, LessEqualThan, LessThan, Mod, Mul, Ne, Neg, Or, Not as NotIR, RecordRef, RightShift, StringRepr, Sub, Xor as XorIR, NumberOfComponents as NumberOfComponentsIR, ConstValue, Contains
 
 class FieldExpr(object):
     """
@@ -56,6 +56,8 @@ class FieldExpr(object):
         return Operator(LeftShift, self, other)
     def __invert__(self):
         return Operator(Neg, self)
+    def contains(self, other):
+        return Operator(Contains, self, other)
 
 
 def make_field_expression(expr) -> FieldExpr:
@@ -101,6 +103,7 @@ class FieldReference(FieldExpr):
 class RecordReference(FieldExpr):
     def __init__(self):
         super().__init__()
+        self.str_repr = Operator(StringRepr, self)
     def lower_to_ir(self, subs : int = None) -> IRBase:
         if subs == None:
             return FullRecordRef()
