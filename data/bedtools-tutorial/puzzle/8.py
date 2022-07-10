@@ -16,6 +16,5 @@ def run_jaccard(kind):
     cpg = IntervalFile("../data/cpg.bed")
     jaccard(cpg, hesc)
 
-
 run_jaccard("Promoter")
 run_jaccard("Enhancer")

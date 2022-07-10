@@ -35,20 +35,21 @@ def count_overlaps(input_a, input_b):
 
 def make_window(size):
     return RustEnv().iter_processor("""
-            use grass_runtime::Genome;
-            use grass_runtime::record::Bed3;
-            use grass_runtime::algorithm::AssumeSorted;
-            let bin_size = {bin_size};
-            Genome::get_chrom_sizes().into_iter().enumerate().map(|(id, (_, size))| (Genome::get_chr_by_id(id).unwrap(), size)).flat_map(move |(chr, size)| {{
-                let n_intervals = (size + bin_size - 1) / bin_size;
-                (0..n_intervals).map(move |i_id| Bed3{{chrom: chr, start: (i_id * bin_size) as u32, end: (size.min((i_id + 1) * bin_size)) as u32}})
+            use grass_runtime::{{Genome, Itertools, record::Bed3, algorithm::AssumeSorted}};
+            Genome::get_chrom_sizes().into_iter().flat_map(|(name, size)| {{
+                let chrom = Genome::query_chr(name);
+                let size = size as u32;
+                (0..size).step({bin_size}).map(move |start| Bed3 {{
+                    chrom,
+                    start,
+                    end: (start + {bin_size}).min(size)
+                }})
             }}).assume_sorted()
         """.format(bin_size = size))
 
 def flank(input, before, after):
     return RustEnv(input = input).iter_processor("""
             use grass_runtime::property::*;
-
             input.map(|item| {{
                 // Create the interval before the original interval
                 let mut before = item.clone();

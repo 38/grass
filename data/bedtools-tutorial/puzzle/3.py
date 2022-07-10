@@ -10,5 +10,5 @@ load_genome_file("../data/genome.txt")
 exons = IntervalFile("../data/exons.bed")
 
 count_overlaps(make_window(500000), exons)\
-        .format("{bed}\t{count}", bed = item.str_repr, count = tag)\
+        .format("{region}\t{count}", region = item.str_repr, count = tag)\
         .print_to_stdout()
