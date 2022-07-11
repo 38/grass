@@ -30,6 +30,7 @@ class Bed5(BedBase):
     """
     def __init__(self, inner: IntervalBase):
         super().__init__(inner, 5)
+
 class Bed6(BedBase):
     """
     Cast an iterator of intervals to BED6 iterator.

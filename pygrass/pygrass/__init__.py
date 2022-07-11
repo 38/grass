@@ -1,8 +1,8 @@
 """A fast, flexible genomics data record processing infrastructure 
 
-PyGRASS enables rapid manipulation of numbers of genomics data record data format, inlcuding but not limited in:
+PyGRASS enables rapid manipulation of numbers of genomics data record data format, including but not limited in:
 
-- BED file variantions: BED3, BED4, BED5, BED6, BED12 and BEDPE
+- BED file variations: BED3, BED4, BED5, BED6, BED12 and BEDPE
 - VCF
 - GFF
 - SAM, BAM and CRAM

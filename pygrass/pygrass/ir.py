@@ -99,7 +99,13 @@ class InlineRust(IRBase):
         ret = super().to_dict(bag)
         ret["env"] = {}
         for key, val in self._env.items():
-            ret["env"][key] = val.to_dict(bag)
+            if isinstance(val, IRBase):
+                value = {"Iter": val.to_dict(bag)}
+            elif bag == None:
+                value = {"Const": val}
+            else:
+                value = {"Const": make_const_bag_ref(val, bag)}
+            ret["env"][key] = value
         ret["src"] = self._src
         return ret
     def uses(self):
@@ -319,7 +325,7 @@ class Intersection(BatchOperationBase):
     def __init__(self, lhs : IRBase, rhs : IRBase, flavor : str, sorted : bool):
         super().__init__("Intersection")
         if flavor not in ["inner", "outer", "left-outer", "right-outer"]:
-            raise RuntimeError("Unexpected inersection flavor")
+            raise RuntimeError("Unexpected intersection flavor")
         self._flavor = flavor
         self._lhs = lhs
         self._rhs = rhs

@@ -51,7 +51,7 @@ you may experience a long waiting time due to the Rust source code compilation. 
 built binary artifact and use it. (For example, you change the input file name, then GRASS will pick
 the previously built binary artifact and use it.)
 
-Although this looks like it's a python script, but this python code doesn't actually execute the 
+Although this looks like it's a python script, but this python code doesn't actually execute the
 operation. It just captures what operation you want to perform and create a intermediate representation
 for this operation. To see the operation, you can run the following command:
 
@@ -249,7 +249,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ## Implementing bedtools tutorial with pygrass
 
-There are example implementations of the functionality of the [bedtools tutorial](http://quinlanlab.org/tutorials/bedtools/bedtools.html) in pygrass available, 
+There are example implementations of the functionality of the [bedtools tutorial](http://quinlanlab.org/tutorials/bedtools/bedtools.html) in pygrass available,
 see [data/bedtools-tutorial](https://github.com/38/grass/tree/master/data/bedtools-tutorial) for details.
 
 To try these examples, you need to use the latest version of pygrass,

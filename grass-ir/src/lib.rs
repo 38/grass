@@ -130,8 +130,22 @@ pub enum LoadGenomeFileParam {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(untagged)]
+pub enum InlineRustConst {
+    String(String),
+    Float(f64),
+    Integer(i64)
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub enum InlineRustEnviron {
+    Iter(GrassIR),
+    Const(ConstOrEnv<InlineRustConst>)
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct InlineRustParam {
-    pub env: BTreeMap<String, GrassIR>,
+    pub env: BTreeMap<String, InlineRustEnviron>,
     pub src: String,
 }
 
@@ -175,7 +189,7 @@ pub enum IntersectFlavor {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct IntersectParam {
-    /// The flavor of the insection operator
+    /// The flavor of the intersection operator
     pub flavor: IntersectFlavor,
     /// The left-hand-side operand
     pub lhs: Box<GrassIR>,

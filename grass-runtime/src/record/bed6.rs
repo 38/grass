@@ -57,7 +57,7 @@ impl<'a, T: FromStr> Parsable for Bed6<'a, T> {
             start += 1;
         }
         let s = &s[start..];
-        let brk = memchr::memchr(b'\t', s.as_bytes()).unwrap_or(s.len());
+        let brk = memchr::memchr(b'\t', s.as_bytes()).unwrap_or(s.trim_end().len());
         let strand = match &s[..brk] {
             "+" => Strand::Positive,
             "-" => Strand::Negative,

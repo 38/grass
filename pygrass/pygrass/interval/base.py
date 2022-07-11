@@ -12,7 +12,7 @@ class IntervalBase(RecordCollectionBase):
         This methods gives a flexibility to what kinds of output PyGRASS can produce. 
         The basic syntax for the formatting is mostly consistent with Rust's formatting string.
 
-        For example, to format an iterator of intervals to comma seperated chromosome, start and end:
+        For example, to format an iterator of intervals to comma separated chromosome, start and end:
 
         ```
             from pygrass import *
@@ -23,7 +23,7 @@ class IntervalBase(RecordCollectionBase):
         
         To learn more about field expression, 
         """
-        return FormatedInterval(self, fmt, **kwargs)
+        return FormattedInterval(self, fmt, **kwargs)
     def alter(self, **kwargs):
         """ Modify the interval in the iterator.
         This method can be used to make many different interval manipulations. 
@@ -60,7 +60,7 @@ class IntervalBase(RecordCollectionBase):
         For example, filtering a sorted iterator will result another sorted iterator; changing name doesn't make a sorted interator unordered. 
         However, it's not possible for PyGRASS to infer if an altered iterator with new coordinate is still sorted. 
 
-        For example, `sorted_interal.alter(start = start - length)` is not ordered any more. 
+        For example, `sorted_interval.alter(start = start - length)` is not ordered any more. 
 
         But there are still cases, even the coordinate has been changed but the output are still ordered. 
         For example shifting all intervals 50 bp after.
@@ -86,7 +86,7 @@ class IntervalBase(RecordCollectionBase):
         return FilteredInterval(self, cond, *args)
     def sort(self):
         """
-        Performe a internal sort on the interval iterator.
+        Perform a internal sort on the interval iterator.
 
         Example:
 
@@ -100,11 +100,11 @@ class IntervalBase(RecordCollectionBase):
         return SortInterval(self)
     def invert(self):
         """
-        Make the complement of the given input. This only works for sorted interator.
+        Make the complement of the given input. This only works for sorted iterator.
 
         Example:
 
-        - Filter intervals from file_b which is competely non-overlapping with intervals from file_a.
+        - Filter intervals from file_b which is completely non-overlapping with intervals from file_a.
         ```
             file_a.invert().intersect(file_b).filter(length == length[1])
         ```
@@ -112,7 +112,7 @@ class IntervalBase(RecordCollectionBase):
         return InvertedInterval(self)
     def tagged(self, tag):
         """
-        Assign a tag to the interator. 
+        Assign a tag to the iterator. 
         This tag is not a part of the output, but it can be use internally 
         to distinguish the source of the interval, especially from a merged iterator.
 
@@ -173,20 +173,20 @@ class IntervalBase(RecordCollectionBase):
 
         """
         return Intersection(self, other, flavor = "inner")
-    def outter_intersect(self, other):
+    def outer_intersect(self, other):
         """
-        Performe a full outer join of two sorted interval iterators.
+        Perform a full outer join of two sorted interval iterators.
 
         Example:
 
         ```
-            file_a.outter_intersect(file_b)
+            file_a.outer_intersect(file_b)
         ```
         """
-        return Intersection(self, other, flavor = "outter")
+        return Intersection(self, other, flavor = "outer")
     def left_outer_intersect(self, other):
         """
-        Performe a left outer join of two sorted interval iterators.
+        Perform a left outer join of two sorted interval iterators.
 
         Example:
 
@@ -197,7 +197,7 @@ class IntervalBase(RecordCollectionBase):
         return Intersection(self, other, flavor = "left-outer")
     def right_outer_intersect(self, other):
         """
-        Performe a right outer join of two sorted interval iterators.
+        Perform a right outer join of two sorted interval iterators.
 
         Example:
 
@@ -263,7 +263,7 @@ class InlineRustIntervalIterator(IntervalBase):
     The high level representation of an iterator that is defined by a inlined Rust code.
 
     GRASS IR may not be expressive enough to support all features of genomics interval manipulation.
-    So we provide a way to put abitrary Rust code as a supplement to the GRASS IR.
+    So we provide a way to put arbitrary Rust code as a supplement to the GRASS IR.
 
     See documentation of `RustEnv` for more details about usage of this iterator.
 
@@ -319,7 +319,7 @@ class InvertedInterval(RecordCollectionBase) :
     def emit_eval_code(self) -> IRBase:
         inner_code = self._inner.lower_to_ir()
         return Invert(inner_code)
-class FormatedInterval(RecordCollectionBase):
+class FormattedInterval(RecordCollectionBase):
     def __init__(self, inner : IntervalBase, fmt_str : str, **kwargs):
         super().__init__()
         self._inner = inner

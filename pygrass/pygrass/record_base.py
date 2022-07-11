@@ -4,11 +4,11 @@ from functools import wraps
 from pygrass.ir import IRBase, InlineRust, Let, Ref, WriteFile, Count, LoadGenomeFile
 
 def _make_free_var_closure():
-    nextid = 0
+    next_id = 0
     def _free_var_impl():
-        nonlocal nextid
-        ret = "_grass_res_{}".format(nextid)
-        nextid += 1
+        nonlocal next_id
+        ret = "_grass_res_{}".format(next_id)
+        next_id += 1
         return ret
     return _free_var_impl
 

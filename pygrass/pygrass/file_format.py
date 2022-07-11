@@ -70,13 +70,13 @@ def detect_file_format(path : str, arg_bag = None) -> str:
         return detect_uncompressed_text_format(fp, arg_bag)
     except Exception:
         path = pathlib.Path(path)
-        cmps = path.name.split('.')
-        if cmps[-1] == 'gz' and len(cmps) > 1:
+        components = path.name.split('.')
+        if components[-1] == 'gz' and len(components) > 1:
             arg_bag['compressed'] = True
-            cmps = cmps[:-1]
-        if cmps[-1] == 'bed' and len(cmps) > 1:
+            components = components[:-1]
+        if components[-1] == 'bed' and len(components) > 1:
             arg_bag['num_of_fields'] = 3
             return "bed"
-        elif cmps[-1] == 'vcf' and len(cmps) > 1:
+        elif components[-1] == 'vcf' and len(components) > 1:
             return "vcf"
         return "unknown"

@@ -12,6 +12,8 @@ parse_args()
 load_genome_file("../data/genome.txt")
 
 def run_jaccard(kind):
+    # Currently, grass doesn't handle references to previous queries yet.
+    # Thus we need to open the file for each time we run the query.
     hesc = IntervalFile("../data/hesc.chromHmm.bed").filter(name.contains(kind))
     cpg = IntervalFile("../data/cpg.bed")
     jaccard(cpg, hesc)

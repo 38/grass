@@ -1,5 +1,9 @@
 {
     "python.analysis.extraPaths": [
-        "./data/bedtools-tutorial/lib"
+        "./data/bedtools-tutorial/lib",
+        "./pygrass/"
+    ],
+    "cSpell.words": [
+        "overlapcount"
     ]
 }

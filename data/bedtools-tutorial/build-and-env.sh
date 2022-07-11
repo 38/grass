@@ -3,5 +3,5 @@ pushd $REPO_ROOT/pygrass
 python3 setup.py build
 popd
 
-export PYTHONPATH=`echo ${REPO_ROOT}/pygrass/build/lib* | head -n 1`:${REPO_ROOT}/data/bedtools-tutorial/lib
+export PYTHONPATH=$(echo ${REPO_ROOT}/pygrass/build/lib* | head -n 1):${REPO_ROOT}/data/bedtools-tutorial/lib
 export GRASS_RUNTIME_PATH=${REPO_ROOT}

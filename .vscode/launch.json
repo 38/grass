@@ -8,9 +8,9 @@
             "type": "lldb",
             "request": "launch",
             "name": "Debug",
-            "program": "${workspaceFolder}/data/bedtools-tutorial/intersect/4-counting-overlaps",
+            "program": "${workspaceFolder}/data/bedtools-tutorial/puzzle/7",
             "args": [],
-            "cwd": "${workspaceFolder}/data/bedtools-tutorial/intersect/"
+            "cwd": "${workspaceFolder}/data/bedtools-tutorial/puzzle/"
         }
     ]
 }
