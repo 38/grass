@@ -11,7 +11,9 @@
                 "value": {
                     "opcode": "Open",
                     "target": {
-                        "Path": "a.bed"
+                        "Path": {
+                            "const_bag_key": 0
+                        }
                     },
                     "format": "Bam",
                     "num_of_fields": 3,
@@ -19,8 +21,11 @@
                     "sorted": true
                 }
             },
-            "num_of_fields": 3
+            "num_of_fields": 3,
+            "sorted": true
         }
     },
-    "target": "b.bed"
+    "target": {
+        "const_bag_key": 1
+    }
 }

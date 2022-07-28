@@ -1,4 +1,6 @@
+pushd $(dirname $0)
 REPO_ROOT=$(git rev-parse --show-toplevel)
+popd
 pushd $REPO_ROOT/pygrass
 python3 setup.py build
 popd

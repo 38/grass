@@ -263,7 +263,7 @@ impl JobDefinition {
             };
             writeln!(
                 &mut source_file,
-                "const __CONST_BAG_VALUE_{id} : ConstBagRef<{ty}> = ConstBagRef::<{ty}>::new({id});",
+                "static __CONST_BAG_VALUE_{id} : ConstBagRef<{ty}> = ConstBagRef::<{ty}>::new({id});",
                 id = id,
                 ty = ty,
             )?;

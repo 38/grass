@@ -27,7 +27,7 @@ pub fn expand_write_record_rec(
                 use std::os::unix::io::FromRawFd;
                 use std::io::Write;
                 use grass_runtime::property::Serializable;
-                let mut out_f = unsafe { std::fs::File::from_raw_fd(#fd) };
+                let mut out_f = unsafe { std::io::BufWriter::new(std::fs::File::from_raw_fd(#fd)) };
                 for item in #inner_var {
                     match writeln!(out_f, #fmt_str, #(#arguments,)*) {
                         Err(err) if err.kind() != std::io::ErrorKind::BrokenPipe => return Err(err.into()),
@@ -40,7 +40,7 @@ pub fn expand_write_record_rec(
             {
                 use std::io::Write;
                 use grass_runtime::property::Serializable;
-                let mut out_f = std::fs::File::open(#path);
+                let mut out_f = std::io::BufWriter::new(std::fs::File::open(#path));
                 for item in #inner_var {
                     writeln!(#fmt_str, #(#arguments,)*)?;
                 }
@@ -52,7 +52,7 @@ pub fn expand_write_record_rec(
                 {
                     use std::io::Write;
                     use grass_runtime::property::Serializable;
-                    let mut out_f = std::fs::File::open(#path_tk.value());
+                    let mut out_f = std::io::BufWriter::new(std::fs::File::open(#path_tk.value()));
                     for item in #inner_var {
                         writeln!(#fmt_str, #(#arguments,)*)?;
                     }

@@ -85,6 +85,7 @@ class SortedRandomInterval(IRBase):
     @try_lift_const
     def to_dict(self, bag) -> dict[str]:
         ret = super().to_dict(bag)
+        ret["count"] = self._count
         ret["min_length"] = self._min_len
         ret["max_length"] = self._max_len
         return ret
@@ -558,6 +559,6 @@ class Neg(BinaryBase):
     def __init__(self, lhs : IRBase, rhs: IRBase):
         super().__init__("Neg", lhs, rhs)
 
-class Contains(BinaryBase):
+class RegexMatch(BinaryBase):
     def __init__(self, lhs: IRBase, rhs: IRBase):
-        super().__init__("Contains", lhs, rhs)
+        super().__init__("RegexMatch", lhs, rhs)

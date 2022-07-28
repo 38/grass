@@ -1,7 +1,7 @@
 def _load_rust_src(path):
     from pathlib import Path
     with Path(__file__).parent.joinpath(path).open() as f:
-        return f.read()
+        return "//file: {}\n".format(path) + f.read()
 
 class import_rust(object):
     def __init__(self, name):

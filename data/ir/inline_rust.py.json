@@ -2,17 +2,19 @@
     "opcode": "InlineRust",
     "env": {
         "input_file": {
-            "opcode": "Let",
-            "id": "_grass_res_0",
-            "value": {
-                "opcode": "Open",
-                "target": {
-                    "CmdArg": 1
-                },
-                "format": "Bed",
-                "num_of_fields": 3,
-                "compression": false,
-                "sorted": true
+            "Iter": {
+                "opcode": "Let",
+                "id": "_grass_res_0",
+                "value": {
+                    "opcode": "Open",
+                    "target": {
+                        "CmdArg": 1
+                    },
+                    "format": "Bed",
+                    "num_of_fields": 3,
+                    "compression": false,
+                    "sorted": true
+                }
             }
         }
     },

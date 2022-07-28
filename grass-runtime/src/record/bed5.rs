@@ -56,14 +56,15 @@ impl<'a, T: Display> Serializable for Option<Bed5<'a, T>> {
 
 impl<'a, T: FromStr> Parsable for Bed5<'a, T> {
     fn parse(s: &Rc<Buffer>) -> Option<(Self, usize)> {
-        let (inner, mut start) = Bed4::parse(s)?;
-        if s[start..].starts_with('\t') {
-            start += 1;
-        }
-        let s = &s[start..];
-        let brk = memchr::memchr(b'\t', s.as_bytes()).unwrap_or(s.len());
-        let score = s[..brk].parse().ok();
-        Some((Self { inner, score }, start + brk))
+        Bed4::parse(s).map(|(inner, mut start)| {
+            if s[start..].starts_with('\t') {
+                start += 1;
+            }
+            let s = &s[start..];
+            let brk = memchr::memchr(b'\t', s.as_bytes()).unwrap_or(s.len());
+            let score = s[..brk].parse().ok();
+            (Self { inner, score }, start + brk)
+        })
     }
 }
 

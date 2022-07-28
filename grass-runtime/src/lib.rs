@@ -11,6 +11,7 @@ pub use file::LineRecordStreamExt;
 pub use genome::{ChrRef, Genome};
 
 pub use itertools::Itertools;
+pub use regex::Regex;
 
 pub mod prelude {}
 

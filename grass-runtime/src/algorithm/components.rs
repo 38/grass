@@ -187,9 +187,8 @@ where
     fn next(&mut self) -> Option<Self::Item> {
         if let Some((index, peek_buffer)) = self.peek_buffer.as_ref() {
             let index = *index;
-            if self.heap.peek().map_or(false, |x| {
-                x.0.position() < (peek_buffer.chrom().clone(), peek_buffer.start())
-            }) {
+            let peeked_locus = (peek_buffer.chrom().clone(), peek_buffer.start());
+            if self.heap.peek().map_or(false, |x| x.0.position() <= peeked_locus) {
                 let depth = self.heap.len();
                 return self.heap.pop().map(|Reverse(mut x)| {
                     x.depth = depth - 1;

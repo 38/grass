@@ -111,17 +111,18 @@ impl <'a> Serializable for Option<Bed4<'a>> {
 
 impl <'a> Parsable for Bed4<'a> {
     fn parse(s: &Rc<Buffer>) -> Option<(Self, usize)> {
-        let (inner, mut start) = Bed3::parse(s)?;
-        if s[start..].starts_with('\t') {
-            start += 1;
-        }
-        let (name, pos) = if let Some(brk) = memchr::memchr(b'\t', s[start..].as_bytes()) {
-            (RcStr::from_buffer(s, start, start + brk), start + brk)
-        }  else {
-            let end = s.trim_end().len();
-            (RcStr::from_buffer(s, start, end), end)
-        };
-        Some((Self { inner, name }, pos))
+        Bed3::parse(s).map(|(inner, mut start)| {
+            if s[start..].starts_with('\t') {
+                start += 1;
+            }
+            let (name, pos) = if let Some(brk) = memchr::memchr(b'\t', s[start..].as_bytes()) {
+                (RcStr::from_buffer(s, start, start + brk), start + brk)
+            }  else {
+                let end = s.trim_end().len();
+                (RcStr::from_buffer(s, start, end), end)
+            };
+            (Self { inner, name }, pos)
+        })
     }
 }
 

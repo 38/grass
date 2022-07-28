@@ -32,7 +32,9 @@
                         },
                         "rhs": {
                             "opcode": "ConstValue",
-                            "value": "-"
+                            "value": {
+                                "const_bag_key": 0
+                            }
                         }
                     },
                     "then": {
@@ -56,7 +58,9 @@
                             },
                             "rhs": {
                                 "opcode": "ConstValue",
-                                "value": 0.5
+                                "value": {
+                                    "const_bag_key": 1
+                                }
                             }
                         }
                     },
@@ -64,7 +68,8 @@
                         "opcode": "FieldRef",
                         "field": "start"
                     }
-                }
+                },
+                "sorted": false
             },
             "field": "end",
             "value": {
@@ -77,7 +82,9 @@
                     },
                     "rhs": {
                         "opcode": "ConstValue",
-                        "value": "-"
+                        "value": {
+                            "const_bag_key": 2
+                        }
                     }
                 },
                 "then": {
@@ -101,7 +108,9 @@
                         },
                         "rhs": {
                             "opcode": "ConstValue",
-                            "value": 0.5
+                            "value": {
+                                "const_bag_key": 3
+                            }
                         }
                     }
                 },
@@ -109,7 +118,8 @@
                     "opcode": "FieldRef",
                     "field": "end"
                 }
-            }
+            },
+            "sorted": false
         }
     },
     "target": 1

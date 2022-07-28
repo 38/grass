@@ -4,22 +4,23 @@
         "opcode": "Let",
         "id": "_grass_res_0",
         "value": {
-            "opcode": "Merge",
+            "opcode": "MergeOverlap",
             "inner": {
                 "opcode": "Let",
                 "id": "_grass_res_1",
                 "value": {
                     "opcode": "Open",
                     "target": {
-                        "Path": "a.bed"
+                        "Path": {
+                            "const_bag_key": 0
+                        }
                     },
                     "format": "Bed",
                     "num_of_fields": 3,
                     "compression": false,
                     "sorted": true
                 }
-            },
-            "sorted": true
+            }
         }
     },
     "target": 1

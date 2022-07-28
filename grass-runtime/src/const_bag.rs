@@ -46,6 +46,8 @@ pub struct ConstBagRef<T> {
     inner: UnsafeCell<ConstBagRefImpl<T>>,
 }
 
+unsafe impl <T> Sync for ConstBagRef<T>{}
+
 pub trait ConstBagType {
     type ReadOutput;
     fn value(self) -> Self::ReadOutput;
@@ -71,7 +73,7 @@ impl<T> ConstBagRef<T> {
             inner: UnsafeCell::new(ConstBagRefImpl::BagRef(size)),
         }
     }
-    pub fn get_ref(&self) -> &T
+    pub fn get_ref(&self) -> &'static T
     where
         T: FromStr,
     {

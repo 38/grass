@@ -30,9 +30,12 @@
                     },
                     "rhs": {
                         "opcode": "ConstValue",
-                        "value": 100
+                        "value": {
+                            "const_bag_key": 0
+                        }
                     }
-                }
+                },
+                "sorted": false
             },
             "field": "end",
             "value": {
@@ -43,9 +46,12 @@
                 },
                 "rhs": {
                     "opcode": "ConstValue",
-                    "value": 100
+                    "value": {
+                        "const_bag_key": 1
+                    }
                 }
-            }
+            },
+            "sorted": false
         }
     },
     "target": 1

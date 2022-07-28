@@ -5,7 +5,7 @@ This is a proof of concept of high-level API build on top of pygrass.
 from pygrass import RustEnv, load_genome_file
 from .load_rust import import_rust
 
-@import_rust("genomecov.rs")
+@import_rust("rust/genomecov.rs")
 def print_genomecov(rust_code, input):
     """ 
         Print the coverage for given range
@@ -19,7 +19,7 @@ def print_genomecov(rust_code, input):
     """
     RustEnv(input = input).inline_rust(rust_code)
 
-@import_rust("overlapcount.rs")
+@import_rust("rust/overlapcount.rs")
 def count_overlaps(source, input_a, input_b):
     """
         Count number of overlaps for each interval from input_a with intervals from input_b
@@ -31,18 +31,18 @@ def count_overlaps(source, input_a, input_b):
     merged_input = tagged_input_a.merge_with(tagged_input_b)
     return RustEnv(input = merged_input).iter_processor(source)
 
-@import_rust("jaccard.rs")
+@import_rust("rust/jaccard.rs")
 def jaccard(jaccard_rs, file_a, file_b):
     tagged_a = file_a.tagged(0)
     tagged_b = file_b.tagged(1)
     merged = tagged_a.merge_with(tagged_b)
     return RustEnv(input = merged).inline_rust(jaccard_rs)
 
-@import_rust("window.rs")
+@import_rust("rust/window.rs")
 def make_window(source, size):
     return RustEnv(bin_size = size).iter_processor(source)
 
-@import_rust("flank.rs")
+@import_rust("rust/flank.rs")
 def flank(source, input, before, after):
     return RustEnv(input = input, before_bases = before, after_bases = after)\
         .iter_processor(source)

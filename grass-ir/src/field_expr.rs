@@ -31,7 +31,7 @@ pub enum FieldExpression {
     FullRecordRef,
     RecordRef(RecordRefParam),
     StringRepr(StringRepr),
-    Contains(BinaryParam),
+    RegexMatch(BinaryParam),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

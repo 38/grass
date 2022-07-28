@@ -52,19 +52,19 @@ impl<'a, T: Display> Serializable for Option<Bed6<'a, T>> {
 
 impl<'a, T: FromStr> Parsable for Bed6<'a, T> {
     fn parse(s: &Rc<Buffer>) -> Option<(Self, usize)> {
-        let (inner, mut start) = Bed5::parse(s)?;
-        if s[start..].starts_with('\t') {
-            start += 1;
-        }
-        let s = &s[start..];
-        let brk = memchr::memchr(b'\t', s.as_bytes()).unwrap_or(s.trim_end().len());
-        let strand = match &s[..brk] {
-            "+" => Strand::Positive,
-            "-" => Strand::Negative,
-            _ => Strand::Unknown,
-        };
-
-        Some((Self { inner, strand }, start + brk))
+        Bed5::parse(s).map(|(inner, mut start)| {
+            if s[start..].starts_with('\t') {
+                start += 1;
+            }
+            let s = &s[start..];
+            let brk = memchr::memchr(b'\t', s.as_bytes()).unwrap_or(s.trim_end().len());
+            let strand = match &s[..brk] {
+                "+" => Strand::Positive,
+                "-" => Strand::Negative,
+                _ => Strand::Unknown,
+            };
+            (Self { inner, strand }, start + brk)
+        })
     }
 }
 

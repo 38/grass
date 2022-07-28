@@ -1,9 +1,9 @@
 from typing import Callable
-from pygrass.ir import Add, And, ComponentFieldRef, Cond, Div, Eq, FieldRef, FullRecordRef, GreaterEqualThan, GreaterThan, IRBase, LeftShift, LessEqualThan, LessThan, Mod, Mul, Ne, Neg, Or, Not as NotIR, RecordRef, RightShift, StringRepr, Sub, Xor as XorIR, NumberOfComponents as NumberOfComponentsIR, ConstValue, Contains
+from pygrass.ir import Add, And, ComponentFieldRef, Cond, Div, Eq, FieldRef, FullRecordRef, GreaterEqualThan, GreaterThan, IRBase, LeftShift, LessEqualThan, LessThan, Mod, Mul, Ne, Neg, Or, Not as NotIR, RecordRef, RightShift, StringRepr, Sub, Xor as XorIR, NumberOfComponents as NumberOfComponentsIR, ConstValue, RegexMatch
 
 class FieldExpr(object):
     """
-    This is the base class for capturing the semantics of manipulatioin of a interval. 
+    This is the base class for capturing the semantics of manipulation of a interval. 
     """
     def __getitem__(self, idx):
         return ComponentAccess(self, idx)
@@ -12,6 +12,7 @@ class FieldExpr(object):
         Emit the underlying IR for the captured semantics.
 
         subs is the subscript that to be applied to the field expression.
+
         """
         pass
     def logic_and(self, other):
@@ -56,8 +57,8 @@ class FieldExpr(object):
         return Operator(LeftShift, self, other)
     def __invert__(self):
         return Operator(Neg, self)
-    def contains(self, other):
-        return Operator(Contains, self, other)
+    def matches(self, other):
+        return Operator(RegexMatch, self, other)
 
 
 def make_field_expression(expr) -> FieldExpr:
@@ -66,6 +67,13 @@ def make_field_expression(expr) -> FieldExpr:
     return expr
 
 class ComponentAccess(FieldExpr):
+    """
+    ComponentAccess is the expression that we want to access one particular record from a group.
+
+    For example:
+
+    - `name[0]` stands for the name of the first record in the group.
+    """
     def __init__(self, target : FieldExpr, idx : int):
         super().__init__()
         self._target = make_field_expression(target)

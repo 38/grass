@@ -34,6 +34,11 @@ impl Serializable for Option<Bed3> {
     }
 }
 
+#[inline(always)]
+fn parse_u32_fast(s: &str) -> u32 {
+    s.bytes().fold(0, |r, b| r * 10 + (b - b'0') as u32)
+}
+
 impl Parsable for Bed3 {
     fn parse(s: &Rc<Buffer>) -> Option<(Self, usize)> {
         let mut bytes = s.as_bytes();
@@ -43,19 +48,21 @@ impl Parsable for Bed3 {
         }
 
         let mut token_pos_iter = memchr::Memchr::new(b'\t', bytes);
-        let end_1 = token_pos_iter.next()?;
-        let end_2 = token_pos_iter.next()?;
-        let end_3 = token_pos_iter.next().unwrap_or(bytes.len());
-        let chrom = &s[..end_1];
-
-        Some((
-            Self {
-                chrom: crate::Genome::query_chr(chrom).to_static(),
-                start: s[end_1 + 1..end_2].parse().ok()?,
-                end: s[end_2 + 1..end_3].parse().ok()?,
-            },
-            end_3,
-        ))
+        if let Some(end_1) = token_pos_iter.next() {
+            if let Some(end_2) = token_pos_iter.next() {
+                let end_3 = token_pos_iter.next().unwrap_or(bytes.len());
+                let chrom = &s[..end_1];
+                return Some((
+                    Self {
+                        chrom: crate::Genome::query_chr(chrom).to_static(),
+                        start: parse_u32_fast(&s[end_1 + 1..end_2]),
+                        end: parse_u32_fast(&s[end_2 + 1..end_3]),
+                    },
+                    end_3,
+                ));
+            }
+        }
+        None
     }
 }
 

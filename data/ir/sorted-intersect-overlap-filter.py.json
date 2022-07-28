@@ -75,7 +75,9 @@
                     },
                     "rhs": {
                         "opcode": "ConstValue",
-                        "value": 0.8
+                        "value": {
+                            "const_bag_key": 0
+                        }
                     }
                 },
                 "rhs": {
@@ -109,7 +111,9 @@
                     },
                     "rhs": {
                         "opcode": "ConstValue",
-                        "value": 0.7
+                        "value": {
+                            "const_bag_key": 1
+                        }
                     }
                 }
             }

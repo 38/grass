@@ -1,8 +1,4 @@
-
-use crate::{
-    property::Parsable,
-    record::{Bed3, Bed4, Bed5, Bed6},
-};
+use crate::property::Parsable;
 
 use std::{
     io::{BufRead, BufReader, Read},
@@ -96,38 +92,13 @@ pub trait LineRecordStreamExt: Read {
 
 impl<R: Read> LineRecordStreamExt for R {}
 
-impl<R: Read> Iterator for LineRecordStream<R, Bed3> {
-    type Item = Bed3;
+impl<R: Read, T: Parsable> Iterator for LineRecordStream<R, T> {
+    type Item = T;
     fn next(&mut self) -> Option<Self::Item> {
-        self.write_buffer(|reader, buffer| reader.read_line(buffer).ok())?;
-        let (parsed, _) = Bed3::parse(&self.buffer)?;
-        Some(parsed)
-    }
-}
-
-impl<'a, R: Read> Iterator for LineRecordStream<R, Bed4<'a>> {
-    type Item = Bed4<'a>;
-    fn next(&mut self) -> Option<Self::Item> {
-        self.write_buffer(|reader, buffer| reader.read_line(buffer).ok())?;
-        let (parsed, _) = Bed4::parse(&self.buffer)?;
-        Some(parsed)
-    }
-}
-
-impl<'a, R: Read> Iterator for LineRecordStream<R, Bed5<'a>> {
-    type Item = Bed5<'a>;
-    fn next(&mut self) -> Option<Self::Item> {
-        self.write_buffer(|reader, buffer| reader.read_line(buffer).ok())?;
-        let (parsed, _) = Bed5::parse(&self.buffer)?;
-        Some(parsed)
-    }
-}
-
-impl<'a, R: Read> Iterator for LineRecordStream<R, Bed6<'a>> {
-    type Item = Bed6<'a>;
-    fn next(&mut self) -> Option<Self::Item> {
-        self.write_buffer(|reader, buffer| reader.read_line(buffer).ok())?;
-        let (parsed, _) = Bed6::parse(&self.buffer)?;
-        Some(parsed)
+        self
+            .write_buffer(|reader, buffer| reader.read_line(buffer).ok())
+            .map(|_| T::parse(&self.buffer))
+            .flatten()
+            .map(|(parsed, _)| parsed)
     }
 }
